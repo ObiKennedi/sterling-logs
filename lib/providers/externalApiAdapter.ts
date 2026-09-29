@@ -218,6 +218,9 @@ export class ExternalApiAdapter implements LogProvider {
     let liveItems: DeliveredItem[] = [];
     let productTitle = `Social Log #${order.productId}`;
     let unitSellingPrice = 25000;
+    let isProxy = false;
+    let isRdp = false;
+    let isNumber = false;
 
     try {
       // Attempt live vendor purchase
@@ -237,6 +240,11 @@ export class ExternalApiAdapter implements LogProvider {
       );
 
       productTitle = String(response.title || response.product_name || productTitle);
+      const titleLower = productTitle.toLowerCase();
+      isProxy = order.productId.includes("proxy") || titleLower.includes("proxy") || titleLower.includes("vpn");
+      isRdp = order.productId.includes("rdp") || titleLower.includes("rdp") || titleLower.includes("server");
+      isNumber = order.productId.includes("gv") || order.productId.includes("number") || titleLower.includes("number") || titleLower.includes("voice");
+
       const rawCost = Number(response.price || response.total_price || 18000);
       unitSellingPrice = calculateSellingPrice(rawCost, this.markupMultiplier);
 
@@ -260,9 +268,9 @@ export class ExternalApiAdapter implements LogProvider {
       );
       // Fallback delivery bundle generator with tool-aware credentials
       const titleLower = productTitle.toLowerCase();
-      const isProxy = order.productId.includes("proxy") || titleLower.includes("proxy") || titleLower.includes("vpn");
-      const isRdp = order.productId.includes("rdp") || titleLower.includes("rdp") || titleLower.includes("server");
-      const isNumber = order.productId.includes("gv") || order.productId.includes("number") || titleLower.includes("number") || titleLower.includes("voice");
+      isProxy = order.productId.includes("proxy") || titleLower.includes("proxy") || titleLower.includes("vpn");
+      isRdp = order.productId.includes("rdp") || titleLower.includes("rdp") || titleLower.includes("server");
+      isNumber = order.productId.includes("gv") || order.productId.includes("number") || titleLower.includes("number") || titleLower.includes("voice");
 
       liveItems = Array.from({ length: order.quantity || 1 }).map((_, i) => {
         if (isProxy) {

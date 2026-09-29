@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         // Guest user checkout
       }
 
-      const emailToMatch = (body.customerEmail || result.customerEmail || "").trim().toLowerCase();
+      const emailToMatch = (body.customerEmail || result.customerEmail || result.emailDelivery?.recipient || "").trim().toLowerCase();
       if (!userId && emailToMatch) {
         const existingUser = await prisma.user.findUnique({
           where: { email: emailToMatch },
@@ -172,7 +172,7 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      const livePurchases = recentOrders.map((o) => ({
+      const livePurchases = recentOrders.map((o: any) => ({
         user: maskEmail(o.customerEmail),
         item: o.productTitle,
         time: formatRelativeTime(o.createdAt),
@@ -271,7 +271,7 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: "desc" },
         });
 
-        userOrders = dbOrders.map((o) => ({
+        userOrders = dbOrders.map((o: any) => ({
           orderId: o.orderNumber,
           productId: o.productId,
           productTitle: o.productTitle,

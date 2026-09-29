@@ -92,6 +92,7 @@ export interface OrderResult {
   paymentReference: string;
   status: "COMPLETED" | "ESCROW_ACTIVE" | "PROCESSING" | "FAILED";
   escrowHours: number;
+  customerEmail?: string;
   deliveryItems: DeliveredItem[];
   emailDelivery: EmailDeliveryStatus;
   createdAt: string;
@@ -102,6 +103,6 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
-  source: "mock" | "external";
+  source: "mock" | "external" | "database";
   timestamp: string;
 }

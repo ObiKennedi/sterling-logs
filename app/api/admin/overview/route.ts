@@ -51,9 +51,9 @@ export async function GET() {
       });
 
       if (dbUsers.length > 0) {
-        usersData = dbUsers.map((u) => {
-          const totalOrders = u.orders.length;
-          const totalSpent = u.orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+        usersData = dbUsers.map((u: any) => {
+          const totalOrders = u.orders?.length || 0;
+          const totalSpent = (u.orders || []).reduce((sum: number, o: any) => sum + (o.totalPrice || 0), 0);
           return {
             id: u.id,
             name: u.name || u.email.split("@")[0],
@@ -62,7 +62,7 @@ export async function GET() {
             balance: u.balance || 0,
             totalOrders,
             totalSpent,
-            createdAt: u.createdAt.toISOString().split("T")[0],
+            createdAt: u.createdAt ? new Date(u.createdAt).toISOString().split("T")[0] : "",
           };
         });
       }
@@ -89,17 +89,17 @@ export async function GET() {
       });
 
       if (dbOrders.length > 0) {
-        ordersData = dbOrders.map((o) => ({
+        ordersData = dbOrders.map((o: any) => ({
           orderId: o.orderNumber || o.id,
           customerEmail: o.customerEmail,
           productTitle: o.productTitle,
           platform: o.platform,
           totalPrice: o.totalPrice,
-          paymentGateway: o.paymentGateway.toUpperCase(),
+          paymentGateway: (o.paymentGateway || "GTB").toUpperCase(),
           paymentReference: o.paymentReference || "",
           notes: o.notes || "",
           status: o.status as "ESCROW_ACTIVE" | "COMPLETED" | "REFUNDED" | "DISPUTED",
-          createdAt: o.createdAt.toISOString().split("T")[0],
+          createdAt: o.createdAt ? new Date(o.createdAt).toISOString().split("T")[0] : "",
         }));
       }
     } catch (err) {
