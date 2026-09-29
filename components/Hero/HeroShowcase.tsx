@@ -211,13 +211,6 @@ function getPlatformVisuals(category: string) {
         iconColor: "#0ea5e9",
         label: "Residential Proxy",
       };
-    case "rdp":
-      return {
-        icon: <Server size={18} />,
-        iconBg: "rgba(139, 92, 246, 0.12)",
-        iconColor: "#8b5cf6",
-        label: "Windows RDP Server",
-      };
     case "numbers":
       return {
         icon: <PhoneCall size={18} />,
