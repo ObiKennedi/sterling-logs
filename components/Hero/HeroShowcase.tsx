@@ -358,7 +358,7 @@ export const HeroShowcase: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [paymentDetails, setPaymentDetails] = useState<PaymentInitiationResult | null>(null);
   const [completedOrder, setCompletedOrder] = useState<OrderResult | null>(null);
-  const [apiSource, setApiSource] = useState<"mock" | "external">("mock");
+  const [apiSource, setApiSource] = useState<"mock" | "external" | "database">("mock");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [senderNote, setSenderNote] = useState<string>("");
 

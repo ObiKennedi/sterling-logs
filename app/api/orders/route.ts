@@ -206,9 +206,9 @@ export async function GET(request: NextRequest) {
           paymentReference: dbOrder.paymentReference || "",
           status: dbOrder.status as OrderResult["status"],
           escrowHours: dbOrder.escrowHours,
-          deliveryItems: (Array.isArray(dbOrder.deliveryItems)
+          deliveryItems: ((Array.isArray(dbOrder.deliveryItems)
             ? dbOrder.deliveryItems
-            : []) as DeliveredItem[],
+            : []) as unknown) as DeliveredItem[],
           emailDelivery: {
             sent: true,
             recipient: dbOrder.customerEmail,
@@ -282,9 +282,9 @@ export async function GET(request: NextRequest) {
           paymentReference: o.paymentReference || "",
           status: o.status as OrderResult["status"],
           escrowHours: o.escrowHours,
-          deliveryItems: (Array.isArray(o.deliveryItems)
+          deliveryItems: ((Array.isArray(o.deliveryItems)
             ? o.deliveryItems
-            : []) as DeliveredItem[],
+            : []) as unknown) as DeliveredItem[],
           emailDelivery: {
             sent: true,
             recipient: o.customerEmail,

@@ -15,7 +15,7 @@ import { PaymentInitiationResult } from "@/lib/services/payment";
 
 export async function fetchInventoryWithMeta(
   category?: AccountCategory
-): Promise<{ products: InventoryProduct[]; source: "mock" | "external" }> {
+): Promise<{ products: InventoryProduct[]; source: "mock" | "external" | "database" }> {
   const query = category && category !== "all" ? `?category=${category}` : "";
   const res = await fetch(`/api/inventory${query}`, {
     method: "GET",
