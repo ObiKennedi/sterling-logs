@@ -321,14 +321,13 @@
 /* Trust Guarantee Feature Cards */
 .guaranteesGrid {
   width: 100%;
-  max-width: 1100px;
+  max-width: 640px;
   margin: 0 auto 48px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 20px;
 
   @media (max-width: 880px) {
-    grid-template-columns: 1fr;
     gap: 16px;
   }
 }

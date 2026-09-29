@@ -340,7 +340,6 @@ function getPlatformVisuals(category: string) {
 export const HeroShowcase: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<AccountCategory>("all");
   const [products, setProducts] = useState<InventoryProduct[]>(INITIAL_PRODUCTS);
-  const [activeNotificationIndex, setActiveNotificationIndex] = useState(0);
 
   // Modals state
   const [inspectingProduct, setInspectingProduct] = useState<InventoryProduct | null>(
@@ -381,44 +380,6 @@ export const HeroShowcase: React.FC = () => {
       isCancelled = true;
     };
   }, [selectedCategory]);
-
-  // Fetch live purchases directly from Neon DB
-  const [recentPurchases, setRecentPurchases] = useState<RecentPurchase[]>([]);
-
-  useEffect(() => {
-    let isCancelled = false;
-    async function loadRecentPurchases() {
-      try {
-        const res = await fetch("/api/orders?recent=true", { cache: "no-store" });
-        const json = await res.json();
-        if (!isCancelled && json.success && Array.isArray(json.data)) {
-          setRecentPurchases(json.data);
-        }
-      } catch (err) {
-        console.warn("Failed to load recent orders from database:", err);
-      }
-    }
-    loadRecentPurchases();
-    const interval = setInterval(loadRecentPurchases, 25000);
-    return () => {
-      isCancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Cycle live transactions if orders exist in database
-  useEffect(() => {
-    if (recentPurchases.length <= 1) return;
-    const timer = setInterval(() => {
-      setActiveNotificationIndex((prev) => (prev + 1) % recentPurchases.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [recentPurchases.length]);
-
-  const currentPurchase =
-    recentPurchases.length > 0
-      ? recentPurchases[activeNotificationIndex % recentPurchases.length]
-      : null;
 
   // Initiate Nigerian Checkout
   const handleProceedToPayment = async () => {
@@ -540,7 +501,7 @@ export const HeroShowcase: React.FC = () => {
 
         <div className={styles.securityBadge}>
           <ShieldCheck size={14} />
-          <span>100% Escrow Protected</span>
+          <span>Replacement Guarantee</span>
         </div>
       </div>
 
@@ -755,42 +716,6 @@ export const HeroShowcase: React.FC = () => {
           );
           })
         )}
-      </div>
-
-      {/* Real-time Activity Bar */}
-      <div className={styles.activityBar}>
-        {currentPurchase ? (
-          <div className={styles.tickerItem}>
-            <span className={styles.tickerIcon}>
-              <Zap size={14} />
-            </span>
-            <span>
-              <strong className={styles.tickerUser}>{currentPurchase.user}</strong>{" "}
-              purchased{" "}
-              <span className={styles.tickerPlatform}>{currentPurchase.item}</span>{" "}
-              <span className={styles.tickerTime}>
-                ({currentPurchase.time})
-              </span>
-            </span>
-          </div>
-        ) : (
-          <div className={styles.tickerItem}>
-            <span className={styles.tickerIcon}>
-              <ShieldCheck size={14} />
-            </span>
-            <span>
-              <strong className={styles.tickerUser}>Live Escrow Network</strong>{" "}
-              <span className={styles.tickerPlatform}>
-                Direct database automated dispatch active on all orders
-              </span>
-            </span>
-          </div>
-        )}
-
-        <div className={styles.escrowCallout}>
-          <Lock size={13} />
-          <span>Automated 100% Escrow Protection Active</span>
-        </div>
       </div>
 
       {/* Inspect Product Modal */}
@@ -1035,7 +960,7 @@ export const HeroShowcase: React.FC = () => {
                   <div className={styles.orderSuccessNotice}>
                     <Lock size={16} />
                     <span>
-                      100% Escrow Protection: Funds held securely for {purchasingProduct.warrantyHours}h until you confirm credentials.
+                      Buyer Protection: Full replacement warranty valid for {purchasingProduct.warrantyHours}h after delivery.
                     </span>
                   </div>
                 </>

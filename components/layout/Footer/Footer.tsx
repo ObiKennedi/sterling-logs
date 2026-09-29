@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
             <Logo variant="white" size="md" />
             <p className={styles.brandDesc}>
               The leading marketplace for authentic, aged social accounts and high-intent
-              traffic. Powered by automated verification and 100% escrow protection.
+              traffic. Powered by automated verification and replacement warranty.
             </p>
             <div className={styles.statusBadge}>
               <span className={styles.statusDot} />
@@ -135,7 +135,7 @@ export const Footer: React.FC = () => {
           <div className={styles.securityPills}>
             <span>
               <ShieldCheck size={16} color="#00D284" />
-              Verified Escrow
+              Warranty Protected
             </span>
             <span>
               <Lock size={16} color="#38BDF8" />

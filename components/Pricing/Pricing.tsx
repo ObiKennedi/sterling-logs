@@ -27,7 +27,7 @@ const PLANS: PlanItem[] = [
       "Instant GTB & Paypoint Checkout",
       "Netscape Cookies (.JSON) Included",
       "ProtonMail OGE Access Credentials",
-      "24-Hour Full Escrow Replacement",
+      "24-Hour Replacement Warranty",
       "Delivery to Email in < 30 Seconds",
     ],
     ctaText: "Explore Logs Market",
@@ -41,7 +41,7 @@ const PLANS: PlanItem[] = [
     isPopular: true,
     features: [
       "15% Volume Discount Applied",
-      "48-Hour Extended Escrow Window",
+      "48-Hour Extended Replacement Window",
       "Automated Bulk CSV / JSON Dispatch",
       "Priority Telegram VIP Support Channel",
       "Zero Checkpoint Replacement Guarantee",

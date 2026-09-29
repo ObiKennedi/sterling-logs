@@ -49,9 +49,9 @@ const FEATURES: FeatureItem[] = [
   },
   {
     icon: <ShieldAlert size={26} />,
-    title: "24-Hour Automated Escrow",
+    title: "24-Hour Replacement Warranty",
     description:
-      "Your money is held in escrow until you log in and confirm account health. If any checkpoint or ban occurs within 24h, receive an instant replacement.",
+      "Log in and confirm account health with full confidence. If any checkpoint or ban occurs within 24h, receive an instant replacement or refund.",
     pill: "Buyer Protection Guarantee",
   },
   {

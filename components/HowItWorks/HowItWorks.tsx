@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, CreditCard, Send, ShieldCheck, Zap } from "lucide-react";
+import { Search, CreditCard, Send, Zap } from "lucide-react";
 import styles from "./HowItWorks.module.scss";
 
 interface StepItem {
@@ -35,14 +35,6 @@ const STEPS: StepItem[] = [
     icon: <Send size={22} />,
     tag: "Dispatched in < 30 Seconds",
   },
-  {
-    number: "04",
-    title: "100% Escrow Protection",
-    description:
-      "Funds are held in escrow for 24 hours. Log in, inspect account integrity, and confirm credentials. If any checkpoint fails, get an instant replacement.",
-    icon: <ShieldCheck size={22} />,
-    tag: "24h Replacement Guarantee",
-  },
 ];
 
 export const HowItWorks: React.FC = () => {
@@ -52,14 +44,13 @@ export const HowItWorks: React.FC = () => {
         <div className={styles.sectionHeader} data-aos="fade-up">
           <div className={styles.badge}>
             <Zap size={13} />
-            <span>Seamless 4-Step Pipeline</span>
+            <span>Seamless 3-Step Pipeline</span>
           </div>
           <h2 className={styles.title}>
             How Sterling Logs <span className={styles.highlight}>Works</span>
           </h2>
           <p className={styles.subtitle}>
-            From account selection to automated credential dispatch and escrow
-            protection—experience the safest way to buy social media logs in Nigeria.
+            From account selection to automated credential dispatch—experience the safest way to buy social media logs in Nigeria.
           </p>
         </div>
 

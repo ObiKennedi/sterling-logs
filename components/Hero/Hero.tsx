@@ -2,14 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  ShieldCheck,
-  Zap,
-  RefreshCw,
-  Star,
-  Lock,
-  CheckCircle2,
-} from "lucide-react";
+import { RefreshCw, Star } from "lucide-react";
 import { LinkButton } from "@/components/common/LinkButton";
 import { HeroShowcase } from "./HeroShowcase";
 import { PlatformTicker } from "./PlatformTicker";
@@ -30,7 +23,7 @@ export const Hero: React.FC = () => {
             <span className={styles.badgePulseDot} />
             <span className={styles.badgeText}>
               <span className={styles.badgeHighlight}>⚡ Instant Auto-Delivery</span>{" "}
-              • 100% Escrow Protection Guaranteed
+              • Replacement Warranty Guaranteed
             </span>
           </div>
 
@@ -55,11 +48,6 @@ export const Hero: React.FC = () => {
             <LinkButton href="/signup" size="lg">
               Explore Logs Market
             </LinkButton>
-
-            <a href="#how-it-works" className={styles.secondaryBtn}>
-              <ShieldCheck size={18} />
-              <span>How Escrow Works</span>
-            </a>
           </div>
 
           {/* Trust Metrics Bar */}
@@ -110,38 +98,12 @@ export const Hero: React.FC = () => {
           <HeroShowcase />
         </div>
 
-        {/* 3 Trust Guarantee Pillars */}
+        {/* Trust Guarantee Pillar */}
         <div
           className={styles.guaranteesGrid}
           data-aos="fade-up"
           data-aos-delay="200"
         >
-          <div className={styles.guaranteeCard}>
-            <div className={styles.guaranteeIconBox}>
-              <Zap size={22} />
-            </div>
-            <div className={styles.guaranteeContent}>
-              <h4>Instant Automated Dispatch</h4>
-              <p>
-                Credentials, session tokens, and JSON cookies are automatically
-                dispatched to your encrypted customer vault within seconds.
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.guaranteeCard}>
-            <div className={styles.guaranteeIconBox}>
-              <Lock size={22} />
-            </div>
-            <div className={styles.guaranteeContent}>
-              <h4>100% Escrow Protection</h4>
-              <p>
-                Funds are securely held in escrow until you log in and confirm account
-                integrity, follower count, and security settings.
-              </p>
-            </div>
-          </div>
-
           <div className={styles.guaranteeCard}>
             <div className={styles.guaranteeIconBox}>
               <RefreshCw size={22} />

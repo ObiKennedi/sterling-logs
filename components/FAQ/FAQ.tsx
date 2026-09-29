@@ -26,9 +26,9 @@ const FAQS: FAQItem[] = [
       "Delivery is 100% automated. In under 30 seconds after your payment is confirmed, the system packages your login credentials, session cookies, ProtonMail OGE access, and 2FA recovery secrets, sending them straight to your email. You can also download the JSON bundle directly on your screen.",
   },
   {
-    question: "How does the 24-hour Escrow Replacement Warranty work?",
+    question: "How does the 24-hour Replacement Warranty work?",
     answer:
-      "Your funds are held securely in escrow for 24 hours. During this period, you can log in, verify followers, test ad accounts, and check security parameters. If you encounter an invalid password or unexpected checkpoint, our automated system provides an instant replacement or refund with zero hassles.",
+      "During the 24-hour warranty window, you can log in, verify followers, test ad accounts, and check security parameters. If you encounter an invalid password or unexpected checkpoint, our automated system provides an instant replacement or refund with zero hassles.",
   },
   {
     question: "Do accounts come with original email (OGE) access?",
@@ -62,7 +62,7 @@ export const FAQ: React.FC = () => {
           </h2>
           <p className={styles.subtitle}>
             Everything you need to know about buying aged social media logs,
-            using session cookies, and our automated escrow protection.
+            using session cookies, and our automated replacement warranty.
           </p>
         </div>
 

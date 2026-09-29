@@ -106,7 +106,7 @@ export const PlatformTicker: React.FC = () => {
     <div className={styles.tickerWrapper} aria-label="Supported Social Media Platforms">
       <div className={styles.tickerHeader}>
         <span className={styles.tickerLabel}>
-          SUPPORTED PLATFORMS WITH 100% ESCROW VERIFICATION
+          SUPPORTED PLATFORMS WITH INSTANT VERIFICATION
         </span>
       </div>
 

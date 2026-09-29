@@ -130,7 +130,7 @@ const PLATFORMS: PlatformInfo[] = [
       "$250/Day Spend Limit Active",
       "Warm Pixel & Ad Account",
       "C_USER + XS Cookie Session",
-      "48h Full Escrow Warranty",
+      "48h Replacement Warranty",
     ],
     startingPrice: "₦42,000",
   },
