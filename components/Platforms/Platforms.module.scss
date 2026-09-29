@@ -1,0 +1,204 @@
+.platformsSection {
+  padding: 100px 24px;
+  background: var(--bg-main);
+  position: relative;
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 64px auto;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+  border: 1px solid rgba(0, 75, 239, 0.15);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+}
+
+.highlight {
+  color: var(--primary);
+  background: linear-gradient(135deg, #004bef 0%, #00b4d8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text-body);
+  line-height: 1.6;
+}
+
+/* Grid */
+.platformGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.platformCard {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 75, 239, 0.35);
+    box-shadow: 0 16px 36px -8px rgba(0, 75, 239, 0.12);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.platformIconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.platformCardTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-heading);
+  }
+
+  span {
+    font-size: 0.775rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+}
+
+.platformDesc {
+  font-size: 0.875rem;
+  color: var(--text-body);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  list-style: none;
+}
+
+.featureRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-heading);
+  font-weight: 500;
+
+  svg {
+    color: #059669;
+    flex-shrink: 0;
+  }
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.priceTag {
+  display: flex;
+  flex-direction: column;
+
+  .priceFrom {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .priceAmount {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-heading);
+  }
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle);
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: 1px solid var(--border-light);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+  }
+}

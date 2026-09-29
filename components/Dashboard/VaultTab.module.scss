@@ -1,0 +1,521 @@
+.vaultContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Vault Top Filter Bar */
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, #e2e8f0);
+
+  @media (max-width: 640px) {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--bg-subtle, #f1f5f9);
+  border: 1px solid var(--border-light, #e2e8f0);
+  flex: 1;
+  max-width: 360px;
+
+  input {
+    border: none;
+    background: transparent;
+    font-size: 0.84rem;
+    color: var(--text-heading, #0b132b);
+    outline: none;
+    width: 100%;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  @media (max-width: 640px) {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+.filterPills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  max-width: 100%;
+  padding-bottom: 2px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filterPill {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--bg-subtle, #f1f5f9);
+  color: var(--text-muted, #64748b);
+  border: 1px solid transparent;
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    color: var(--text-heading, #0b132b);
+  }
+
+  &.pillActive {
+    background: var(--primary, #004bef);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 75, 239, 0.3);
+  }
+
+  @media (max-width: 480px) {
+    padding: 5px 10px;
+    font-size: 0.725rem;
+  }
+}
+
+/* Vault Order Cards */
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vaultOrderCard {
+  background: #ffffff;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, #e2e8f0);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 20, 60, 0.04);
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    border-color: rgba(0, 75, 239, 0.35);
+    box-shadow: 0 8px 24px -4px rgba(0, 75, 239, 0.08);
+  }
+}
+
+.cardTopHeader {
+  padding: 16px 20px;
+  background: #fbfcfe;
+  border-bottom: 1px solid var(--border-light, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+.orderMainMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+.platformIconWrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+}
+
+.titleAndId {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  h4 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-heading, #0b132b);
+    margin: 0;
+    word-break: break-word;
+
+    @media (max-width: 480px) {
+      font-size: 0.875rem;
+    }
+  }
+
+  .metaSubline {
+    font-size: 0.75rem;
+    color: var(--text-muted, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    @media (max-width: 480px) {
+      font-size: 0.7rem;
+      gap: 6px;
+    }
+  }
+}
+
+.orderIdPill {
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--navy-950, #030d22);
+  background: var(--bg-subtle, #f1f5f9);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.rightStatusGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px dashed var(--border-light, #e2e8f0);
+    padding-top: 10px;
+  }
+}
+
+.escrowCountdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #059669;
+  background: rgba(0, 210, 132, 0.1);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill, 9999px);
+  border: 1px solid rgba(0, 210, 132, 0.25);
+
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+}
+
+.priceTag {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-heading, #0b132b);
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
+}
+
+/* Credentials Vault Box */
+.credentialsVault {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  @media (max-width: 640px) {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+}
+
+.vaultSectionTitle {
+  font-size: 0.775rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.credentialsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.credentialField {
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-sm, 8px);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+
+  @media (max-width: 480px) {
+    padding: 8px 10px;
+  }
+}
+
+.fieldLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+
+  .fieldLabel {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-muted, #64748b);
+    text-transform: uppercase;
+  }
+
+  .fieldValue {
+    font-family: monospace;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--navy-950, #030d22);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+
+    @media (max-width: 480px) {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.fieldActionBtns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid var(--border-light, #e2e8f0);
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    color: var(--primary, #004bef);
+    border-color: var(--primary, #004bef);
+  }
+}
+
+/* Cookie / Token Code Box */
+.tokenCodeBox {
+  background: var(--navy-950, #030d22);
+  border-radius: var(--radius-sm, 8px);
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .tokenSnippet {
+    font-family: monospace;
+    font-size: 0.775rem;
+    color: #94a3b8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80%;
+
+    @media (max-width: 540px) {
+      max-width: 100%;
+      font-size: 0.72rem;
+    }
+  }
+
+  .downloadCookieBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all var(--transition-fast, 150ms ease);
+
+    &:hover {
+      background: var(--primary, #004bef);
+    }
+  }
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+
+    .downloadCookieBtn {
+      width: 100%;
+      justify-content: center;
+      padding: 8px 12px;
+    }
+  }
+}
+
+/* Card Escrow Actions Footer */
+.cardFooterActions {
+  padding: 14px 20px;
+  background: #fbfcfe;
+  border-top: 1px solid var(--border-light, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+}
+
+.escrowGuaranteedText {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.775rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 600;
+
+  svg {
+    color: #059669;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    justify-content: center;
+    font-size: 0.75rem;
+  }
+}
+
+.actionButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+}
+
+.releaseEscrowBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill, 9999px);
+  background: #059669;
+  color: #ffffff;
+  font-size: 0.775rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    background: #047857;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  }
+
+  @media (max-width: 540px) {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+.disputeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill, 9999px);
+  background: #ffffff;
+  border: 1px solid var(--border-light, #e2e8f0);
+  color: #dc2626;
+  font-size: 0.775rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    border-color: #f87171;
+    background: #fef2f2;
+  }
+
+  @media (max-width: 540px) {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+  }
+}

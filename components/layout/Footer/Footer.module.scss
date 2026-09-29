@@ -1,0 +1,151 @@
+.footerWrapper {
+  background: linear-gradient(180deg, var(--navy-900) 0%, var(--navy-950) 100%);
+  color: var(--text-inverse-muted);
+  border-top: 1px solid var(--navy-card-border);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 1px;
+    background: radial-gradient(circle, rgba(0, 75, 239, 0.8) 0%, transparent 80%);
+  }
+}
+
+.footerContainer {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 80px 24px 40px;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 64px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.brandCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 360px;
+}
+
+.brandDesc {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  color: #e2e8f0;
+  width: fit-content;
+
+  .statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent-green);
+    box-shadow: 0 0 8px rgba(0, 210, 132, 0.6);
+  }
+}
+
+.colTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+.linkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footerLink {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    color: #ffffff;
+    transform: translateX(2px);
+  }
+}
+
+.badgeNew {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background-color: var(--primary);
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* Bottom Bar */
+.bottomBar {
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.copyright {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.securityPills {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}

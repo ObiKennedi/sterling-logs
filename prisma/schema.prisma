@@ -1,0 +1,129 @@
+// This is your Prisma schema file for Sterling Logs
+// Configured with Neon DB (Serverless PostgreSQL) and Better Auth
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ----------------------------------------------------
+// BETTER AUTH CORE MODELS
+// ----------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          String    @default("user")
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
+  // Sterling Logs Custom User Attributes
+  balance  Float   @default(0.0) // Naira (₦) wallet balance
+  currency String  @default("₦")
+  phone    String?
+
+  sessions     Session[]
+  accounts     Account[]
+  orders       Order[]
+  transactions WalletTransaction[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ----------------------------------------------------
+// STERLING LOGS MARKETPLACE & VAULT MODELS
+// ----------------------------------------------------
+
+model Order {
+  id               String   @id @default(cuid())
+  orderNumber      String   @unique // e.g. STL-8A9F21
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  customerEmail    String
+  productId        String
+  productTitle     String
+  platform         String // Instagram, Twitter, TikTok, Facebook, etc.
+  quantity         Int      @default(1)
+  totalPrice       Float // Total in Naira (₦)
+  currency         String   @default("₦")
+  status           String   @default("ESCROW_ACTIVE") // ESCROW_ACTIVE, COMPLETED, REPLACED, DISPUTED
+  escrowHours      Int      @default(24)
+  paymentGateway   String   @default("gtb") // gtb, paypoint, wallet
+  paymentReference String?
+  deliveryItems    Json // Array of credentials, cookies, tokens, 2fa secret
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  escrowExpiresAt  DateTime
+
+  @@map("order")
+}
+
+model WalletTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String // FUNDING, PURCHASE, REFUND
+  amount      Float
+  currency    String   @default("₦")
+  status      String   @default("PENDING") // PENDING, SUCCESS, FAILED
+  reference   String   @unique
+  gateway     String // gtb, paypoint, wallet
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@map("wallet_transaction")
+}

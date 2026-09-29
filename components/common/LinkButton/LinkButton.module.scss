@@ -1,0 +1,113 @@
+.linkBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid transparent;
+
+  .arrowIcon {
+    display: inline-flex;
+    transition: transform var(--transition-fast);
+  }
+
+  &:hover .arrowIcon {
+    transform: translateX(3px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+/* Sizing */
+.sizeSm {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+
+  .arrowIcon svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.sizeMd {
+  padding: 11px 22px;
+  font-size: 0.9375rem;
+
+  .arrowIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.sizeLg {
+  padding: 14px 28px;
+  font-size: 1.0625rem;
+
+  .arrowIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Variants */
+.variantPrimary {
+  background-color: var(--primary);
+  color: #ffffff;
+  box-shadow: var(--shadow-primary);
+
+  &:hover {
+    background-color: var(--primary-hover);
+    box-shadow: 0 12px 28px -4px rgba(0, 75, 239, 0.45);
+    transform: translateY(-1px);
+    color: #ffffff;
+  }
+
+  &:active {
+    background-color: var(--primary-active);
+  }
+}
+
+.variantSecondary {
+  background-color: var(--bg-surface);
+  color: var(--text-heading);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-xs);
+
+  &:hover {
+    background-color: var(--bg-subtle);
+    border-color: var(--border-focus);
+    color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+.variantOutline {
+  background-color: transparent;
+  color: var(--primary);
+  border-color: var(--primary);
+
+  &:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-1px);
+  }
+}
+
+.variantGhost {
+  background-color: transparent;
+  color: var(--text-heading);
+
+  &:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+}

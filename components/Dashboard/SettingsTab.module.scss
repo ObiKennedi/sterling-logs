@@ -1,0 +1,192 @@
+.settingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 840px;
+}
+
+.settingsCard {
+  background: #ffffff;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, #e2e8f0);
+  box-shadow: 0 1px 4px rgba(0, 20, 60, 0.04);
+  overflow: hidden;
+}
+
+.cardHeader {
+  padding: 18px 24px;
+  background: #fbfcfe;
+  border-bottom: 1px solid var(--border-light, #e2e8f0);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-heading, #0b132b);
+    margin: 0;
+
+    @media (max-width: 480px) {
+      font-size: 0.9375rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    padding: 14px 16px;
+  }
+}
+
+.cardBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  @media (max-width: 640px) {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  @media (max-width: 380px) {
+    padding: 14px 12px;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.775rem;
+    font-weight: 700;
+    color: var(--text-heading, #0b132b);
+  }
+
+  input {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--border-light, #e2e8f0);
+    background: var(--bg-subtle, #f8fafc);
+    font-size: 0.875rem;
+    color: var(--text-heading, #0b132b);
+    outline: none;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 480px) {
+      padding: 9px 12px;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+/* API Key Token Card */
+.tokenDisplayBox {
+  background: var(--navy-950, #030d22);
+  border-radius: var(--radius-sm, 8px);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+}
+
+.tokenString {
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: #38bdf8;
+  word-break: break-all;
+  line-height: 1.4;
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+}
+
+.tokenActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  @media (max-width: 560px) {
+    width: 100%;
+    gap: 8px;
+  }
+}
+
+.tokenBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 7px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 560px) {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 12px;
+  }
+}
+
+.saveSettingsBtn {
+  align-self: flex-start;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--primary, #004bef);
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover {
+    background: #003cc2;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.875rem;
+  }
+}

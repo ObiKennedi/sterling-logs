@@ -1,0 +1,130 @@
+.logoWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+
+  &:hover {
+    transform: translateY(-1px);
+
+    .iconContainer {
+      box-shadow: 0 4px 16px rgba(0, 75, 239, 0.45);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 8px);
+  position: relative;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0, 75, 239, 0.25);
+
+  .logoSvg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+  }
+}
+
+.brandText {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-sans);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brandPrimary {
+  font-weight: 800;
+  transition: color var(--transition-fast);
+}
+
+.brandSecondary {
+  font-weight: 700;
+  transition: color var(--transition-fast);
+}
+
+/* Size Variants */
+.sizeSm {
+  gap: 8px;
+
+  .iconContainer {
+    width: 28px;
+    height: 28px;
+  }
+
+  .brandText {
+    font-size: 1.125rem;
+  }
+}
+
+.sizeMd {
+  gap: 10px;
+
+  .iconContainer {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brandText {
+    font-size: 1.3125rem;
+  }
+}
+
+.sizeLg {
+  gap: 12px;
+
+  .iconContainer {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brandText {
+    font-size: 1.625rem;
+  }
+}
+
+/* Theme Variants */
+.variantDefault {
+  .brandPrimary {
+    color: var(--text-heading, #0b132b);
+  }
+
+  .brandSecondary {
+    color: var(--primary, #004bef);
+  }
+}
+
+.variantWhite {
+  .brandPrimary {
+    color: var(--text-inverse, #ffffff);
+  }
+
+  .brandSecondary {
+    color: #60a5fa;
+  }
+}
+
+.variantDark {
+  .brandPrimary {
+    color: var(--text-inverse, #ffffff);
+  }
+
+  .brandSecondary {
+    color: var(--primary, #004bef);
+  }
+}
