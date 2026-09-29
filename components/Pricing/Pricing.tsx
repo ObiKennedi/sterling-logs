@@ -30,7 +30,7 @@ const PLANS: PlanItem[] = [
       "24-Hour Full Escrow Replacement",
       "Delivery to Email in < 30 Seconds",
     ],
-    ctaText: "Browse Inventory",
+    ctaText: "Explore Logs Market",
     ctaHref: "#top",
   },
   {

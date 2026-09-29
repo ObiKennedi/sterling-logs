@@ -25,6 +25,14 @@ export interface ExternalAdapterConfig {
  * As soon as you add EXTERNAL_API_KEY (or IFECO_API_KEY) in .env.local,
  * it pulls live products, prices in Naira (₦), applies your markup, and handles instant order dispatch.
  */
+interface ProductsCache {
+  data: InventoryProduct[];
+  cachedAt: number;
+}
+
+let globalProductsCache: ProductsCache | null = null;
+const CACHE_TTL_MS = 180 * 1000; // 3 minutes
+
 export class ExternalApiAdapter implements LogProvider {
   public readonly name = "Live External Provider (Naira Gateway)";
   public readonly isMock = false;
@@ -48,7 +56,8 @@ export class ExternalApiAdapter implements LogProvider {
       process.env.IFECO_API_KEY ||
       "";
 
-    this.timeoutMs = config?.timeoutMs || 8000;
+    // 30s timeout allows slow vendor APIs (115KB JSON) to respond cleanly without aborting
+    this.timeoutMs = config?.timeoutMs || 30000;
     this.markupMultiplier = Number(process.env.PRICE_MARKUP_MULTIPLIER) || 1.5;
     this.fallbackProvider = new MockLogProvider();
   }
@@ -124,49 +133,91 @@ export class ExternalApiAdapter implements LogProvider {
     }
   }
 
-  async getProducts(category?: AccountCategory): Promise<InventoryProduct[]> {
+  async getProducts(category?: AccountCategory, forceRefresh?: boolean): Promise<InventoryProduct[]> {
+    // Serve from in-memory cache if fresh to ensure sub-10ms UI speeds
+    if (
+      globalProductsCache &&
+      !forceRefresh &&
+      Date.now() - globalProductsCache.cachedAt < CACHE_TTL_MS
+    ) {
+      const cached = globalProductsCache.data;
+      if (!category || category === "all") {
+        return cached;
+      }
+      return cached.filter((p) => p.category === category);
+    }
+
     try {
       const rawResponse = await this.request<unknown>("/products.php");
 
       let rawList: Record<string, unknown>[] = [];
 
-      if (Array.isArray(rawResponse)) {
-        rawList = rawResponse;
-      } else if (
-        rawResponse &&
-        typeof rawResponse === "object" &&
-        "categories" in rawResponse &&
-        Array.isArray((rawResponse as Record<string, unknown>).categories)
-      ) {
-        // Supported format for providers like Ifeco (categories -> products)
-        const categories = (rawResponse as Record<string, unknown>).categories as Array<{
-          name?: string;
-          products?: Record<string, unknown>[];
-        }>;
+      // 1. Flexible categorization: Handle category hierarchy (e.g. Ifeco parent_id -> subcategory)
+      const categories = Array.isArray(rawResponse)
+        ? null
+        : ((rawResponse as Record<string, unknown>)?.categories as Array<Record<string, unknown>>) ||
+          (((rawResponse as Record<string, unknown>)?.data as Record<string, unknown>)?.categories as Array<Record<string, unknown>>);
+
+      if (Array.isArray(categories)) {
+        const categoryMap = new Map<string, { name: string; parent_id?: string }>();
         for (const cat of categories) {
+          if (cat && typeof cat === "object" && cat.id !== undefined && cat.id !== null) {
+            categoryMap.set(String(cat.id), {
+              name: String(cat.name || ""),
+              parent_id: cat.parent_id !== undefined && cat.parent_id !== null ? String(cat.parent_id) : undefined,
+            });
+          }
+        }
+
+        for (const cat of categories) {
+          const parentKey = cat.parent_id !== undefined && cat.parent_id !== null ? String(cat.parent_id) : "";
+          const parent = parentKey && parentKey !== "0" ? categoryMap.get(parentKey) : null;
+          const parentName = parent ? parent.name : "";
+          const categoryChain = `${parentName} ${String(cat.name || "")}`.trim();
+
           if (Array.isArray(cat.products)) {
             for (const prod of cat.products) {
-              rawList.push({
-                ...prod,
-                categoryName: cat.name,
-              });
+              if (prod && typeof prod === "object") {
+                rawList.push({
+                  ...(prod as Record<string, unknown>),
+                  parentCategoryName: parentName,
+                  categoryName: cat.name,
+                  categoryChain,
+                });
+              }
             }
           }
         }
-      } else if (
-        rawResponse &&
-        typeof rawResponse === "object" &&
-        "products" in rawResponse &&
-        Array.isArray((rawResponse as Record<string, unknown>).products)
-      ) {
-        rawList = (rawResponse as Record<string, unknown>).products as Record<string, unknown>[];
-      } else if (
-        rawResponse &&
-        typeof rawResponse === "object" &&
-        "data" in rawResponse &&
-        Array.isArray((rawResponse as Record<string, unknown>).data)
-      ) {
-        rawList = (rawResponse as Record<string, unknown>).data as Record<string, unknown>[];
+      }
+
+      // 2. Fallbacks for flat products, data arrays, or dictionary objects from other logs APIs
+      if (rawList.length === 0) {
+        if (Array.isArray(rawResponse)) {
+          rawList = rawResponse as Record<string, unknown>[];
+        } else if (rawResponse && typeof rawResponse === "object") {
+          const dict = rawResponse as Record<string, unknown>;
+          if (Array.isArray(dict.products)) {
+            rawList = dict.products as Record<string, unknown>[];
+          } else if (Array.isArray(dict.data)) {
+            rawList = dict.data as Record<string, unknown>[];
+          } else if (
+            dict.data &&
+            typeof dict.data === "object" &&
+            Array.isArray((dict.data as Record<string, unknown>).products)
+          ) {
+            rawList = (dict.data as Record<string, unknown>).products as Record<string, unknown>[];
+          } else {
+            const vals = Object.values(dict);
+            if (
+              vals.length > 0 &&
+              typeof vals[0] === "object" &&
+              vals[0] !== null &&
+              ("price" in vals[0] || "title" in vals[0] || "name" in vals[0])
+            ) {
+              rawList = vals as Record<string, unknown>[];
+            }
+          }
+        }
       }
 
       if (rawList.length === 0) {
@@ -177,6 +228,12 @@ export class ExternalApiAdapter implements LogProvider {
       const products = rawList.map((item, index) =>
         this.transformRawProduct(item, index)
       );
+
+      // Save to global in-memory cache
+      globalProductsCache = {
+        data: products,
+        cachedAt: Date.now(),
+      };
 
       if (!category || category === "all") {
         return products;
@@ -401,16 +458,53 @@ export class ExternalApiAdapter implements LogProvider {
     const originalPrice = rawPriceClean > 0 ? rawPriceClean : 15000;
     const sellingPrice = calculateSellingPrice(originalPrice, this.markupMultiplier);
 
-    const textToCheck = `${rawTitle} ${String(raw.category || "")} ${String(
-      raw.categoryName || ""
-    )}`.toLowerCase();
+    const textToCheck = `${rawTitle} ${String(raw.parentCategoryName || "")} ${String(
+      raw.categoryChain || ""
+    )} ${String(raw.category || "")} ${String(raw.categoryName || "")}`.toLowerCase();
     
     let category: AccountCategory = "other";
     let platform = "Platform";
     let itemType: "log" | "proxy" | "rdp" | "number" | "software" | "tool" = "log";
 
-    // 1. Digital Tools & Infrastructure Detection
+    // 1. Social Media Logs Detection (Highest Priority)
     if (
+      textToCheck.includes("facebook") ||
+      textToCheck.includes("bm") ||
+      textToCheck.includes("fb") ||
+      textToCheck.includes("business manager")
+    ) {
+      category = "facebook";
+      platform = "Facebook Meta";
+      itemType = "log";
+    } else if (textToCheck.includes("instagram") || textToCheck.includes("ig")) {
+      category = "instagram";
+      platform = "Instagram";
+      itemType = "log";
+    } else if (
+      textToCheck.includes("twitter") ||
+      textToCheck.includes(" x ") ||
+      textToCheck.includes("x.com") ||
+      textToCheck.includes("x (twitter)") ||
+      textToCheck.endsWith(" x")
+    ) {
+      category = "twitter";
+      platform = "Twitter / X";
+      itemType = "log";
+    } else if (textToCheck.includes("tiktok")) {
+      category = "tiktok";
+      platform = "TikTok";
+      itemType = "log";
+    } else if (textToCheck.includes("telegram") || textToCheck.includes("tg")) {
+      category = "telegram";
+      platform = "Telegram";
+      itemType = "log";
+    } else if (textToCheck.includes("reddit")) {
+      category = "reddit";
+      platform = "Reddit";
+      itemType = "log";
+    }
+    // 2. Digital Tools & Infrastructure Detection
+    else if (
       textToCheck.includes("proxy") ||
       textToCheck.includes("proxies") ||
       textToCheck.includes("socks5") ||
@@ -438,6 +532,8 @@ export class ExternalApiAdapter implements LogProvider {
       textToCheck.includes("google voice") ||
       textToCheck.includes("gv") ||
       textToCheck.includes("phone number") ||
+      textToCheck.includes("texting") ||
+      textToCheck.includes("text plus") ||
       textToCheck.includes("sms otp") ||
       textToCheck.includes("pva number") ||
       textToCheck.includes("textverified") ||
@@ -456,19 +552,17 @@ export class ExternalApiAdapter implements LogProvider {
       textToCheck.includes("software") ||
       textToCheck.includes("script") ||
       textToCheck.includes("scraper") ||
-      textToCheck.includes("antidetect")
+      textToCheck.includes("antidetect") ||
+      textToCheck.includes("tool")
     ) {
       category = "software";
       itemType = "software";
       platform = "Automation & Software";
     } else if (
-      textToCheck.includes("gmail") ||
-      textToCheck.includes("yahoo") ||
-      textToCheck.includes("outlook") ||
-      textToCheck.includes("hotmail") ||
-      textToCheck.includes("protonmail") ||
       textToCheck.includes("webmail") ||
-      textToCheck.includes("smtp")
+      textToCheck.includes("inbox") ||
+      textToCheck.includes("smtp") ||
+      textToCheck.includes("protonmail")
     ) {
       category = "mail";
       itemType = "tool";
@@ -483,41 +577,6 @@ export class ExternalApiAdapter implements LogProvider {
       category = "finance";
       itemType = "tool";
       platform = "Fintech & VCC";
-    }
-    // 2. Social Media Logs Detection
-    else if (textToCheck.includes("instagram") || textToCheck.includes("ig")) {
-      category = "instagram";
-      platform = "Instagram";
-      itemType = "log";
-    } else if (
-      textToCheck.includes("twitter") ||
-      textToCheck.includes(" x ") ||
-      textToCheck.includes("x.com")
-    ) {
-      category = "twitter";
-      platform = "Twitter / X";
-      itemType = "log";
-    } else if (textToCheck.includes("tiktok")) {
-      category = "tiktok";
-      platform = "TikTok";
-      itemType = "log";
-    } else if (
-      textToCheck.includes("facebook") ||
-      textToCheck.includes("bm") ||
-      textToCheck.includes("fb") ||
-      textToCheck.includes("business manager")
-    ) {
-      category = "facebook";
-      platform = "Facebook Meta";
-      itemType = "log";
-    } else if (textToCheck.includes("telegram") || textToCheck.includes("tg")) {
-      category = "telegram";
-      platform = "Telegram";
-      itemType = "log";
-    } else if (textToCheck.includes("reddit")) {
-      category = "reddit";
-      platform = "Reddit";
-      itemType = "log";
     }
 
     // Determine year / vintage or tool duration
@@ -605,7 +664,7 @@ export class ExternalApiAdapter implements LogProvider {
       year,
       followers: followersDisplay,
       tags: dynamicTags.slice(0, 4),
-      originalPrice,
+      originalPrice: sellingPrice,
       sellingPrice,
       currency: "₦",
       stock: Number(raw.stock ?? raw.amount ?? raw.quantity ?? 5),
@@ -615,18 +674,17 @@ export class ExternalApiAdapter implements LogProvider {
       description: String(raw.description || rawTitle || defaultDesc),
       verificationSnippet: JSON.stringify(
         {
-          provider_item_id: rawId,
-          item_type: itemType,
-          currency: "NGN (₦)",
-          cost_price: originalPrice,
-          selling_price: sellingPrice,
-          markup_rate: `${Math.round((this.markupMultiplier - 1) * 100)}%`,
-          status: "VERIFIED_ACTIVE",
+          log_id: `#${rawId}`,
+          platform: platform,
+          price: `₦${sellingPrice.toLocaleString()}`,
+          format: String(raw.format || (itemType === "proxy" ? "HOST:PORT:USER:PASS" : itemType === "rdp" ? "IP:PORT:USER:PASS" : "EMAIL:PASSWORD:2FA:COOKIES")),
+          guarantee: `${Number(raw.warranty || 24)} Hours Replacement Guarantee`,
+          status: "100% ACTIVE & READY",
         },
         null,
         2
       ),
-      raw,
+      raw: undefined,
     };
   }
 }

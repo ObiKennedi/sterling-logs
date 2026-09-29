@@ -53,7 +53,7 @@ export const Hero: React.FC = () => {
           {/* Action CTAs */}
           <div className={styles.heroActions}>
             <LinkButton href="/signup" size="lg">
-              Explore Verified Inventory
+              Explore Logs Market
             </LinkButton>
 
             <a href="#how-it-works" className={styles.secondaryBtn}>

@@ -368,7 +368,7 @@ export const HeroShowcase: React.FC = () => {
     async function loadData() {
       try {
         const { products: data, source } = await fetchInventoryWithMeta(selectedCategory);
-        if (!isCancelled && data && data.length > 0) {
+        if (!isCancelled && Array.isArray(data)) {
           setProducts(data);
           setApiSource(source);
         }
@@ -658,11 +658,11 @@ export const HeroShowcase: React.FC = () => {
         </button>
       </div>
 
-      {/* Inventory Grid */}
+      {/* Logs Grid */}
       <div className={styles.inventoryGrid}>
         {products.length === 0 ? (
           <div className={styles.emptyNotice}>
-            <p>No inventory currently available in this category. Check back shortly.</p>
+            <p>No logs currently available in this category. Check back shortly.</p>
           </div>
         ) : (
           products.slice(0, 6).map((product) => {
@@ -721,7 +721,7 @@ export const HeroShowcase: React.FC = () => {
               {/* Card Footer with Price and Actions */}
               <div className={styles.cardFooter}>
                 <div className={styles.priceBlock}>
-                  <span className={styles.priceLabel}>Verified Price</span>
+                  <span className={styles.priceLabel}>Price</span>
                   <span className={styles.priceValue}>
                     {formatNaira(product.sellingPrice)}
                   </span>
@@ -732,10 +732,10 @@ export const HeroShowcase: React.FC = () => {
                     type="button"
                     className={styles.inspectBtn}
                     onClick={() => setInspectingProduct(product)}
-                    title="Inspect verification data and JSON payload"
+                    title="View log details"
                   >
                     <Eye size={14} />
-                    Inspect
+                    Details
                   </button>
                   <button
                     type="button"
@@ -869,7 +869,7 @@ export const HeroShowcase: React.FC = () => {
                     color: "var(--text-heading)",
                   }}
                 >
-                  Verification Data Payload Preview:
+                  Log Details Preview:
                 </p>
                 <pre className={styles.terminalBox}>
                   <code>{inspectingProduct.verificationSnippet}</code>
@@ -879,7 +879,7 @@ export const HeroShowcase: React.FC = () => {
 
             <div className={styles.modalFooter}>
               <div>
-                <span className={styles.priceLabel}>Instant Total</span>
+                <span className={styles.priceLabel}>Price</span>
                 <div className={styles.priceValue}>
                   {formatNaira(inspectingProduct.sellingPrice)}
                 </div>
@@ -905,7 +905,7 @@ export const HeroShowcase: React.FC = () => {
                   }}
                 >
                   <Lock size={14} />
-                  <span>Secure with Escrow</span>
+                  <span>Buy Log Now</span>
                 </button>
               </div>
             </div>

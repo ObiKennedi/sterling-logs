@@ -6,12 +6,17 @@ import "aos/dist/aos.css";
 
 export const AOSInit = () => {
   useEffect(() => {
-    AOS.init({
-      duration: 800,
-      once: true,
-      easing: "ease-out-cubic",
-      offset: 40,
-    });
+    // Defer AOS initialization until React has completely finished hydration
+    const timer = setTimeout(() => {
+      AOS.init({
+        duration: 800,
+        once: true,
+        easing: "ease-out-cubic",
+        offset: 40,
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return null;

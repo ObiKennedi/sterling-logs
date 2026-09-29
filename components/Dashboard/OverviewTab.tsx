@@ -31,7 +31,7 @@ import styles from "./OverviewTab.module.scss";
 interface OverviewTabProps {
   profile: UserProfile;
   orders: OrderResult[];
-  onNavigateToTab: (tab: "overview" | "vault" | "wallet" | "settings") => void;
+  onNavigateToTab: (tab: "overview" | "inventory" | "vault" | "wallet" | "settings") => void;
 }
 
 function getPlatformIcon(platform: string) {
@@ -62,7 +62,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       <div className={styles.metricsGrid}>
         <div className={styles.metricCard}>
           <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Available Balance</span>
+            <span className={styles.metricLabel}>Your Wallet Money</span>
             <span className={styles.metricValue}>{formatNaira(profile.balance)}</span>
             <span
               className={styles.metricSubtext}
@@ -70,7 +70,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               onClick={() => onNavigateToTab("wallet")}
             >
               <Zap size={13} />
-              + Instant Top Up
+              + Add Money
             </span>
           </div>
           <div className={`${styles.metricIconBox} ${styles.iconGreen}`}>
@@ -80,11 +80,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
         <div className={styles.metricCard}>
           <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Total Orders</span>
+            <span className={styles.metricLabel}>Logs You Bought</span>
             <span className={styles.metricValue}>{orders.length}</span>
             <span className={styles.metricSubtext}>
               <CheckCircle2 size={13} />
-              100% Verified
+              100% Working
             </span>
           </div>
           <div className={`${styles.metricIconBox} ${styles.iconBlue}`}>
@@ -94,11 +94,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
         <div className={styles.metricCard}>
           <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Active In Escrow</span>
+            <span className={styles.metricLabel}>Under Guarantee</span>
             <span className={styles.metricValue}>{activeEscrowOrders.length}</span>
             <span className={styles.metricSubtext} style={{ color: "#d97706" }}>
               <Clock size={13} />
-              24h Warranty Active
+              24 Hours Replacement
             </span>
           </div>
           <div className={`${styles.metricIconBox} ${styles.iconAmber}`}>
@@ -108,11 +108,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
         <div className={styles.metricCard}>
           <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Dispatch Success</span>
-            <span className={styles.metricValue}>99.9%</span>
+            <span className={styles.metricLabel}>Instant Delivery</span>
+            <span className={styles.metricValue}>100%</span>
             <span className={styles.metricSubtext}>
               <ShieldCheck size={13} />
-              Auto-Dispatched
+              Direct to Vault
             </span>
           </div>
           <div className={`${styles.metricIconBox} ${styles.iconPurple}`}>
@@ -127,10 +127,10 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           <div className={styles.alertLeft}>
             <Lock size={24} className={styles.alertIcon} />
             <div className={styles.alertText}>
-              <h4>{activeEscrowOrders.length} Account(s) In 24h Escrow Protection</h4>
+              <h4>{activeEscrowOrders.length} Log(s) Under 24h Guarantee</h4>
               <p>
-                Credentials and session cookies are loaded into your encrypted vault. Confirm
-                account integrity to release funds, or request an instant replacement.
+                Your login details and password are in your vault. Test your log now. If you have
+                any issue, you can change it within 24 hours.
               </p>
             </div>
           </div>
@@ -139,7 +139,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             className={styles.viewVaultBtn}
             onClick={() => onNavigateToTab("vault")}
           >
-            <span>Open Vault &amp; Inspect</span>
+            <span>Open Vault &amp; View Details</span>
             <ArrowRight size={14} />
           </button>
         </div>
@@ -148,7 +148,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       {/* Recent Orders Section */}
       <div>
         <div className={styles.sectionHeader}>
-          <h3>Recent Purchases &amp; Vault</h3>
+          <h3>Recent Logs Bought</h3>
           <button
             type="button"
             style={{
@@ -169,22 +169,31 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           {orders.length === 0 ? (
             <div className={styles.emptyState}>
               <Package size={40} opacity={0.4} />
-              <h4>No Log Purchases Yet</h4>
+              <h4>You Have Not Bought Any Logs Yet</h4>
               <p>
-                Browse verified aged accounts from our marketplace. Credentials and cookies
-                are dispatched immediately upon checkout.
+                Visit the Logs Market to see all available accounts. Once you buy, your login and
+                password will appear here immediately.
               </p>
+              <button
+                type="button"
+                className={styles.viewVaultBtn}
+                style={{ marginTop: "14px" }}
+                onClick={() => onNavigateToTab("inventory")}
+              >
+                <span>Go to Market &amp; Buy Logs (180+ Available)</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
           ) : (
             <div className={styles.tableResponsiveWrapper}>
               <table className={styles.ordersTable}>
                 <thead>
                   <tr>
-                    <th>Order ID</th>
-                    <th>Account Details</th>
-                    <th>Amount</th>
-                    <th>Gateway</th>
-                    <th>Escrow Status</th>
+                    <th>Order No</th>
+                    <th>Log Name</th>
+                    <th>Price Paid</th>
+                    <th>Payment</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -207,7 +216,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                             <div className={styles.itemDetails}>
                               <span className={styles.itemTitle}>{order.productTitle}</span>
                               <span className={styles.itemSub}>
-                                {order.deliveryItems.length} credential package(s)
+                                {order.deliveryItems.length} account login(s)
                               </span>
                             </div>
                           </div>
@@ -224,7 +233,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                           {order.status === "ESCROW_ACTIVE" ? (
                             <span className={`${styles.statusBadge} ${styles.statusEscrow}`}>
                               <Lock size={11} />
-                              Escrow Active
+                              24h Guarantee
                             </span>
                           ) : (
                             <span className={`${styles.statusBadge} ${styles.statusCompleted}`}>
@@ -240,7 +249,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                             onClick={() => onNavigateToTab("vault")}
                           >
                             <Eye size={12} />
-                            <span>Credentials</span>
+                            <span>View Login</span>
                           </button>
                         </td>
                       </tr>

@@ -23,7 +23,7 @@ export interface LogProvider {
   /**
    * Retrieves list of products/logs, optionally filtered by category
    */
-  getProducts(category?: AccountCategory): Promise<InventoryProduct[]>;
+  getProducts(category?: AccountCategory, forceRefresh?: boolean): Promise<InventoryProduct[]>;
 
   /**
    * Retrieves specific product details by ID

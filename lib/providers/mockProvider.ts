@@ -358,7 +358,7 @@ export class MockLogProvider implements LogProvider {
     return { ...MOCK_PROFILE };
   }
 
-  async getProducts(category?: AccountCategory): Promise<InventoryProduct[]> {
+  async getProducts(category?: AccountCategory, _forceRefresh?: boolean): Promise<InventoryProduct[]> {
     await new Promise((resolve) => setTimeout(resolve, 80));
     if (!category || category === "all") {
       return [...MOCK_PRODUCTS];

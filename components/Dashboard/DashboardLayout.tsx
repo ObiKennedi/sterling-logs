@@ -16,12 +16,13 @@ import { Logo } from "@/components/Logo";
 import { OrderResult, UserProfile } from "@/types/inventory";
 import { formatNaira } from "@/lib/utils/format";
 import { OverviewTab } from "./OverviewTab";
+import { InventoryTab } from "./InventoryTab";
 import { VaultTab } from "./VaultTab";
 import { WalletTab } from "./WalletTab";
 import { SettingsTab } from "./SettingsTab";
 import styles from "./DashboardLayout.module.scss";
 
-type DashboardTab = "overview" | "vault" | "wallet" | "settings";
+type DashboardTab = "overview" | "inventory" | "vault" | "wallet" | "settings";
 
 const DEFAULT_PROFILE: UserProfile = {
   id: "",
@@ -102,10 +103,15 @@ export const DashboardLayout: React.FC = () => {
         <div className={styles.topNavInner}>
           <div className={styles.navBrandGroup}>
             <Logo size="md" />
-            <Link href="/" className={styles.marketplaceLink}>
+            <button
+              type="button"
+              className={`${styles.marketplaceLink} ${activeTab === "inventory" ? styles.marketplaceLinkActive : ""}`}
+              onClick={() => setActiveTab("inventory")}
+              title="Browse Logs Market & Buy Accounts"
+            >
               <ShoppingBag size={15} />
-              <span>Browse Marketplace</span>
-            </Link>
+              <span>Logs Market</span>
+            </button>
           </div>
 
           <div className={styles.navActionsGroup}>
@@ -113,12 +119,12 @@ export const DashboardLayout: React.FC = () => {
             <div
               className={styles.walletPill}
               onClick={() => setActiveTab("wallet")}
-              title="Click to fund your Naira wallet"
+              title="Click to add money to your Naira wallet"
             >
               <Wallet size={15} />
-              <span className={styles.balanceLabel}>Balance:</span>
+              <span className={styles.balanceLabel}>Wallet:</span>
               <span className={styles.walletAmount}>{formatNaira(profile.balance)}</span>
-              <span className={styles.fundIconBtn} title="Add funds">
+              <span className={styles.fundIconBtn} title="Add money">
                 <Plus size={12} />
               </span>
             </div>
@@ -159,11 +165,21 @@ export const DashboardLayout: React.FC = () => {
 
           <button
             type="button"
+            className={`${styles.tabLink} ${activeTab === "inventory" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("inventory")}
+          >
+            <ShoppingBag size={16} />
+            <span>Logs Market</span>
+            <span className={styles.badgeCountLive}>180+ Ready</span>
+          </button>
+
+          <button
+            type="button"
             className={`${styles.tabLink} ${activeTab === "vault" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("vault")}
           >
             <Lock size={16} />
-            <span>Encrypted Vault &amp; Orders</span>
+            <span>My Vault (Bought Logs)</span>
             {activeEscrowOrdersCount > 0 && (
               <span className={styles.badgeCount}>{activeEscrowOrdersCount}</span>
             )}
@@ -175,7 +191,7 @@ export const DashboardLayout: React.FC = () => {
             onClick={() => setActiveTab("wallet")}
           >
             <Wallet size={16} />
-            <span>Fund Wallet</span>
+            <span>Add Money (Wallet)</span>
           </button>
 
           <button
@@ -184,7 +200,7 @@ export const DashboardLayout: React.FC = () => {
             onClick={() => setActiveTab("settings")}
           >
             <Settings size={16} />
-            <span>API &amp; Settings</span>
+            <span>Settings</span>
           </button>
         </div>
       </nav>
@@ -199,11 +215,26 @@ export const DashboardLayout: React.FC = () => {
           />
         )}
 
+        {activeTab === "inventory" && (
+          <InventoryTab
+            profile={profile}
+            onNavigateToWallet={() => setActiveTab("wallet")}
+            onNavigateToVault={() => setActiveTab("vault")}
+            onOrderCreated={(newOrder) => {
+              setOrders((prev) => [newOrder, ...prev]);
+            }}
+            onBalanceUpdate={(newBal) => {
+              setProfile((prev) => ({ ...prev, balance: newBal }));
+            }}
+          />
+        )}
+
         {activeTab === "vault" && (
           <VaultTab
             orders={orders}
             onReleaseEscrow={handleReleaseEscrow}
             onRequestReplacement={handleRequestReplacement}
+            onNavigateToMarketplace={() => setActiveTab("inventory")}
           />
         )}
 

@@ -77,7 +77,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a href="#platforms" className={styles.footerLink}>
-                  Available Inventory
+                  Available Logs
                 </a>
               </li>
               <li>

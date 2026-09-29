@@ -14,9 +14,13 @@ import { PaymentInitiationResult } from "@/lib/services/payment";
  */
 
 export async function fetchInventoryWithMeta(
-  category?: AccountCategory
+  category?: AccountCategory,
+  refresh?: boolean
 ): Promise<{ products: InventoryProduct[]; source: "mock" | "external" | "database" }> {
-  const query = category && category !== "all" ? `?category=${category}` : "";
+  const params = new URLSearchParams();
+  if (category && category !== "all") params.set("category", category);
+  if (refresh) params.set("refresh", "true");
+  const query = params.toString() ? `?${params.toString()}` : "";
   const res = await fetch(`/api/inventory${query}`, {
     method: "GET",
     cache: "no-store",

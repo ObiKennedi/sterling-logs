@@ -9,9 +9,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = (searchParams.get("category") as AccountCategory) || undefined;
+    const forceRefresh = searchParams.get("refresh") === "true";
 
     const provider = getLogProvider();
-    const products = await provider.getProducts(category);
+    const products = await provider.getProducts(category, forceRefresh);
 
     const responsePayload: ApiResponse<InventoryProduct[]> = {
       success: true,

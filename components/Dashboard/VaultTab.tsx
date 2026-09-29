@@ -17,6 +17,7 @@ import {
   Server,
   PhoneCall,
   Terminal,
+  ShoppingBag,
 } from "lucide-react";
 import {
   FaInstagram,
@@ -34,6 +35,7 @@ interface VaultTabProps {
   orders: OrderResult[];
   onReleaseEscrow: (orderId: string) => void;
   onRequestReplacement: (orderId: string) => void;
+  onNavigateToMarketplace?: () => void;
 }
 
 function getPlatformIcon(title: string) {
@@ -55,6 +57,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
   orders,
   onReleaseEscrow,
   onRequestReplacement,
+  onNavigateToMarketplace,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
@@ -161,11 +164,35 @@ export const VaultTab: React.FC<VaultTabProps> = ({
           >
             <Lock size={36} opacity={0.4} style={{ marginBottom: "12px" }} />
             <h4 style={{ margin: "0 0 6px", color: "#0b132b", fontWeight: 700 }}>
-              No Credentials Found
+              No Logs Found in Your Vault
             </h4>
-            <p style={{ margin: 0, fontSize: "0.85rem" }}>
-              No orders matched your filter criteria. Your purchased logs will appear here.
+            <p style={{ margin: "0 0 16px", fontSize: "0.85rem" }}>
+              You haven&apos;t bought any logs yet or no logs match your search. Buy logs from the market to see them here.
             </p>
+            {onNavigateToMarketplace && (
+              <button
+                type="button"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 22px",
+                  background: "#004bef",
+                  color: "#ffffff",
+                  borderRadius: "10px",
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: "0.84rem",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(0, 75, 239, 0.25)",
+                  transition: "all 0.2s ease",
+                }}
+                onClick={onNavigateToMarketplace}
+              >
+                <ShoppingBag size={15} />
+                <span>Go to Market &amp; Buy Logs (180+ Available)</span>
+              </button>
+            )}
           </div>
         ) : (
           filteredOrders.map((order) => {
@@ -188,9 +215,9 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                       <div className={styles.metaSubline}>
                         <span className={styles.orderIdPill}>#{order.orderId}</span>
                         <span>•</span>
-                        <span>Dispatched {new Date(order.createdAt).toLocaleDateString()}</span>
+                        <span>Delivered {new Date(order.createdAt).toLocaleDateString()}</span>
                         <span>•</span>
-                        <span>Gateway: {order.paymentGateway.toUpperCase()}</span>
+                        <span>Payment: {order.paymentGateway.toUpperCase()}</span>
                       </div>
                     </div>
                   </div>
@@ -199,7 +226,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                     {isEscrowActive ? (
                       <span className={styles.escrowCountdown}>
                         <Clock size={13} />
-                        Escrow: 24h Warranty Active
+                        24 Hours Guarantee Active
                       </span>
                     ) : (
                       <span
@@ -216,7 +243,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                         }}
                       >
                         <CheckCircle2 size={13} />
-                        Completed &amp; Released
+                        Completed
                       </span>
                     )}
 
@@ -228,7 +255,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                 <div className={styles.credentialsVault}>
                   <span className={styles.vaultSectionTitle}>
                     <Lock size={13} />
-                    Decrypted Delivery Bundle ({order.deliveryItems.length} Accounts)
+                    Your Log Login Details ({order.deliveryItems.length} Account)
                   </span>
 
                   {order.deliveryItems.map((item, idx) => {
@@ -244,7 +271,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                           {/* Username / Login Identifier */}
                           <div className={styles.credentialField}>
                             <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>Account Login / Handle</span>
+                              <span className={styles.fieldLabel}>Login Email or Username</span>
                               <span className={styles.fieldValue}>
                                 {item.username || item.id || `User_${order.orderId}`}
                               </span>
@@ -273,7 +300,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                           {/* Password */}
                           <div className={styles.credentialField}>
                             <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>Encrypted Password</span>
+                              <span className={styles.fieldLabel}>Password</span>
                               <span className={styles.fieldValue}>
                                 {isPassVisible
                                   ? item.credentials || "P@ssword2026!#"
@@ -312,7 +339,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                           {/* 2FA Secret Key */}
                           <div className={styles.credentialField}>
                             <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>2FA Secret / Backup Key</span>
+                              <span className={styles.fieldLabel}>2FA Key (Two-Factor)</span>
                               <span className={styles.fieldValue}>
                                 {item.twoFactorSecret || "JBSWY3DPEHPK3PXP"}
                               </span>
@@ -394,7 +421,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                 <div className={styles.cardFooterActions}>
                   <div className={styles.escrowGuaranteedText}>
                     <ShieldCheck size={16} />
-                    <span>24h Replacement Guarantee Active</span>
+                    <span>24 Hours Replacement Guarantee Active</span>
                   </div>
 
                   <div className={styles.actionButtonGroup}>
@@ -406,7 +433,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                           onClick={() => onRequestReplacement(order.orderId)}
                         >
                           <AlertTriangle size={13} />
-                          <span>Request Replacement</span>
+                          <span>Log Has Issue (Replace)</span>
                         </button>
                         <button
                           type="button"
@@ -414,7 +441,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                           onClick={() => onReleaseEscrow(order.orderId)}
                         >
                           <CheckCircle2 size={14} />
-                          <span>Confirm Working (Release Escrow)</span>
+                          <span>Log Is Working Fine</span>
                         </button>
                       </>
                     )}
