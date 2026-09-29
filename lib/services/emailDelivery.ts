@@ -74,11 +74,11 @@ Original Email (OGE): ${item.ogeEmail || "Included in cookie session"}
               <h2 style="color: #004bef;">Sterling Logs - Order Delivery</h2>
               <p>Thank you for your purchase! Your payment via <strong>${gatewayName}</strong> (Ref: <code>${paymentReference}</code>) was confirmed.</p>
               <h3>Order Summary:</h3>
-              <p><strong>Item:</strong> ${product.title}<br/><strong>Total Paid:</strong> ${formatNaira(totalPrice)}<br/><strong>Escrow Window:</strong> ${product.warrantyHours || 24} Hours</p>
+              <p><strong>Item:</strong> ${product.title}<br/><strong>Total Paid:</strong> ${formatNaira(totalPrice)}</p>
               <div style="background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 6px; font-family: monospace;">
                 <pre style="margin: 0; white-space: pre-wrap;">${bundleText}</pre>
               </div>
-              <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Your 100% Escrow Protection is active. If you encounter any login issue within ${product.warrantyHours || 24} hours, reply to this email for an instant replacement.</p>
+              <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Your credentials have been securely dispatched. If you need any assistance, reply directly to this email.</p>
             </div>
           `,
         }),

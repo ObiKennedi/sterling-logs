@@ -42,7 +42,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         csrftoken: "fK992xJk28a...",
         email_domain: "proton.me (OGE)",
         follower_audit: "92% Tier 1 (US/UK)",
-        escrow_guarantee: "24h Full Replacement",
       },
       null,
       2
@@ -74,7 +73,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         ct0: "0c9d78e34a21...",
         phone_verified: true,
         blue_eligible: true,
-        escrow_guarantee: "24h Full Replacement",
       },
       null,
       2
@@ -106,7 +104,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         session_token: "tt_act_9041a77...",
         live_studio_unlocked: true,
         creator_fund_ready: true,
-        escrow_guarantee: "24h Full Replacement",
       },
       null,
       2
@@ -137,7 +134,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         c_user: "100084920194832",
         xs_cookie: "29%3AmqP18_valid...",
         spend_limit_daily: "$250.00 USD",
-        escrow_guarantee: "48h Full Replacement",
       },
       null,
       2
@@ -169,7 +165,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         comment_karma: 17000,
         c_session: "rd_sess_0921a44...",
         shadowban_check: "CLEAN_PASSED",
-        escrow_guarantee: "24h Full Replacement",
       },
       null,
       2
@@ -200,7 +195,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         members_count: 12400,
         phone_prefix: "+1_USA_PVA",
         channel_created: 2020,
-        escrow_guarantee: "24h Full Replacement",
       },
       null,
       2
@@ -233,7 +227,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         country: "US (Virginia)",
         protocols: ["HTTP", "HTTPS", "SOCKS5"],
         fraud_score: "0 (Clean)",
-        escrow_guarantee: "72h Replacement Warranty",
       },
       null,
       2
@@ -265,7 +258,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         carrier: "Google Voice Bandwidth.com",
         sms_enabled: true,
         voice_calls: true,
-        escrow_guarantee: "24h Replacement",
       },
       null,
       2
@@ -296,7 +288,6 @@ const MOCK_PRODUCTS: InventoryProduct[] = [
         tool_name: "Dolphin{anty} Anti-Detect",
         profiles_limit: 100,
         automation_api: "Puppeteer / Playwright Ready",
-        escrow_guarantee: "48h Full Replacement",
       },
       null,
       2

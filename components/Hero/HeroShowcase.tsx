@@ -12,7 +12,6 @@ import {
   X,
   Copy,
   Check,
-  Server,
   Layers,
   Mail,
   Download,
@@ -70,7 +69,6 @@ const INITIAL_PRODUCTS: InventoryProduct[] = [
         csrftoken: "fK992xJk28a...",
         email_domain: "proton.me (OGE)",
         follower_audit: "92% Tier 1 (US/UK)",
-        escrow_guarantee: "24h Replacement",
       },
       null,
       2
@@ -103,7 +101,6 @@ const INITIAL_PRODUCTS: InventoryProduct[] = [
         country: "US (Virginia)",
         protocols: ["HTTP", "HTTPS", "SOCKS5"],
         fraud_score: "0 (Clean)",
-        escrow_guarantee: "72h Replacement Warranty",
       },
       null,
       2
@@ -133,7 +130,6 @@ const INITIAL_PRODUCTS: InventoryProduct[] = [
         auth_token: "a190b2308f92194389ff70...",
         ct0: "0c9d78e34a21...",
         phone_verified: true,
-        escrow_guarantee: "24h Replacement",
       },
       null,
       2
@@ -165,7 +161,6 @@ const INITIAL_PRODUCTS: InventoryProduct[] = [
         carrier: "Google Voice Bandwidth.com",
         sms_enabled: true,
         voice_calls: true,
-        escrow_guarantee: "24h Replacement",
       },
       null,
       2
@@ -194,7 +189,6 @@ const INITIAL_PRODUCTS: InventoryProduct[] = [
         bm_status: "VERIFIED_BUSINESS_TIER_2",
         c_user: "100084920194832",
         xs_cookie: "29%3AmqP18_valid...",
-        escrow_guarantee: "48h Replacement",
       },
       null,
       2
@@ -433,39 +427,6 @@ export const HeroShowcase: React.FC = () => {
     <div className={styles.showcaseWrapper}>
       <div className={styles.ambientGlowTop} />
       <div className={styles.ambientGlowBottom} />
-
-      {/* Top Browser / Engine Status Bar */}
-      <div className={styles.windowBar}>
-        <div className={styles.windowControls}>
-          <span className={styles.dotRed} />
-          <span className={styles.dotYellow} />
-          <span className={styles.dotGreen} />
-          <span className={styles.windowTitle}>
-            Sterling Naira Engine v3.5
-          </span>
-        </div>
-
-        <div className={styles.liveIndicator}>
-          <span className={styles.liveDot} />
-          <span>PRICES IN NAIRA (₦) • {products.length * 90}+ LOGS</span>
-        </div>
-
-        <div
-          className={styles.sourceBadge}
-          title={
-            apiSource === "external"
-              ? "Live logs pulled directly from vendor API"
-              : "Safe offline Naira mode"
-          }
-        >
-          <Server size={12} />
-          <span>
-            {apiSource === "external"
-              ? "⚡ Live API Connected"
-              : "Provider: Safe Mode"}
-          </span>
-        </div>
-      </div>
 
       {/* Category Filter Tabs */}
       <div className={styles.tabsContainer} role="tablist">
@@ -720,12 +681,6 @@ export const HeroShowcase: React.FC = () => {
                   <span className={styles.specLabel}>Audience / Reach</span>
                   <span className={styles.specValue}>
                     {inspectingProduct.followers}
-                  </span>
-                </div>
-                <div className={styles.specRowItem}>
-                  <span className={styles.specLabel}>Escrow Protection</span>
-                  <span className={styles.specValue}>
-                    {inspectingProduct.warrantyHours}h Full Replacement
                   </span>
                 </div>
                 <div className={styles.specRowItem}>

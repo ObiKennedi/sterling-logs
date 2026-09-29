@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Star } from "lucide-react";
 import { LinkButton } from "@/components/common/LinkButton";
 import { HeroShowcase } from "./HeroShowcase";
 import { PlatformTicker } from "./PlatformTicker";
@@ -46,44 +45,6 @@ export const Hero: React.FC = () => {
             <LinkButton href="/signup" size="lg">
               Explore Logs Market
             </LinkButton>
-          </div>
-
-          {/* Trust Metrics Bar */}
-          <div className={styles.metricsRow}>
-            <div className={styles.metricItem}>
-              <span className={styles.metricNumber}>48,500+</span>
-              <span className={styles.metricLabel}>Verified Accounts Sold</span>
-            </div>
-
-            <div className={styles.metricDivider} />
-
-            <div className={styles.metricItem}>
-              <span className={styles.metricNumber}>&lt; 60s</span>
-              <span className={styles.metricLabel}>Automated Dispatch</span>
-            </div>
-
-            <div className={styles.metricDivider} />
-
-            <div className={styles.metricItem}>
-              <span className={styles.metricNumber}>99.8%</span>
-              <span className={styles.metricLabel}>Replacement Success</span>
-            </div>
-
-            <div className={styles.metricDivider} />
-
-            <div className={styles.metricItem}>
-              <span className={styles.metricNumber}>
-                4.9 / 5.0
-                <span className={styles.starsRow}>
-                  <Star size={13} fill="#f59e0b" />
-                  <Star size={13} fill="#f59e0b" />
-                  <Star size={13} fill="#f59e0b" />
-                  <Star size={13} fill="#f59e0b" />
-                  <Star size={13} fill="#f59e0b" />
-                </span>
-              </span>
-              <span className={styles.metricLabel}>12,400+ Buyer Reviews</span>
-            </div>
           </div>
         </div>
 
