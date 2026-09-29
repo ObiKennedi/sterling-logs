@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { RefreshCw, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { LinkButton } from "@/components/common/LinkButton";
 import { HeroShowcase } from "./HeroShowcase";
 import { PlatformTicker } from "./PlatformTicker";
@@ -22,8 +21,7 @@ export const Hero: React.FC = () => {
           <div className={styles.heroBadge}>
             <span className={styles.badgePulseDot} />
             <span className={styles.badgeText}>
-              <span className={styles.badgeHighlight}>⚡ Instant Auto-Delivery</span>{" "}
-              • Replacement Warranty Guaranteed
+              <span className={styles.badgeHighlight}>⚡ Instant Auto-Delivery</span>
             </span>
           </div>
 
@@ -98,28 +96,8 @@ export const Hero: React.FC = () => {
           <HeroShowcase />
         </div>
 
-        {/* Trust Guarantee Pillar */}
-        <div
-          className={styles.guaranteesGrid}
-          data-aos="fade-up"
-          data-aos-delay="200"
-        >
-          <div className={styles.guaranteeCard}>
-            <div className={styles.guaranteeIconBox}>
-              <RefreshCw size={22} />
-            </div>
-            <div className={styles.guaranteeContent}>
-              <h4>24-Hour Replacement Warranty</h4>
-              <p>
-                Encounter an invalid session or security checkpoint? Our automated system
-                provides a one-click instant replacement or refund.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Supported Platforms Marquee */}
-        <div style={{ width: "100%" }} data-aos="fade-up" data-aos-delay="250">
+        <div style={{ width: "100%" }} data-aos="fade-up" data-aos-delay="200">
           <PlatformTicker />
         </div>
       </div>

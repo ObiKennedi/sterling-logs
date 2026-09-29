@@ -318,74 +318,7 @@
   margin: 0 auto 56px;
 }
 
-/* Trust Guarantee Feature Cards */
-.guaranteesGrid {
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto 48px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
 
-  @media (max-width: 880px) {
-    gap: 16px;
-  }
-}
-
-.guaranteeCard {
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  box-shadow: var(--shadow-xs);
-  transition: all var(--transition-normal);
-
-  &:hover {
-    transform: translateY(-3px);
-    border-color: rgba(0, 75, 239, 0.3);
-    box-shadow: 0 14px 30px -4px rgba(0, 75, 239, 0.1);
-
-    .guaranteeIconBox {
-      background-color: var(--primary);
-      color: #ffffff;
-      transform: scale(1.05);
-    }
-  }
-}
-
-.guaranteeIconBox {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background-color: var(--primary-light);
-  color: var(--primary);
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
-}
-
-.guaranteeContent {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  h4 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-heading);
-  }
-
-  p {
-    font-size: 0.84rem;
-    color: var(--text-body);
-    line-height: 1.45;
-  }
-}
 
 @keyframes badgeBlink {
   0% {

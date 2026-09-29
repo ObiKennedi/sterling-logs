@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, ArrowRight, Layers, Globe, Server, PhoneCall } from "lucide-react";
+import { CheckCircle2, ArrowRight, Layers, Globe, PhoneCall } from "lucide-react";
 import {
   FaInstagram,
   FaXTwitter,
@@ -87,22 +87,6 @@ const PLATFORMS: PlatformInfo[] = [
     startingPrice: "₦18,000",
   },
   {
-    name: "Windows Admin RDPs",
-    sub: "US/UK Clean IP • 1Gbps Port",
-    icon: <Server />,
-    iconBg: "rgba(139, 92, 246, 0.12)",
-    iconColor: "#8b5cf6",
-    description:
-      "Dedicated Windows 11 RDP virtual desktops with administrative root privileges, SSD NVMe storage, and pre-installed anti-detect environments.",
-    highlights: [
-      "Full Admin / Root Access",
-      "Clean Dedicated US/UK IP",
-      "Anti-detect & Chrome Ready",
-      "24/7 Dedicated Server Uptime",
-    ],
-    startingPrice: "₦33,000",
-  },
-  {
     name: "Virtual Numbers (GV / PVA)",
     sub: "Permanent +1 USA & Instant OTP",
     icon: <PhoneCall />,
@@ -130,7 +114,6 @@ const PLATFORMS: PlatformInfo[] = [
       "$250/Day Spend Limit Active",
       "Warm Pixel & Ad Account",
       "C_USER + XS Cookie Session",
-      "48h Replacement Warranty",
     ],
     startingPrice: "₦42,000",
   },
@@ -181,7 +164,7 @@ export const Platforms: React.FC = () => {
             Explore Our Verified <span className={styles.highlight}>Platforms &amp; Tools</span>
           </h2>
           <p className={styles.subtitle}>
-            Choose from battle-tested social accounts, clean residential proxies, Windows RDPs,
+            Choose from battle-tested social accounts, clean residential proxies,
             and permanent virtual numbers with instant automated delivery in Nigerian Naira.
           </p>
         </div>

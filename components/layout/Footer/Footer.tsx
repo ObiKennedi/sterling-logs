@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Lock, CheckCircle2 } from "lucide-react";
+import { Lock, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import styles from "./Footer.module.scss";
 
@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
             <Logo variant="white" size="md" />
             <p className={styles.brandDesc}>
               The leading marketplace for authentic, aged social accounts and high-intent
-              traffic. Powered by automated verification and replacement warranty.
+              traffic. Powered by automated instant credential delivery.
             </p>
             <div className={styles.statusBadge}>
               <span className={styles.statusDot} />
@@ -28,33 +28,33 @@ export const Footer: React.FC = () => {
             <h4 className={styles.colTitle}>Platforms</h4>
             <ul className={styles.linkList}>
               <li>
-                <Link href="#platforms" className={styles.footerLink}>
+                <Link href="#top" className={styles.footerLink}>
                   Instagram Logs
                 </Link>
               </li>
               <li>
-                <Link href="#platforms" className={styles.footerLink}>
+                <Link href="#top" className={styles.footerLink}>
                   Twitter / X Accounts
                 </Link>
               </li>
               <li>
-                <Link href="#platforms" className={styles.footerLink}>
+                <Link href="#top" className={styles.footerLink}>
                   TikTok Aged Profiles
                   <span className={styles.badgeNew}>Hot</span>
                 </Link>
               </li>
               <li>
-                <Link href="#platforms" className={styles.footerLink}>
+                <Link href="#top" className={styles.footerLink}>
                   Facebook Ads &amp; Pages
                 </Link>
               </li>
               <li>
-                <Link href="#platforms" className={styles.footerLink}>
+                <Link href="#top" className={styles.footerLink}>
                   Reddit High-Karma
                 </Link>
               </li>
               <li>
-                <Link href="#platforms" className={styles.footerLink}>
+                <Link href="#top" className={styles.footerLink}>
                   Telegram Channels
                 </Link>
               </li>
@@ -66,6 +66,11 @@ export const Footer: React.FC = () => {
             <h4 className={styles.colTitle}>Navigation</h4>
             <ul className={styles.linkList}>
               <li>
+                <a href="#top" className={styles.footerLink}>
+                  Marketplace
+                </a>
+              </li>
+              <li>
                 <a href="#how-it-works" className={styles.footerLink}>
                   How It Works
                 </a>
@@ -73,21 +78,6 @@ export const Footer: React.FC = () => {
               <li>
                 <a href="#features" className={styles.footerLink}>
                   Platform Features
-                </a>
-              </li>
-              <li>
-                <a href="#platforms" className={styles.footerLink}>
-                  Available Logs
-                </a>
-              </li>
-              <li>
-                <a href="#pricing" className={styles.footerLink}>
-                  Pricing &amp; Rates
-                </a>
-              </li>
-              <li>
-                <a href="#faq" className={styles.footerLink}>
-                  Frequently Asked Questions
                 </a>
               </li>
             </ul>
@@ -108,16 +98,6 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/refund" className={styles.footerLink}>
-                  Replacement Guarantee
-                </Link>
-              </li>
-              <li>
-                <Link href="/escrow" className={styles.footerLink}>
-                  Escrow Security
-                </Link>
-              </li>
-              <li>
                 <Link href="/contact" className={styles.footerLink}>
                   24/7 Priority Support
                 </Link>
@@ -133,10 +113,6 @@ export const Footer: React.FC = () => {
           </p>
 
           <div className={styles.securityPills}>
-            <span>
-              <ShieldCheck size={16} color="#00D284" />
-              Warranty Protected
-            </span>
             <span>
               <Lock size={16} color="#38BDF8" />
               256-Bit SSL Encrypted

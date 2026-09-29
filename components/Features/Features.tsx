@@ -4,7 +4,6 @@ import {
   MailCheck,
   CreditCard,
   Users2,
-  ShieldAlert,
   Code2,
   CheckCircle2,
   Sparkles,
@@ -46,13 +45,6 @@ const FEATURES: FeatureItem[] = [
     description:
       "Zero bot traffic. Aged accounts created with authentic activity, organic followers, and seasoned profiles from Tier-1 geos (US, UK, Europe, Worldwide).",
     pill: "High Authority Profiles",
-  },
-  {
-    icon: <ShieldAlert size={26} />,
-    title: "24-Hour Replacement Warranty",
-    description:
-      "Log in and confirm account health with full confidence. If any checkpoint or ban occurs within 24h, receive an instant replacement or refund.",
-    pill: "Buyer Protection Guarantee",
   },
   {
     icon: <Code2 size={26} />,

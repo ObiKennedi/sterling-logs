@@ -13,11 +13,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { label: "Marketplace", href: "#top" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
-  { label: "Platforms", href: "#platforms" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
 ];
 
 export const Header: React.FC = () => {

@@ -126,7 +126,6 @@ export const VaultTab: React.FC<VaultTabProps> = ({
           {[
             { id: "all", label: "All Items" },
             { id: "proxies", label: "Proxies & VPN" },
-            { id: "rdp", label: "RDP Servers" },
             { id: "numbers", label: "Virtual Numbers" },
             { id: "instagram", label: "Instagram" },
             { id: "twitter", label: "Twitter / X" },

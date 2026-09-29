@@ -140,39 +140,6 @@ const INITIAL_PRODUCTS: InventoryProduct[] = [
     ),
   },
   {
-    id: "rdp-usa-win11-8gb",
-    title: "USA Windows 11 Admin RDP (8GB / 4 Core)",
-    category: "rdp",
-    itemType: "rdp",
-    platform: "Windows RDP Server",
-    year: "30-Day",
-    followers: "Clean US IP • 1Gbps",
-    tags: ["Full Root / Admin Access", "1 Gbps Port Speed", "SSD NVMe Storage", "Anti-detect Ready"],
-    originalPrice: 22000,
-    sellingPrice: 33000,
-    currency: "₦",
-    stock: 9,
-    isPopular: true,
-    format: "IP:PORT:USER:PASS",
-    warrantyHours: 48,
-    description:
-      "High-speed dedicated clean IP Windows 11 RDP hosted in US datacenters. Pre-installed with anti-detect tools, Chrome, and high-frequency network optimization.",
-    verificationSnippet: JSON.stringify(
-      {
-        status: "VERIFIED_ACTIVE",
-        currency: "NGN",
-        os: "Windows 11 Pro Enterprise",
-        ram: "8 GB DDR4",
-        cpu_cores: 4,
-        bandwidth: "Unlimited @ 1Gbps",
-        admin_privileges: true,
-        escrow_guarantee: "48h Full Replacement",
-      },
-      null,
-      2
-    ),
-  },
-  {
     id: "gv-usa-permanent-pva",
     title: "Google Voice Permanent +1 USA Number",
     category: "numbers",
@@ -498,11 +465,6 @@ export const HeroShowcase: React.FC = () => {
               : "Provider: Safe Mode"}
           </span>
         </div>
-
-        <div className={styles.securityBadge}>
-          <ShieldCheck size={14} />
-          <span>Replacement Guarantee</span>
-        </div>
       </div>
 
       {/* Category Filter Tabs */}
@@ -528,17 +490,6 @@ export const HeroShowcase: React.FC = () => {
           onClick={() => setSelectedCategory("proxies")}
         >
           Proxies &amp; VPN
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={selectedCategory === "rdp"}
-          className={`${styles.tabBtn} ${
-            selectedCategory === "rdp" ? styles.tabActive : ""
-          }`}
-          onClick={() => setSelectedCategory("rdp")}
-        >
-          RDP Servers
         </button>
         <button
           type="button"
@@ -955,13 +906,6 @@ export const HeroShowcase: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                  </div>
-
-                  <div className={styles.orderSuccessNotice}>
-                    <Lock size={16} />
-                    <span>
-                      Buyer Protection: Full replacement warranty valid for {purchasingProduct.warrantyHours}h after delivery.
-                    </span>
                   </div>
                 </>
               )}

@@ -225,9 +225,9 @@ export class ExternalApiAdapter implements LogProvider {
         return this.fallbackProvider.getProducts(category);
       }
 
-      const products = rawList.map((item, index) =>
-        this.transformRawProduct(item, index)
-      );
+      const products = rawList
+        .map((item, index) => this.transformRawProduct(item, index))
+        .filter((p) => p.category !== "rdp" && p.itemType !== "rdp");
 
       // Save to global in-memory cache
       globalProductsCache = {
