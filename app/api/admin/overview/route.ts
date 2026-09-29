@@ -96,6 +96,8 @@ export async function GET() {
           platform: o.platform,
           totalPrice: o.totalPrice,
           paymentGateway: o.paymentGateway.toUpperCase(),
+          paymentReference: o.paymentReference || "",
+          notes: o.notes || "",
           status: o.status as "ESCROW_ACTIVE" | "COMPLETED" | "REFUNDED" | "DISPUTED",
           createdAt: o.createdAt.toISOString().split("T")[0],
         }));

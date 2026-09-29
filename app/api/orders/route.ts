@@ -82,6 +82,14 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      const paymentRefToStore = body.paymentReference || result.paymentReference;
+      const notesParts: string[] = [];
+      if (body.customerTelegram) notesParts.push(`Telegram: ${body.customerTelegram}`);
+      if (body.senderName) notesParts.push(`Sender: ${body.senderName}`);
+      if (body.senderBank) notesParts.push(`Bank: ${body.senderBank}`);
+      if (body.notes) notesParts.push(body.notes);
+      const combinedNotes = notesParts.length > 0 ? notesParts.join(" • ") : null;
+
       await prisma.order.create({
         data: {
           orderNumber: result.orderId,
@@ -99,13 +107,17 @@ export async function POST(request: NextRequest) {
           currency: result.currency || "₦",
           status: result.status,
           escrowHours: result.escrowHours || 24,
-          paymentGateway: String(result.paymentGateway).toLowerCase(),
-          paymentReference: result.paymentReference,
+          paymentGateway: String(body.paymentGateway || result.paymentGateway).toLowerCase(),
+          paymentReference: paymentRefToStore,
           deliveryItems: (result.deliveryItems || []) as object,
-          notes: body.customerTelegram ? `Telegram: ${body.customerTelegram}` : null,
+          notes: combinedNotes,
           escrowExpiresAt: new Date(result.escrowExpiresAt),
         },
       });
+
+      if (body.paymentReference) {
+        result.paymentReference = body.paymentReference;
+      }
     } catch (dbErr) {
       console.error("[Orders API] Failed to persist order in database:", dbErr);
     }

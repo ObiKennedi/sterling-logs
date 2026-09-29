@@ -57,6 +57,8 @@ interface AdminOrder {
   platform: string;
   totalPrice: number;
   paymentGateway: string;
+  paymentReference?: string;
+  notes?: string;
   status: "ESCROW_ACTIVE" | "COMPLETED" | "REFUNDED" | "DISPUTED";
   createdAt: string;
 }
@@ -831,7 +833,21 @@ export const AdminLayout: React.FC = () => {
                               </td>
                               <td>{o.customerEmail}</td>
                               <td>{o.platform}</td>
-                              <td>{o.paymentGateway}</td>
+                              <td>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                  <span style={{ fontWeight: 600 }}>{o.paymentGateway}</span>
+                                  {o.paymentReference && (
+                                    <span style={{ fontSize: "0.72rem", color: "#38bdf8", fontFamily: "monospace" }}>
+                                      {o.paymentReference}
+                                    </span>
+                                  )}
+                                  {o.notes && (
+                                    <span style={{ fontSize: "0.68rem", color: "#94a3b8" }} title={o.notes}>
+                                      {o.notes.length > 40 ? `${o.notes.slice(0, 40)}...` : o.notes}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
                               <td style={{ fontWeight: 800, color: "#ffffff" }}>
                                 {formatNaira(o.totalPrice)}
                               </td>
@@ -897,6 +913,16 @@ export const AdminLayout: React.FC = () => {
                               </span>
                             </div>
                           </div>
+                          {o.paymentReference && (
+                            <div style={{ fontSize: "0.72rem", color: "#38bdf8", fontFamily: "monospace", marginTop: "4px" }}>
+                              Ref: {o.paymentReference}
+                            </div>
+                          )}
+                          {o.notes && (
+                            <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginTop: "2px" }}>
+                              {o.notes}
+                            </div>
+                          )}
                           <div className={styles.cardActionsRow}>
                             {o.status === "ESCROW_ACTIVE" && (
                               <button

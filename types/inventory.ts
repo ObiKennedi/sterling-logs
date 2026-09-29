@@ -56,6 +56,10 @@ export interface OrderRequest {
   customerTelegram?: string;
   phoneNumber?: string;
   paymentGateway?: PaymentGateway;
+  paymentReference?: string;
+  senderName?: string;
+  senderBank?: string;
+  notes?: string;
 }
 
 export interface DeliveredItem {

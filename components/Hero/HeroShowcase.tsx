@@ -360,6 +360,7 @@ export const HeroShowcase: React.FC = () => {
   const [completedOrder, setCompletedOrder] = useState<OrderResult | null>(null);
   const [apiSource, setApiSource] = useState<"mock" | "external">("mock");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [senderNote, setSenderNote] = useState<string>("");
 
   // Load products from internal API gateway
   useEffect(() => {
@@ -458,6 +459,9 @@ export const HeroShowcase: React.FC = () => {
         quantity: 1,
         customerEmail: customerEmail.trim(),
         paymentGateway: selectedGateway,
+        paymentReference: paymentDetails?.reference,
+        senderName: senderNote.trim() || undefined,
+        notes: senderNote.trim() ? `Sender / Verification: ${senderNote.trim()}` : undefined,
       });
 
       setCompletedOrder(result);
@@ -494,6 +498,7 @@ export const HeroShowcase: React.FC = () => {
     setPaymentDetails(null);
     setCompletedOrder(null);
     setEmailError("");
+    setSenderNote("");
   };
 
   return (
@@ -1106,11 +1111,48 @@ export const HeroShowcase: React.FC = () => {
                     )}
 
                     <div className={styles.accountDetailRow}>
+                      <span className={styles.specLabel}>Payment Reference:</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span className={styles.accountNumberDisplay} style={{ fontSize: "0.85rem", letterSpacing: "0.5px" }}>
+                          {paymentDetails.reference}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.copyIconButton}
+                          onClick={() => copyToClipboard(paymentDetails.reference, "pay_ref")}
+                        >
+                          {copiedKey === "pay_ref" ? (
+                            <Check size={12} color="#059669" />
+                          ) : (
+                            <Copy size={12} />
+                          )}
+                          {copiedKey === "pay_ref" ? "Copied" : "Copy"}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className={styles.accountDetailRow}>
                       <span className={styles.specLabel}>Exact Amount:</span>
                       <strong style={{ fontSize: "1.1rem", color: "#047857" }}>
                         {paymentDetails.formattedAmount}
                       </strong>
                     </div>
+                  </div>
+
+                  {/* Optional Client Verification Input */}
+                  <div className={styles.inputGroup} style={{ marginTop: "12px", marginBottom: "8px" }}>
+                    <label className={styles.inputLabel} htmlFor="senderNoteInput">
+                      <span>Sender Name / Bank / Transaction Note (Optional)</span>
+                      <span className={styles.inputHelp}>Client verification details</span>
+                    </label>
+                    <input
+                      id="senderNoteInput"
+                      type="text"
+                      className={styles.textInput}
+                      placeholder="e.g. Adeola Johnson / OPay or Session ID"
+                      value={senderNote}
+                      onChange={(e) => setSenderNote(e.target.value)}
+                    />
                   </div>
 
                   <div className={styles.orderSuccessNotice}>

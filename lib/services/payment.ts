@@ -1,5 +1,9 @@
 import { PaymentGateway } from "@/types/inventory";
 import { formatNaira } from "@/lib/utils/format";
+import {
+  createPaymentPointVirtualAccount,
+  verifyPaymentPointReference,
+} from "./paymentpoint";
 
 export interface PaymentInitiationParams {
   amount: number;
@@ -24,10 +28,11 @@ export interface PaymentInitiationResult {
   ussdCode?: string;
   checkoutUrl?: string;
   instructions: string;
+  isLive?: boolean;
 }
 
 /**
- * Initiates checkout session for GTBank or Paypoint
+ * Initiates checkout session for GTBank or PaymentPoint
  */
 export async function initiatePayment(
   params: PaymentInitiationParams
@@ -58,25 +63,30 @@ export async function initiatePayment(
     };
   }
 
-  // Default: Paypoint
-  const reference = `PP-${orderId}-${timestamp}`;
+  // PaymentPoint Public API / Dynamic Account Channel
+  const ppResult = await createPaymentPointVirtualAccount({
+    email,
+    name: email.split("@")[0],
+    amount,
+    orderId,
+    productTitle,
+  });
 
   return {
     gateway: "paypoint",
-    reference,
-    amount,
-    currency: "₦",
-    formattedAmount: formatNaira(amount),
+    reference: ppResult.reference,
+    amount: ppResult.amount,
+    currency: ppResult.currency,
+    formattedAmount: ppResult.formattedAmount,
     accountDetails: {
-      bankName: "Paypoint / Wema Dynamic Account",
-      accountNumber: `99${Math.floor(10000000 + Math.random() * 90000000)}`,
-      accountName: "SterlingLogs Paypoint Gateway",
-      expiresInMinutes: 30,
+      bankName: ppResult.bankName,
+      accountNumber: ppResult.accountNumber,
+      accountName: ppResult.accountName,
+      expiresInMinutes: ppResult.expiresInMinutes,
     },
-    ussdCode: `*966*000*${Math.round(amount)}#`,
-    instructions: `Transfer exactly ${formatNaira(
-      amount
-    )} to the dynamic Paypoint virtual account or pay using any Nigerian debit card.`,
+    ussdCode: ppResult.ussdCode,
+    instructions: ppResult.instructions,
+    isLive: ppResult.isLive,
   };
 }
 
@@ -87,16 +97,17 @@ export async function verifyPayment(
   reference: string,
   gateway: PaymentGateway
 ): Promise<{ verified: boolean; reference: string }> {
-  // In production with live GTB Squad or Monnify Paypoint credentials,
-  // this queries their webhook / API.
-  // For instant checkout execution, it validates the reference:
+  if (gateway === "paypoint") {
+    const isValid = verifyPaymentPointReference(reference);
+    return { verified: isValid, reference };
+  }
+
   const isValid =
-    (gateway === "gtb" && reference.startsWith("GTB-")) ||
-    (gateway === "paypoint" && reference.startsWith("PP-")) ||
-    reference.length > 5;
+    (gateway === "gtb" && reference.startsWith("GTB-")) || reference.length > 5;
 
   return {
     verified: isValid,
     reference,
   };
 }
+
