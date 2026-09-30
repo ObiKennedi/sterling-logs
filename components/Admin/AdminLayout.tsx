@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, ReactNode } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -43,7 +43,6 @@ import styles from "./AdminLayout.module.scss";
 type AdminTab = "overview" | "orders" | "users" | "vendor" | "tools";
 
 export interface AdminTool {
-  [x: string]: ReactNode;
   id: string;
   name: string;
   description: string;
@@ -51,6 +50,7 @@ export interface AdminTool {
   category: string;
   platform: string;
   price: number;
+  stock?: number;
   currency?: string;
   tags: string[];
   createdAt: string;

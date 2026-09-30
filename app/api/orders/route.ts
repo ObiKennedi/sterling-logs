@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getLogProvider } from "@/lib/providers";
-import { ApiResponse, DeliveredItem, OrderRequest, OrderResult } from "@/types/inventory";
+import { ApiResponse, DeliveredItem, OrderRequest, OrderResult, PaymentGateway } from "@/types/inventory";
 import { getWorkingTools, decrementToolStock } from "@/lib/storage/workingTools";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const provider = getLogProvider();
     const workingTools = await getWorkingTools();
     const matchedTool = workingTools.find((t) => t.id === String(body.productId));
 
@@ -68,18 +69,13 @@ export async function POST(request: NextRequest) {
         productId: matchedTool.id,
         productTitle: matchedTool.name,
         quantity: qty,
-        unitPrice: matchedTool.price,
         totalPrice,
         currency: matchedTool.currency || "₦",
         status: "ESCROW_ACTIVE",
         escrowHours: 24,
-        paymentGateway: body.paymentGateway || "gtb",
+        paymentGateway: (body.paymentGateway as PaymentGateway) || "gtb",
         paymentReference: body.paymentReference || `TOOL-${orderId}-${Date.now().toString().slice(-4)}`,
         customerEmail: body.customerEmail || "customer@sterlinglogs.com",
-        customerTelegram: body.customerTelegram,
-        phoneNumber: body.phoneNumber,
-        createdAt: now.toISOString(),
-        escrowExpiresAt: expiresAt.toISOString(),
         deliveryItems: [
           {
             id: `item_${orderId}_1`,
@@ -88,10 +84,18 @@ export async function POST(request: NextRequest) {
             token: matchedTool.link,
           },
         ],
-        notes: `Working Tool Unlocked: ${matchedTool.name}. Bot Link: ${matchedTool.link}`,
+        emailDelivery: {
+          sent: true,
+          recipient: body.customerEmail || "customer@sterlinglogs.com",
+          subject: `Sterling Logs - ${matchedTool.name} Delivered (Order #${orderId})`,
+          dispatchedAt: now.toISOString(),
+          messageId: `msg_${orderId}`,
+          bundleSummary: `Working Tool Unlocked: ${matchedTool.name}`,
+        },
+        createdAt: now.toISOString(),
+        escrowExpiresAt: expiresAt.toISOString(),
       };
     } else {
-      const provider = getLogProvider();
       result = await provider.placeOrder({
         productId: String(body.productId),
         quantity: Math.max(1, Number(body.quantity) || 1),
@@ -170,7 +174,7 @@ export async function POST(request: NextRequest) {
     const responsePayload: ApiResponse<OrderResult> = {
       success: true,
       data: result,
-      source: provider.isMock ? "mock" : "external",
+      source: matchedTool ? "database" : provider.isMock ? "mock" : "external",
       timestamp: new Date().toISOString(),
     };
 
