@@ -13,9 +13,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Marketplace", href: "#top" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "Marketplace", href: "#top" },
 ];
 
 export const Header: React.FC = () => {
@@ -76,8 +77,8 @@ export const Header: React.FC = () => {
           <Link href="/login" className={styles.loginLink}>
             Log In
           </Link>
-          <LinkButton href="/signup" size="md">
-            Sign Up
+          <LinkButton href="/signup" size="md" id="header-get-started-btn">
+            Get Started &rarr;
           </LinkButton>
         </div>
 
