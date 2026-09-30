@@ -16,50 +16,7 @@ export interface WorkingToolItem {
   createdAt: string;
 }
 
-const DEFAULT_TOOLS: WorkingToolItem[] = [
-  {
-    id: "tool_tg_otp_01",
-    name: "Telegram SMS OTP & Verification Bot",
-    description:
-      "Instant 1-click SMS OTP receiver bot for USA, UK, and European virtual numbers. Fast delivery for Instagram, WhatsApp, and Telegram logins.",
-    link: "https://t.me/SterlingOTPBot",
-    category: "working_tools",
-    platform: "Telegram Bot",
-    price: 8500,
-    currency: "₦",
-    stock: 19,
-    tags: ["Telegram Bot", "SMS OTP", "Instant Access", "Verified"],
-    createdAt: "2026-09-30T10:00:00.000Z",
-  },
-  {
-    id: "tool_tg_session_02",
-    name: "Aged Account Cookie & Session Injector Bot",
-    description:
-      "Telegram bot for converting Netscape cookies and sessions into instant 1-click browser login scripts. Compatible with Dolphin Anty & AdsPower.",
-    link: "https://t.me/SterlingSessionBot",
-    category: "working_tools",
-    platform: "Telegram Bot",
-    price: 14000,
-    currency: "₦",
-    stock: 26,
-    tags: ["Telegram Bot", "Session Injector", "Cookies", "Anti-Detect"],
-    createdAt: "2026-09-30T11:00:00.000Z",
-  },
-  {
-    id: "tool_tg_warmer_03",
-    name: "Instagram & Social Auto-Warmer Bot",
-    description:
-      "Automated Telegram bot that schedules organic actions, story views, and scroll activities to raise account trust scores before running ads.",
-    link: "https://t.me/SterlingWarmerBot",
-    category: "working_tools",
-    platform: "Telegram Bot",
-    price: 19500,
-    currency: "₦",
-    stock: 33,
-    tags: ["Telegram Bot", "Auto Warmer", "High Trust", "Instagram"],
-    createdAt: "2026-09-30T12:00:00.000Z",
-  },
-];
+const DEFAULT_TOOLS: WorkingToolItem[] = [];
 
 // Storage file resolution
 function getStorageFilePath(): string {
@@ -69,7 +26,7 @@ function getStorageFilePath(): string {
 let inMemoryCache: WorkingToolItem[] | null = null;
 
 export async function getWorkingTools(): Promise<WorkingToolItem[]> {
-  if (inMemoryCache && inMemoryCache.length > 0) {
+  if (inMemoryCache !== null) {
     return inMemoryCache;
   }
 
@@ -78,17 +35,17 @@ export async function getWorkingTools(): Promise<WorkingToolItem[]> {
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath, "utf-8");
       const parsed = JSON.parse(fileData);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         inMemoryCache = parsed;
         return parsed;
       }
     }
   } catch (error) {
-    console.warn("[WorkingTools] Could not read from storage file, using defaults:", error);
+    console.warn("[WorkingTools] Could not read from storage file:", error);
   }
 
-  // Fallback to defaults
-  inMemoryCache = [...DEFAULT_TOOLS];
+  // Fallback to empty list
+  inMemoryCache = [];
   try {
     const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
@@ -96,7 +53,7 @@ export async function getWorkingTools(): Promise<WorkingToolItem[]> {
     }
     fs.writeFileSync(filePath, JSON.stringify(inMemoryCache, null, 2), "utf-8");
   } catch (err) {
-    console.warn("[WorkingTools] Could not seed default tools to file:", err);
+    console.warn("[WorkingTools] Could not write tools file:", err);
   }
 
   return inMemoryCache;

@@ -41,7 +41,18 @@ interface VaultTabProps {
 
 function getPlatformIcon(title: string) {
   const t = title.toLowerCase();
-  if (t.includes("working_tools") || t.includes("tool") || t.includes("bot")) return { icon: <FaTelegram />, bg: "rgba(34, 158, 217, 0.16)", color: "#229ED9" };
+  if (t.includes("working_tools") || t.includes("tool") || t.includes("bot"))
+    return {
+      icon: (
+        <img
+          src="/working-tools.png"
+          alt="Working Tools"
+          style={{ width: "16px", height: "16px", objectFit: "contain", verticalAlign: "middle" }}
+        />
+      ),
+      bg: "rgba(15, 23, 42, 0.08)",
+      color: "#0f172a",
+    };
   if (t.includes("proxy") || t.includes("vpn") || t.includes("socks")) return { icon: <Globe size={16} />, bg: "rgba(14, 165, 233, 0.12)", color: "#0ea5e9" };
   if (t.includes("rdp") || t.includes("vps") || t.includes("server")) return { icon: <Server size={16} />, bg: "rgba(139, 92, 246, 0.12)", color: "#8b5cf6" };
   if (t.includes("voice") || t.includes("phone") || t.includes("otp") || t.includes("number")) return { icon: <PhoneCall size={16} />, bg: "rgba(16, 185, 129, 0.12)", color: "#10b981" };
@@ -135,7 +146,6 @@ export const VaultTab: React.FC<VaultTabProps> = ({
             { id: "tiktok", label: "TikTok" },
             { id: "facebook", label: "Facebook" },
             { id: "telegram", label: "Telegram" },
-            { id: "software", label: "Software & Bots" },
           ].map((cat) => (
             <button
               key={cat.id}

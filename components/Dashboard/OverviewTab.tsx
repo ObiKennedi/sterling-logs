@@ -80,11 +80,17 @@ const CATEGORIES: CategoryDef[] = [
   {
     id: "working_tools",
     label: "Working tools",
-    icon: <FaTelegram size={24} />,
+    icon: (
+      <img
+        src="/working-tools.png"
+        alt="Working tools"
+        style={{ width: "36px", height: "36px", objectFit: "contain", display: "block" }}
+      />
+    ),
     color: "#FFFFFF",
-    bg: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
-    gradient: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
-    shadow: "0 6px 16px rgba(34, 158, 217, 0.38)",
+    bg: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+    gradient: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+    shadow: "0 6px 16px rgba(15, 23, 42, 0.35)",
     description: "Telegram bots & working links",
   },
   {
@@ -138,16 +144,6 @@ const CATEGORIES: CategoryDef[] = [
     description: "SMS & OTP virtual numbers",
   },
   {
-    id: "software",
-    label: "Software & Bots",
-    icon: <Terminal size={24} />,
-    color: "#FFFFFF",
-    bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-    gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-    shadow: "0 6px 16px rgba(245, 158, 11, 0.32)",
-    description: "Automation tools & bots",
-  },
-  {
     id: "reddit",
     label: "Reddit Logs",
     icon: <FaRedditAlien size={24} />,
@@ -193,7 +189,16 @@ const CATEGORIES: CategoryDef[] = [
 function getOrderIcon(title: string) {
   const p = title.toLowerCase();
   if (p.includes("working_tools") || p.includes("tool") || p.includes("bot")) {
-    return { icon: <FaTelegram />, color: "#229ED9" };
+    return {
+      icon: (
+        <img
+          src="/working-tools.png"
+          alt="Tool"
+          style={{ width: "16px", height: "16px", objectFit: "contain", verticalAlign: "middle" }}
+        />
+      ),
+      color: "#0f172a",
+    };
   }
   if (p.includes("instagram")) return { icon: <FaInstagram />, color: "#E1306C" };
   if (p.includes("twitter") || p.includes(" x")) return { icon: <FaXTwitter />, color: "#14171a" };
@@ -395,7 +400,6 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   "telegram",
                   "proxies",
                   "numbers",
-                  "software",
                   "reddit",
                   "mail",
                   "finance",

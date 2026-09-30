@@ -248,9 +248,15 @@ function getPlatformVisuals(category: string) {
       };
     case "working_tools":
       return {
-        icon: <FaTelegram />,
-        iconBg: "rgba(34, 158, 217, 0.16)",
-        iconColor: "#229ED9",
+        icon: (
+          <img
+            src="/working-tools.png"
+            alt="Working tools"
+            style={{ width: "18px", height: "18px", objectFit: "contain", verticalAlign: "middle" }}
+          />
+        ),
+        iconBg: "rgba(15, 23, 42, 0.08)",
+        iconColor: "#0f172a",
         label: "Working tools",
       };
     case "twitter":
@@ -528,17 +534,6 @@ export const HeroShowcase: React.FC = () => {
           onClick={() => setSelectedCategory("telegram")}
         >
           Telegram &amp; Reddit
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={selectedCategory === "software"}
-          className={`${styles.tabBtn} ${
-            selectedCategory === "software" ? styles.tabActive : ""
-          }`}
-          onClick={() => setSelectedCategory("software")}
-        >
-          Software &amp; Bots
         </button>
       </div>
 

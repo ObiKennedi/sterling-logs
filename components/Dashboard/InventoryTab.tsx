@@ -49,7 +49,17 @@ interface InventoryTabProps {
 function getPlatformIcon(platform: string, category?: string) {
   const p = (platform + " " + (category || "")).toLowerCase();
   if (p.includes("working_tools") || p.includes("tool") || p.includes("bot")) {
-    return { icon: <FaTelegram />, bg: "rgba(34, 158, 217, 0.16)", color: "#229ED9" };
+    return {
+      icon: (
+        <img
+          src="/working-tools.png"
+          alt="Working Tools"
+          style={{ width: "16px", height: "16px", objectFit: "contain", verticalAlign: "middle" }}
+        />
+      ),
+      bg: "rgba(15, 23, 42, 0.08)",
+      color: "#0f172a",
+    };
   }
   if (p.includes("proxy") || p.includes("vpn") || p.includes("socks")) {
     return { icon: <Globe size={16} />, bg: "rgba(14, 165, 233, 0.12)", color: "#0ea5e9" };
@@ -88,12 +98,21 @@ const CATEGORIES: { id: AccountCategory; label: string; icon: React.ReactNode }[
   { id: "all", label: "All Logs", icon: <Package size={14} /> },
   { id: "facebook", label: "Facebook", icon: <FaFacebookF size={13} color="#1877F2" /> },
   { id: "instagram", label: "Instagram", icon: <FaInstagram size={13} color="#E1306C" /> },
-  { id: "working_tools", label: "Working Tools", icon: <FaTelegram size={13} color="#229ED9" /> },
+  {
+    id: "working_tools",
+    label: "Working Tools",
+    icon: (
+      <img
+        src="/working-tools.png"
+        alt="Working Tools"
+        style={{ width: "14px", height: "14px", objectFit: "contain", verticalAlign: "middle" }}
+      />
+    ),
+  },
   { id: "twitter", label: "Twitter / X", icon: <FaXTwitter size={13} color="#0f1419" /> },
   { id: "tiktok", label: "TikTok", icon: <FaTiktok size={13} color="#000000" /> },
   { id: "proxies", label: "Proxies & VPN", icon: <Globe size={13} color="#0ea5e9" /> },
   { id: "numbers", label: "Virtual Numbers", icon: <PhoneCall size={13} color="#10b981" /> },
-  { id: "software", label: "Software & Bots", icon: <Terminal size={13} color="#f59e0b" /> },
   { id: "telegram", label: "Telegram", icon: <FaTelegram size={13} color="#229ED9" /> },
   { id: "reddit", label: "Reddit", icon: <FaRedditAlien size={13} color="#FF4500" /> },
   { id: "mail", label: "Webmail", icon: <Mail size={13} color="#8b5cf6" /> },

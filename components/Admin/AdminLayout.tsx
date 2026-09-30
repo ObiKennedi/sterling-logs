@@ -105,7 +105,17 @@ interface VendorProfile {
 
 function getPlatformIcon(platform: string) {
   const p = platform.toLowerCase();
-  if (p.includes("working_tools") || p.includes("tool") || p.includes("bot")) return { icon: <FaTelegram size={16} />, color: "#229ED9" };
+  if (p.includes("working_tools") || p.includes("tool") || p.includes("bot"))
+    return {
+      icon: (
+        <img
+          src="/working-tools.png"
+          alt="Tool"
+          style={{ width: "16px", height: "16px", objectFit: "contain", verticalAlign: "middle" }}
+        />
+      ),
+      color: "#0f172a",
+    };
   if (p.includes("proxy") || p.includes("vpn") || p.includes("socks")) return { icon: <Globe size={16} />, color: "#0ea5e9" };
   if (p.includes("rdp") || p.includes("vps") || p.includes("server")) return { icon: <Server size={16} />, color: "#8b5cf6" };
   if (p.includes("voice") || p.includes("phone") || p.includes("otp") || p.includes("number")) return { icon: <PhoneCall size={16} />, color: "#10b981" };
@@ -508,7 +518,11 @@ export const AdminLayout: React.FC = () => {
             className={`${styles.adminTabBtn} ${activeTab === "tools" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("tools")}
           >
-            <FaTelegram size={16} />
+            <img
+              src="/working-tools.png"
+              alt="Tools"
+              style={{ width: "16px", height: "16px", objectFit: "contain", verticalAlign: "middle" }}
+            />
             <span className={styles.tabLabelFull}>Working Tools &amp; Bots ({workingTools.length})</span>
             <span className={styles.tabLabelShort}>Tools ({workingTools.length})</span>
           </button>
@@ -691,7 +705,11 @@ export const AdminLayout: React.FC = () => {
                 <div className={styles.toolsQuickCard}>
                   <div className={styles.toolsQuickLeft}>
                     <div className={styles.toolsQuickIcon}>
-                      <FaTelegram size={24} />
+                      <img
+                        src="/working-tools.png"
+                        alt="Working Tools"
+                        style={{ width: "28px", height: "28px", objectFit: "contain" }}
+                      />
                     </div>
                     <div>
                       <h4 className={styles.toolsQuickTitle}>
@@ -1434,7 +1452,11 @@ export const AdminLayout: React.FC = () => {
                 <div className={styles.toolsHeaderCard}>
                   <div className={styles.toolsHeaderLeft}>
                     <div className={styles.toolsHeaderIconBox}>
-                      <FaTelegram size={24} />
+                      <img
+                        src="/working-tools.png"
+                        alt="Working Tools"
+                        style={{ width: "30px", height: "30px", objectFit: "contain" }}
+                      />
                     </div>
                     <div>
                       <h2 className={styles.toolsTitle}>Working Tools &amp; Telegram Bots</h2>
@@ -1473,7 +1495,11 @@ export const AdminLayout: React.FC = () => {
                 {/* Tools Grid / List */}
                 {workingTools.length === 0 ? (
                   <div className={styles.toolsEmptyCard}>
-                    <FaTelegram size={48} color="#229ED9" opacity={0.4} />
+                    <img
+                      src="/working-tools.png"
+                      alt="Working Tools"
+                      style={{ width: "56px", height: "56px", objectFit: "contain", opacity: 0.8 }}
+                    />
                     <h3>No Working Tools Added Yet</h3>
                     <p>Click &quot;Add tools&quot; to upload your first Telegram bot link or tool.</p>
                     <button
@@ -1492,7 +1518,11 @@ export const AdminLayout: React.FC = () => {
                         <div className={styles.toolCardHeader}>
                           <div className={styles.toolCardHeaderLeft}>
                             <div className={styles.toolIconCircle}>
-                              <FaTelegram size={18} />
+                              <img
+                                src="/working-tools.png"
+                                alt="Tool"
+                                style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                              />
                             </div>
                             <div>
                               <h3 className={styles.toolCardName}>{tool.name}</h3>
@@ -1575,7 +1605,11 @@ export const AdminLayout: React.FC = () => {
             <div className={styles.toolModalHeader}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <div className={styles.toolModalHeaderIcon}>
-                  <FaTelegram size={18} />
+                  <img
+                    src="/working-tools.png"
+                    alt="Tool"
+                    style={{ width: "22px", height: "22px", objectFit: "contain" }}
+                  />
                 </div>
                 <div>
                   <h3 className={styles.toolModalTitle}>Add Working Tool</h3>
