@@ -18,6 +18,7 @@ import {
   PhoneCall,
   Terminal,
   ShoppingBag,
+  ExternalLink,
 } from "lucide-react";
 import {
   FaInstagram,
@@ -40,10 +41,11 @@ interface VaultTabProps {
 
 function getPlatformIcon(title: string) {
   const t = title.toLowerCase();
+  if (t.includes("working_tools") || t.includes("tool") || t.includes("bot")) return { icon: <FaTelegram />, bg: "rgba(34, 158, 217, 0.16)", color: "#229ED9" };
   if (t.includes("proxy") || t.includes("vpn") || t.includes("socks")) return { icon: <Globe size={16} />, bg: "rgba(14, 165, 233, 0.12)", color: "#0ea5e9" };
   if (t.includes("rdp") || t.includes("vps") || t.includes("server")) return { icon: <Server size={16} />, bg: "rgba(139, 92, 246, 0.12)", color: "#8b5cf6" };
   if (t.includes("voice") || t.includes("phone") || t.includes("otp") || t.includes("number")) return { icon: <PhoneCall size={16} />, bg: "rgba(16, 185, 129, 0.12)", color: "#10b981" };
-  if (t.includes("software") || t.includes("bot") || t.includes("dolphin")) return { icon: <Terminal size={16} />, bg: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" };
+  if (t.includes("software") || t.includes("dolphin")) return { icon: <Terminal size={16} />, bg: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" };
   if (t.includes("instagram")) return { icon: <FaInstagram />, bg: "rgba(225, 48, 108, 0.12)", color: "#E1306C" };
   if (t.includes("twitter") || t.includes(" x")) return { icon: <FaXTwitter />, bg: "rgba(15, 20, 25, 0.08)", color: "#0f1419" };
   if (t.includes("tiktok")) return { icon: <FaTiktok />, bg: "rgba(0, 0, 0, 0.08)", color: "#000000" };
@@ -128,6 +130,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
             { id: "proxies", label: "Proxies & VPN" },
             { id: "numbers", label: "Virtual Numbers" },
             { id: "instagram", label: "Instagram" },
+            { id: "working_tools", label: "Working Tools" },
             { id: "twitter", label: "Twitter / X" },
             { id: "tiktok", label: "TikTok" },
             { id: "facebook", label: "Facebook" },
@@ -252,168 +255,280 @@ export const VaultTab: React.FC<VaultTabProps> = ({
 
                 {/* Delivered Credentials */}
                 <div className={styles.credentialsVault}>
-                  <span className={styles.vaultSectionTitle}>
-                    <Lock size={13} />
-                    Your Log Login Details ({order.deliveryItems.length} Account)
-                  </span>
-
-                  {order.deliveryItems.map((item, idx) => {
-                    const passKey = `${order.orderId}_pass_${idx}`;
-                    const isPassVisible = visiblePasswords[passKey];
+                  {(() => {
+                    const isWorkingTool =
+                      order.productId?.startsWith("tool_") ||
+                      order.deliveryItems.some(
+                        (it) =>
+                          it.credentials?.includes("t.me") ||
+                          it.token?.includes("t.me") ||
+                          it.credentials?.toLowerCase().includes("telegram bot")
+                      );
 
                     return (
-                      <div
-                        key={item.id || idx}
-                        style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-                      >
-                        <div className={styles.credentialsGrid}>
-                          {/* Username / Login Identifier */}
-                          <div className={styles.credentialField}>
-                            <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>Login Email or Username</span>
-                              <span className={styles.fieldValue}>
-                                {item.username || item.id || `User_${order.orderId}`}
-                              </span>
-                            </div>
-                            <div className={styles.fieldActionBtns}>
-                              <button
-                                type="button"
-                                className={styles.copyBtn}
-                                title="Copy Login"
-                                onClick={() =>
-                                  handleCopy(
-                                    item.username || item.id || "",
-                                    `${order.orderId}_user_${idx}`
-                                  )
-                                }
-                              >
-                                {copiedId === `${order.orderId}_user_${idx}` ? (
-                                  <Check size={14} color="#059669" />
-                                ) : (
-                                  <Copy size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
+                      <>
+                        <span className={styles.vaultSectionTitle}>
+                          <Lock size={13} />
+                          {isWorkingTool
+                            ? "Unlocked Working Tool & Bot Access"
+                            : `Your Log Login Details (${order.deliveryItems.length} Account)`}
+                        </span>
 
-                          {/* Password */}
-                          <div className={styles.credentialField}>
-                            <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>Password</span>
-                              <span className={styles.fieldValue}>
-                                {isPassVisible
-                                  ? item.credentials || "P@ssword2026!#"
-                                  : "••••••••••••••••"}
-                              </span>
-                            </div>
-                            <div className={styles.fieldActionBtns}>
-                              <button
-                                type="button"
-                                className={styles.copyBtn}
-                                title={isPassVisible ? "Hide password" : "Show password"}
-                                onClick={() => togglePasswordVisibility(passKey)}
-                              >
-                                {isPassVisible ? <EyeOff size={14} /> : <Eye size={14} />}
-                              </button>
-                              <button
-                                type="button"
-                                className={styles.copyBtn}
-                                title="Copy Password"
-                                onClick={() =>
-                                  handleCopy(
-                                    item.credentials || "P@ssword2026!#",
-                                    passKey
-                                  )
-                                }
-                              >
-                                {copiedId === passKey ? (
-                                  <Check size={14} color="#059669" />
-                                ) : (
-                                  <Copy size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
+                        {order.deliveryItems.map((item, idx) => {
+                          const passKey = `${order.orderId}_pass_${idx}`;
+                          const isPassVisible = visiblePasswords[passKey];
 
-                          {/* 2FA Secret Key */}
-                          <div className={styles.credentialField}>
-                            <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>2FA Key (Two-Factor)</span>
-                              <span className={styles.fieldValue}>
-                                {item.twoFactorSecret || "JBSWY3DPEHPK3PXP"}
-                              </span>
-                            </div>
-                            <div className={styles.fieldActionBtns}>
-                              <button
-                                type="button"
-                                className={styles.copyBtn}
-                                title="Copy 2FA Secret"
-                                onClick={() =>
-                                  handleCopy(
-                                    item.twoFactorSecret || "JBSWY3DPEHPK3PXP",
-                                    `${order.orderId}_2fa_${idx}`
-                                  )
-                                }
-                              >
-                                {copiedId === `${order.orderId}_2fa_${idx}` ? (
-                                  <Check size={14} color="#059669" />
-                                ) : (
-                                  <Copy size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
+                          const itemIsTool =
+                            isWorkingTool ||
+                            item.credentials?.includes("t.me") ||
+                            item.token?.includes("t.me") ||
+                            item.credentials?.toLowerCase().includes("telegram bot");
 
-                          {/* Original Email (OGE) */}
-                          <div className={styles.credentialField}>
-                            <div className={styles.fieldLeft}>
-                              <span className={styles.fieldLabel}>Original Email (OGE)</span>
-                              <span className={styles.fieldValue}>
-                                {item.ogeEmail || "oge_recovery@proton.me"}
-                              </span>
-                            </div>
-                            <div className={styles.fieldActionBtns}>
-                              <button
-                                type="button"
-                                className={styles.copyBtn}
-                                title="Copy OGE"
-                                onClick={() =>
-                                  handleCopy(
-                                    item.ogeEmail || "oge_recovery@proton.me",
-                                    `${order.orderId}_oge_${idx}`
-                                  )
-                                }
-                              >
-                                {copiedId === `${order.orderId}_oge_${idx}` ? (
-                                  <Check size={14} color="#059669" />
-                                ) : (
-                                  <Copy size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                          if (itemIsTool) {
+                            const rawLink =
+                              (item.token?.startsWith("http") ? item.token : null) ||
+                              (item.credentials?.startsWith("http") ? item.credentials : null) ||
+                              item.credentials?.match(/https?:\/\/[^\s]+/)?.[0] ||
+                              (item.token ? `https://t.me/${item.token.replace("@", "")}` : "https://t.me/SterlingOTPBot");
 
-                        {/* Raw Cookies / Token Code Box */}
-                        <div className={styles.tokenCodeBox}>
-                          <span className={styles.tokenSnippet}>
-                            Cookies:{" "}
-                            {item.cookies
-                              ? item.cookies.slice(0, 75) + "..."
-                              : `[{"domain":".session","name":"sessionid","value":"${order.orderId}..."}]`}
-                          </span>
-                          <button
-                            type="button"
-                            className={styles.downloadCookieBtn}
-                            onClick={() => downloadJsonBundle(order)}
-                          >
-                            <Download size={13} />
-                            <span>Download .JSON</span>
-                          </button>
-                        </div>
-                      </div>
+                            return (
+                              <div
+                                key={item.id || idx}
+                                style={{
+                                  background: "linear-gradient(135deg, rgba(42, 171, 238, 0.08) 0%, rgba(34, 158, 217, 0.12) 100%)",
+                                  border: "1px solid rgba(34, 158, 217, 0.35)",
+                                  borderRadius: "12px",
+                                  padding: "16px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "12px",
+                                }}
+                              >
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                                  <div>
+                                    <span style={{ fontSize: "0.72rem", textTransform: "uppercase", fontWeight: 800, color: "#0284c7", letterSpacing: "0.5px" }}>
+                                      🔒 Unlocked Private Bot Access
+                                    </span>
+                                    <h4 style={{ margin: "3px 0 0", color: "#0f172a", fontSize: "0.95rem" }}>
+                                      {item.username || order.productTitle}
+                                    </h4>
+                                  </div>
+                                  <a
+                                    href={rawLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: "8px",
+                                      padding: "8px 18px",
+                                      background: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
+                                      color: "#ffffff",
+                                      borderRadius: "8px",
+                                      fontWeight: 700,
+                                      fontSize: "0.825rem",
+                                      textDecoration: "none",
+                                      boxShadow: "0 4px 12px rgba(34, 158, 217, 0.3)",
+                                    }}
+                                  >
+                                    <FaTelegram size={14} />
+                                    <span>Launch Telegram Bot</span>
+                                    <ExternalLink size={12} />
+                                  </a>
+                                </div>
+
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    background: "#ffffff",
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: "8px",
+                                    padding: "8px 12px",
+                                    gap: "10px",
+                                  }}
+                                >
+                                  <code style={{ fontSize: "0.8125rem", color: "#0284c7", fontWeight: 600, wordBreak: "break-all" }}>
+                                    {rawLink}
+                                  </code>
+                                  <button
+                                    type="button"
+                                    className={styles.copyBtn}
+                                    title="Copy Bot Link"
+                                    onClick={() => handleCopy(rawLink, `${order.orderId}_bot_${idx}`)}
+                                  >
+                                    {copiedId === `${order.orderId}_bot_${idx}` ? (
+                                      <Check size={14} color="#059669" />
+                                    ) : (
+                                      <Copy size={14} />
+                                    )}
+                                  </button>
+                                </div>
+
+                                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                                  Verified purchase · You have direct access to this bot. Backed by Sterling 24-Hour Guarantee.
+                                </span>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div
+                              key={item.id || idx}
+                              style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+                            >
+                              <div className={styles.credentialsGrid}>
+                                {/* Username / Login Identifier */}
+                                <div className={styles.credentialField}>
+                                  <div className={styles.fieldLeft}>
+                                    <span className={styles.fieldLabel}>Login Email or Username</span>
+                                    <span className={styles.fieldValue}>
+                                      {item.username || item.id || `User_${order.orderId}`}
+                                    </span>
+                                  </div>
+                                  <div className={styles.fieldActionBtns}>
+                                    <button
+                                      type="button"
+                                      className={styles.copyBtn}
+                                      title="Copy Login"
+                                      onClick={() =>
+                                        handleCopy(
+                                          item.username || item.id || "",
+                                          `${order.orderId}_user_${idx}`
+                                        )
+                                      }
+                                    >
+                                      {copiedId === `${order.orderId}_user_${idx}` ? (
+                                        <Check size={14} color="#059669" />
+                                      ) : (
+                                        <Copy size={14} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Password */}
+                                <div className={styles.credentialField}>
+                                  <div className={styles.fieldLeft}>
+                                    <span className={styles.fieldLabel}>Password</span>
+                                    <span className={styles.fieldValue}>
+                                      {isPassVisible
+                                        ? item.credentials || "P@ssword2026!#"
+                                        : "••••••••••••••••"}
+                                    </span>
+                                  </div>
+                                  <div className={styles.fieldActionBtns}>
+                                    <button
+                                      type="button"
+                                      className={styles.copyBtn}
+                                      title={isPassVisible ? "Hide password" : "Show password"}
+                                      onClick={() => togglePasswordVisibility(passKey)}
+                                    >
+                                      {isPassVisible ? <EyeOff size={14} /> : <Eye size={14} />}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={styles.copyBtn}
+                                      title="Copy Password"
+                                      onClick={() =>
+                                        handleCopy(
+                                          item.credentials || "P@ssword2026!#",
+                                          passKey
+                                        )
+                                      }
+                                    >
+                                      {copiedId === passKey ? (
+                                        <Check size={14} color="#059669" />
+                                      ) : (
+                                        <Copy size={14} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* 2FA Secret Key */}
+                                <div className={styles.credentialField}>
+                                  <div className={styles.fieldLeft}>
+                                    <span className={styles.fieldLabel}>2FA Key (Two-Factor)</span>
+                                    <span className={styles.fieldValue}>
+                                      {item.twoFactorSecret || "JBSWY3DPEHPK3PXP"}
+                                    </span>
+                                  </div>
+                                  <div className={styles.fieldActionBtns}>
+                                    <button
+                                      type="button"
+                                      className={styles.copyBtn}
+                                      title="Copy 2FA Secret"
+                                      onClick={() =>
+                                        handleCopy(
+                                          item.twoFactorSecret || "JBSWY3DPEHPK3PXP",
+                                          `${order.orderId}_2fa_${idx}`
+                                        )
+                                      }
+                                    >
+                                      {copiedId === `${order.orderId}_2fa_${idx}` ? (
+                                        <Check size={14} color="#059669" />
+                                      ) : (
+                                        <Copy size={14} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Original Email (OGE) */}
+                                <div className={styles.credentialField}>
+                                  <div className={styles.fieldLeft}>
+                                    <span className={styles.fieldLabel}>Original Email (OGE)</span>
+                                    <span className={styles.fieldValue}>
+                                      {item.ogeEmail || "oge_recovery@proton.me"}
+                                    </span>
+                                  </div>
+                                  <div className={styles.fieldActionBtns}>
+                                    <button
+                                      type="button"
+                                      className={styles.copyBtn}
+                                      title="Copy OGE"
+                                      onClick={() =>
+                                        handleCopy(
+                                          item.ogeEmail || "oge_recovery@proton.me",
+                                          `${order.orderId}_oge_${idx}`
+                                        )
+                                      }
+                                    >
+                                      {copiedId === `${order.orderId}_oge_${idx}` ? (
+                                        <Check size={14} color="#059669" />
+                                      ) : (
+                                        <Copy size={14} />
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Raw Cookies / Token Code Box */}
+                              <div className={styles.tokenCodeBox}>
+                                <span className={styles.tokenSnippet}>
+                                  Cookies:{" "}
+                                  {item.cookies
+                                    ? item.cookies.slice(0, 75) + "..."
+                                    : `[{"domain":".session","name":"sessionid","value":"${order.orderId}..."}]`}
+                                </span>
+                                <button
+                                  type="button"
+                                  className={styles.downloadCookieBtn}
+                                  onClick={() => downloadJsonBundle(order)}
+                                >
+                                  <Download size={13} />
+                                  <span>Download .JSON</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
                     );
-                  })}
+                  })()}
                 </div>
 
                 {/* Footer Escrow Actions */}

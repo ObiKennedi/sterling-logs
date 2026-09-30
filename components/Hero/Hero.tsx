@@ -89,7 +89,7 @@ export const Hero: React.FC = () => {
 
           {/* CTAs */}
           <div className={styles.heroActions}>
-            <LinkButton href="/signup" size="lg" id="hero-get-started-btn">
+            <LinkButton href="/signup" size="lg">
               Get Started &rarr;
             </LinkButton>
             <Link href="/login" className={styles.loginCta} id="hero-login-btn">

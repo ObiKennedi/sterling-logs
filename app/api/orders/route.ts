@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getLogProvider } from "@/lib/providers";
 import { ApiResponse, DeliveredItem, OrderRequest, OrderResult } from "@/types/inventory";
+import { getWorkingTools, decrementToolStock } from "@/lib/storage/workingTools";
 
 export const dynamic = "force-dynamic";
 
@@ -47,15 +48,59 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const provider = getLogProvider();
-    const result = await provider.placeOrder({
-      productId: String(body.productId),
-      quantity: Math.max(1, Number(body.quantity) || 1),
-      customerEmail: body.customerEmail || "customer@sterlinglogs.com",
-      customerTelegram: body.customerTelegram,
-      paymentGateway: body.paymentGateway || "gtb",
-      phoneNumber: body.phoneNumber,
-    });
+    const workingTools = await getWorkingTools();
+    const matchedTool = workingTools.find((t) => t.id === String(body.productId));
+
+    let result: OrderResult;
+
+    if (matchedTool) {
+      const orderId = `STL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const qty = Math.max(1, Number(body.quantity) || 1);
+      const totalPrice = matchedTool.price * qty;
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      // Decrement the pieces available
+      await decrementToolStock(matchedTool.id, qty);
+
+      result = {
+        orderId,
+        productId: matchedTool.id,
+        productTitle: matchedTool.name,
+        quantity: qty,
+        unitPrice: matchedTool.price,
+        totalPrice,
+        currency: matchedTool.currency || "₦",
+        status: "ESCROW_ACTIVE",
+        escrowHours: 24,
+        paymentGateway: body.paymentGateway || "gtb",
+        paymentReference: body.paymentReference || `TOOL-${orderId}-${Date.now().toString().slice(-4)}`,
+        customerEmail: body.customerEmail || "customer@sterlinglogs.com",
+        customerTelegram: body.customerTelegram,
+        phoneNumber: body.phoneNumber,
+        createdAt: now.toISOString(),
+        escrowExpiresAt: expiresAt.toISOString(),
+        deliveryItems: [
+          {
+            id: `item_${orderId}_1`,
+            username: matchedTool.name,
+            credentials: `Telegram Bot Link: ${matchedTool.link}`,
+            token: matchedTool.link,
+          },
+        ],
+        notes: `Working Tool Unlocked: ${matchedTool.name}. Bot Link: ${matchedTool.link}`,
+      };
+    } else {
+      const provider = getLogProvider();
+      result = await provider.placeOrder({
+        productId: String(body.productId),
+        quantity: Math.max(1, Number(body.quantity) || 1),
+        customerEmail: body.customerEmail || "customer@sterlinglogs.com",
+        customerTelegram: body.customerTelegram,
+        paymentGateway: body.paymentGateway || "gtb",
+        phoneNumber: body.phoneNumber,
+      });
+    }
 
     // Save live order directly to Neon DB
     try {

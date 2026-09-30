@@ -1,9 +1,10 @@
 export type AccountCategory =
   | "all"
+  | "facebook"
   | "instagram"
+  | "working_tools"
   | "twitter"
   | "tiktok"
-  | "facebook"
   | "telegram"
   | "reddit"
   | "proxies"
@@ -36,6 +37,7 @@ export interface InventoryProduct {
   warrantyHours: number;
   verificationSnippet: string;
   description?: string;
+  link?: string;
   raw?: Record<string, unknown>;
 }
 

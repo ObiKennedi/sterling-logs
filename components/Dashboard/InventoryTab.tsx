@@ -23,6 +23,7 @@ import {
   Check,
   Mail,
   CreditCard,
+  ExternalLink,
 } from "lucide-react";
 import {
   FaInstagram,
@@ -47,6 +48,9 @@ interface InventoryTabProps {
 
 function getPlatformIcon(platform: string, category?: string) {
   const p = (platform + " " + (category || "")).toLowerCase();
+  if (p.includes("working_tools") || p.includes("tool") || p.includes("bot")) {
+    return { icon: <FaTelegram />, bg: "rgba(34, 158, 217, 0.16)", color: "#229ED9" };
+  }
   if (p.includes("proxy") || p.includes("vpn") || p.includes("socks")) {
     return { icon: <Globe size={16} />, bg: "rgba(14, 165, 233, 0.12)", color: "#0ea5e9" };
   }
@@ -56,7 +60,7 @@ function getPlatformIcon(platform: string, category?: string) {
   if (p.includes("voice") || p.includes("phone") || p.includes("otp") || p.includes("number") || p.includes("text")) {
     return { icon: <PhoneCall size={16} />, bg: "rgba(16, 185, 129, 0.12)", color: "#10b981" };
   }
-  if (p.includes("software") || p.includes("bot") || p.includes("dolphin") || p.includes("tool")) {
+  if (p.includes("software") || p.includes("dolphin")) {
     return { icon: <Terminal size={16} />, bg: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" };
   }
   if (p.includes("instagram")) {
@@ -82,18 +86,19 @@ function getPlatformIcon(platform: string, category?: string) {
 
 const CATEGORIES: { id: AccountCategory; label: string; icon: React.ReactNode }[] = [
   { id: "all", label: "All Logs", icon: <Package size={14} /> },
-  { id: "facebook", label: "Facebook", icon: <FaFacebookF size={13} /> },
-  { id: "instagram", label: "Instagram", icon: <FaInstagram size={13} /> },
-  { id: "twitter", label: "Twitter / X", icon: <FaXTwitter size={13} /> },
-  { id: "tiktok", label: "TikTok", icon: <FaTiktok size={13} /> },
-  { id: "proxies", label: "Proxies & VPN", icon: <Globe size={13} /> },
-  { id: "numbers", label: "Virtual Numbers", icon: <PhoneCall size={13} /> },
-  { id: "software", label: "Software & Bots", icon: <Terminal size={13} /> },
-  { id: "telegram", label: "Telegram", icon: <FaTelegram size={13} /> },
-  { id: "reddit", label: "Reddit", icon: <FaRedditAlien size={13} /> },
-  { id: "mail", label: "Webmail", icon: <Mail size={13} /> },
-  { id: "finance", label: "Cards & Banks", icon: <CreditCard size={13} /> },
-  { id: "other", label: "More Logs", icon: <ShieldCheck size={13} /> },
+  { id: "facebook", label: "Facebook", icon: <FaFacebookF size={13} color="#1877F2" /> },
+  { id: "instagram", label: "Instagram", icon: <FaInstagram size={13} color="#E1306C" /> },
+  { id: "working_tools", label: "Working Tools", icon: <FaTelegram size={13} color="#229ED9" /> },
+  { id: "twitter", label: "Twitter / X", icon: <FaXTwitter size={13} color="#0f1419" /> },
+  { id: "tiktok", label: "TikTok", icon: <FaTiktok size={13} color="#000000" /> },
+  { id: "proxies", label: "Proxies & VPN", icon: <Globe size={13} color="#0ea5e9" /> },
+  { id: "numbers", label: "Virtual Numbers", icon: <PhoneCall size={13} color="#10b981" /> },
+  { id: "software", label: "Software & Bots", icon: <Terminal size={13} color="#f59e0b" /> },
+  { id: "telegram", label: "Telegram", icon: <FaTelegram size={13} color="#229ED9" /> },
+  { id: "reddit", label: "Reddit", icon: <FaRedditAlien size={13} color="#FF4500" /> },
+  { id: "mail", label: "Webmail", icon: <Mail size={13} color="#8b5cf6" /> },
+  { id: "finance", label: "Cards & Banks", icon: <CreditCard size={13} color="#00d284" /> },
+  { id: "other", label: "More Logs", icon: <ShieldCheck size={13} color="#004bef" /> },
 ];
 
 export const InventoryTab: React.FC<InventoryTabProps> = ({
@@ -282,7 +287,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           </div>
           <div className={styles.statDetails}>
             <span className={styles.statNumber}>{inStockCount}</span>
-            <span className={styles.statLabel}>Ready to Buy</span>
+            <span className={styles.statLabel}>Available Pieces</span>
           </div>
         </div>
 
@@ -328,7 +333,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                 checked={inStockOnly}
                 onChange={(e) => setInStockOnly(e.target.checked)}
               />
-              <span>Only Show Available Logs</span>
+              <span>Only Show Available Pieces</span>
             </label>
 
             <select
@@ -339,7 +344,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
               <option value="popular">Most Popular</option>
               <option value="price-asc">Cheapest First</option>
               <option value="price-desc">Highest Price First</option>
-              <option value="stock-desc">Most in Stock</option>
+              <option value="stock-desc">Most Pieces Available</option>
             </select>
           </div>
         </div>
@@ -413,17 +418,17 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 
                     {product.stock <= 0 ? (
                       <span className={`${styles.stockBadge} ${styles.outOfStock}`}>
-                        Out of Stock
+                        0 pieces left
                       </span>
                     ) : product.isPopular ? (
                       <span className={`${styles.stockBadge} ${styles.highDemand}`}>
                         <Flame size={11} />
-                        High Demand ({product.stock})
+                        High Demand ({product.stock} pieces)
                       </span>
                     ) : (
                       <span className={`${styles.stockBadge} ${styles.inStock}`}>
                         <Zap size={11} />
-                        {product.stock} in stock
+                        {product.stock} pieces
                       </span>
                     )}
                   </div>
@@ -466,19 +471,40 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                       <span>Details</span>
                     </button>
 
-                    <button
-                      type="button"
-                      className={styles.buyBtn}
-                      disabled={product.stock <= 0}
-                      onClick={() => {
-                        setPurchaseSuccessOrder(null);
-                        setPurchaseError(null);
-                        setPurchasingProduct(product);
-                      }}
-                    >
-                      <span>Buy Log</span>
-                      <ArrowRight size={13} />
-                    </button>
+                    {product.category === "working_tools" ? (
+                      <button
+                        type="button"
+                        className={styles.buyBtn}
+                        disabled={product.stock <= 0}
+                        style={{
+                          background: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
+                          color: "#ffffff",
+                        }}
+                        onClick={() => {
+                          setPurchaseSuccessOrder(null);
+                          setPurchaseError(null);
+                          setPurchasingProduct(product);
+                        }}
+                      >
+                        <FaTelegram size={13} />
+                        <span>Buy Tool</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.buyBtn}
+                        disabled={product.stock <= 0}
+                        onClick={() => {
+                          setPurchaseSuccessOrder(null);
+                          setPurchaseError(null);
+                          setPurchasingProduct(product);
+                        }}
+                      >
+                        <span>Buy Log</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -526,11 +552,13 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
               >
                 <div>
                   <span style={{ color: "#64748b" }}>Category:</span>{" "}
-                  <strong style={{ textTransform: "capitalize" }}>{inspectingProduct.category}</strong>
+                  <strong style={{ textTransform: "capitalize" }}>
+                    {inspectingProduct.category === "working_tools" ? "Working Tools" : inspectingProduct.category}
+                  </strong>
                 </div>
                 <div>
                   <span style={{ color: "#64748b" }}>Available:</span>{" "}
-                  <strong>{inspectingProduct.stock} in stock</strong>
+                  <strong>{inspectingProduct.stock} pieces</strong>
                 </div>
                 <div>
                   <span style={{ color: "#64748b" }}>Delivery:</span>{" "}
@@ -552,10 +580,12 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                 }}
               >
                 <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase" }}>
-                  Login Format (What you get):
+                  {inspectingProduct.category === "working_tools" ? "Tool Access (Delivered Upon Purchase):" : "Login Format (What you get):"}
                 </div>
                 <code style={{ fontSize: "0.8125rem", color: "#004bef", fontWeight: 600, wordBreak: "break-all" }}>
-                  {inspectingProduct.format}
+                  {inspectingProduct.category === "working_tools"
+                    ? "🔒 Verified Telegram Bot Link (Unlocked and saved directly to your Vault)"
+                    : inspectingProduct.format}
                 </code>
               </div>
 
@@ -577,22 +607,46 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  className={styles.buyBtn}
-                  disabled={inspectingProduct.stock <= 0}
-                  onClick={() => {
-                    const toBuy = inspectingProduct;
-                    setInspectingProduct(null);
-                    setPurchaseSuccessOrder(null);
-                    setPurchaseError(null);
-                    setPurchasingProduct(toBuy);
-                  }}
-                  style={{ padding: "10px 20px" }}
-                >
-                  <ArrowRight size={14} />
-                  <span>Buy Log Now</span>
-                </button>
+                {inspectingProduct.category === "working_tools" ? (
+                  <button
+                    type="button"
+                    className={styles.buyBtn}
+                    disabled={inspectingProduct.stock <= 0}
+                    style={{
+                      background: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
+                      color: "#ffffff",
+                      padding: "10px 20px",
+                    }}
+                    onClick={() => {
+                      const toBuy = inspectingProduct;
+                      setInspectingProduct(null);
+                      setPurchaseSuccessOrder(null);
+                      setPurchaseError(null);
+                      setPurchasingProduct(toBuy);
+                    }}
+                  >
+                    <FaTelegram size={14} />
+                    <span>Buy Tool Now</span>
+                    <ArrowRight size={14} />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.buyBtn}
+                    disabled={inspectingProduct.stock <= 0}
+                    onClick={() => {
+                      const toBuy = inspectingProduct;
+                      setInspectingProduct(null);
+                      setPurchaseSuccessOrder(null);
+                      setPurchaseError(null);
+                      setPurchasingProduct(toBuy);
+                    }}
+                    style={{ padding: "10px 20px" }}
+                  >
+                    <ArrowRight size={14} />
+                    <span>Buy Log Now</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -604,7 +658,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         <div className={styles.modalBackdrop} onClick={() => setPurchasingProduct(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h3>Buy Log</h3>
+              <h3>{purchasingProduct.category === "working_tools" ? "Buy Working Tool" : "Buy Log"}</h3>
               <button
                 type="button"
                 className={styles.closeModalBtn}
@@ -635,8 +689,10 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                   <div>
                     <h3 style={{ margin: "0 0 6px 0", color: "#0f172a" }}>Payment Successful!</h3>
                     <p style={{ margin: 0, fontSize: "0.875rem", color: "#64748b" }}>
-                      Order <strong>#{purchaseSuccessOrder.orderId}</strong> is successful. Your login details,
-                      password, and 2FA are ready in your vault now.
+                      Order <strong>#{purchaseSuccessOrder.orderId}</strong> is successful.{" "}
+                      {purchasingProduct.category === "working_tools"
+                        ? "Your private Telegram Bot link is unlocked and ready in your vault now."
+                        : "Your login details, password, and 2FA are ready in your vault now."}
                     </p>
                   </div>
 
@@ -650,14 +706,14 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     }}
                   >
                     <Lock size={15} />
-                    <span>Open Vault &amp; View Log</span>
+                    <span>Open Vault &amp; View {purchasingProduct.category === "working_tools" ? "Tool Link" : "Log"}</span>
                   </button>
                 </div>
               ) : (
                 <>
                   <div className={styles.checkoutDetails}>
                     <div className={styles.checkoutRow}>
-                      <span className={styles.label}>Log:</span>
+                      <span className={styles.label}>{purchasingProduct.category === "working_tools" ? "Tool:" : "Log:"}</span>
                       <span className={styles.value}>{purchasingProduct.title}</span>
                     </div>
                     <div className={styles.checkoutRow}>

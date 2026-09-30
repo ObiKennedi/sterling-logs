@@ -246,6 +246,13 @@ function getPlatformVisuals(category: string) {
         iconColor: "#E1306C",
         label: "Instagram",
       };
+    case "working_tools":
+      return {
+        icon: <FaTelegram />,
+        iconBg: "rgba(34, 158, 217, 0.16)",
+        iconColor: "#229ED9",
+        label: "Working tools",
+      };
     case "twitter":
       return {
         icon: <FaXTwitter />,
@@ -470,6 +477,17 @@ export const HeroShowcase: React.FC = () => {
         <button
           type="button"
           role="tab"
+          aria-selected={selectedCategory === "working_tools"}
+          className={`${styles.tabBtn} ${
+            selectedCategory === "working_tools" ? styles.tabActive : ""
+          }`}
+          onClick={() => setSelectedCategory("working_tools")}
+        >
+          Working Tools
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={selectedCategory === "twitter"}
           className={`${styles.tabBtn} ${
             selectedCategory === "twitter" ? styles.tabActive : ""
@@ -562,7 +580,7 @@ export const HeroShowcase: React.FC = () => {
                 ) : (
                   <span className={styles.stockBadge}>
                     <Zap size={12} />
-                    {product.stock} in stock
+                    {product.stock} pieces
                   </span>
                 )}
               </div>

@@ -23,6 +23,9 @@ import {
   Globe,
   PhoneCall,
   Search,
+  Trash2,
+  Wrench,
+  Link2,
 } from "lucide-react";
 import {
   FaInstagram,
@@ -37,7 +40,20 @@ import { Loader } from "@/components/Loader";
 import { formatNaira } from "@/lib/utils/format";
 import styles from "./AdminLayout.module.scss";
 
-type AdminTab = "overview" | "orders" | "users" | "vendor";
+type AdminTab = "overview" | "orders" | "users" | "vendor" | "tools";
+
+export interface AdminTool {
+  id: string;
+  name: string;
+  description: string;
+  link: string;
+  category: string;
+  platform: string;
+  price: number;
+  currency?: string;
+  tags: string[];
+  createdAt: string;
+}
 
 interface AdminUser {
   id: string;
@@ -88,6 +104,7 @@ interface VendorProfile {
 
 function getPlatformIcon(platform: string) {
   const p = platform.toLowerCase();
+  if (p.includes("working_tools") || p.includes("tool") || p.includes("bot")) return { icon: <FaTelegram size={16} />, color: "#229ED9" };
   if (p.includes("proxy") || p.includes("vpn") || p.includes("socks")) return { icon: <Globe size={16} />, color: "#0ea5e9" };
   if (p.includes("rdp") || p.includes("vps") || p.includes("server")) return { icon: <Server size={16} />, color: "#8b5cf6" };
   if (p.includes("voice") || p.includes("phone") || p.includes("otp") || p.includes("number")) return { icon: <PhoneCall size={16} />, color: "#10b981" };
@@ -143,6 +160,20 @@ export const AdminLayout: React.FC = () => {
   const [markupMultiplier, setMarkupMultiplier] = useState<number>(1.5);
   const [flashMessage, setFlashMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Working Tools State
+  const [workingTools, setWorkingTools] = useState<AdminTool[]>([]);
+  const [isAddToolOpen, setIsAddToolOpen] = useState(false);
+  const [isSubmittingTool, setIsSubmittingTool] = useState(false);
+  const [newToolForm, setNewToolForm] = useState({
+    name: "",
+    link: "",
+    description: "",
+    price: "8500",
+    stock: "",
+    tags: "Telegram Bot, Direct Access, Verified",
+    platform: "Telegram Bot",
+  });
+
   // Filters & search state
   const [orderSearchQuery, setOrderSearchQuery] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
@@ -168,10 +199,93 @@ export const AdminLayout: React.FC = () => {
         if (json.data.purchases) setPurchases(json.data.purchases);
         if (json.data.vendor) setVendor(json.data.vendor);
       }
+
+      // Fetch working tools
+      try {
+        const toolsRes = await fetch("/api/admin/tools", { cache: "no-store" });
+        const toolsJson = await toolsRes.json();
+        if (toolsJson.success && toolsJson.data) {
+          setWorkingTools(toolsJson.data);
+        }
+      } catch (toolsErr) {
+        console.warn("[AdminLayout] Error fetching tools:", toolsErr);
+      }
     } catch (err) {
       console.warn("[AdminLayout] Error fetching admin overview:", err);
     } finally {
       if (!silent) setIsLoading(false);
+    }
+  };
+
+  // Create new working tool
+  const handleCreateTool = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newToolForm.name.trim()) {
+      alert("Please enter a tool name.");
+      return;
+    }
+    if (!newToolForm.link.trim()) {
+      alert("Please enter a Telegram bot link or tool URL.");
+      return;
+    }
+
+    try {
+      setIsSubmittingTool(true);
+      const res = await fetch("/api/admin/tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newToolForm.name,
+          link: newToolForm.link,
+          description: newToolForm.description,
+          price: Number(newToolForm.price) || 0,
+          stock: newToolForm.stock ? Number(newToolForm.stock) : undefined,
+          tags: newToolForm.tags,
+          platform: newToolForm.platform || "Telegram Bot",
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setWorkingTools((prev) => [data.data, ...prev]);
+        showNotification(data.message || `Tool "${data.data.name}" added successfully!`);
+        setIsAddToolOpen(false);
+        setNewToolForm({
+          name: "",
+          link: "",
+          description: "",
+          price: "8500",
+          stock: "",
+          tags: "Telegram Bot, Direct Access, Verified",
+          platform: "Telegram Bot",
+        });
+      } else {
+        showNotification(data.error || "Failed to add tool", "error");
+      }
+    } catch {
+      showNotification("Error saving tool", "error");
+    } finally {
+      setIsSubmittingTool(false);
+    }
+  };
+
+  // Delete working tool
+  const handleDeleteTool = async (toolId: string, toolName: string) => {
+    if (!confirm(`Are you sure you want to delete tool "${toolName}"? It will be removed from the Working tools category.`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/tools?id=${encodeURIComponent(toolId)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWorkingTools((prev) => prev.filter((t) => t.id !== toolId));
+        showNotification(`Tool "${toolName}" deleted.`);
+      } else {
+        showNotification(data.error || "Failed to delete tool", "error");
+      }
+    } catch {
+      showNotification("Error deleting tool", "error");
     }
   };
 
@@ -341,6 +455,17 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           <div className={styles.topBarActions}>
+            <button
+              type="button"
+              id="admin-add-tools-top-btn"
+              className={styles.addToolsTopBtn}
+              onClick={() => setIsAddToolOpen(true)}
+              title="Upload new tool or Telegram bot link"
+            >
+              <Plus size={15} />
+              <span>Add tools</span>
+            </button>
+
             <Link href="/" className={styles.homeLinkBtn} title="Public Marketplace Site">
               <ExternalLink size={14} />
               <span className={styles.btnText}>Public Site</span>
@@ -375,6 +500,16 @@ export const AdminLayout: React.FC = () => {
             <TrendingUp size={16} />
             <span className={styles.tabLabelFull}>Platform Overview</span>
             <span className={styles.tabLabelShort}>Overview</span>
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.adminTabBtn} ${activeTab === "tools" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("tools")}
+          >
+            <FaTelegram size={16} />
+            <span className={styles.tabLabelFull}>Working Tools &amp; Bots ({workingTools.length})</span>
+            <span className={styles.tabLabelShort}>Tools ({workingTools.length})</span>
           </button>
 
           <button
@@ -548,6 +683,41 @@ export const AdminLayout: React.FC = () => {
                     >
                       <Server size={22} />
                     </div>
+                  </div>
+                </div>
+
+                {/* Working Tools Quick Banner */}
+                <div className={styles.toolsQuickCard}>
+                  <div className={styles.toolsQuickLeft}>
+                    <div className={styles.toolsQuickIcon}>
+                      <FaTelegram size={24} />
+                    </div>
+                    <div>
+                      <h4 className={styles.toolsQuickTitle}>
+                        Working Tools &amp; Telegram Bots ({workingTools.length} Active)
+                      </h4>
+                      <p className={styles.toolsQuickDesc}>
+                        Manage external Telegram bot links and direct tools uploaded to the <strong>Working tools</strong> dashboard category (positioned next to Instagram).
+                      </p>
+                    </div>
+                  </div>
+                  <div className={styles.toolsQuickActions}>
+                    <button
+                      type="button"
+                      className={styles.addToolsPrimaryBtn}
+                      onClick={() => setIsAddToolOpen(true)}
+                    >
+                      <Plus size={15} />
+                      <span>Add tools</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.toolsViewAllBtn}
+                      onClick={() => setActiveTab("tools")}
+                    >
+                      <span>Manage All ({workingTools.length})</span>
+                      <ArrowUpRight size={14} />
+                    </button>
                   </div>
                 </div>
 
@@ -1253,9 +1423,301 @@ export const AdminLayout: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* ========================================================================= */}
+            {/* TAB 5: WORKING TOOLS & TELEGRAM BOT LINKS */}
+            {/* ========================================================================= */}
+            {activeTab === "tools" && (
+              <div className={styles.toolsTabWrapper}>
+                {/* Header Card */}
+                <div className={styles.toolsHeaderCard}>
+                  <div className={styles.toolsHeaderLeft}>
+                    <div className={styles.toolsHeaderIconBox}>
+                      <FaTelegram size={24} />
+                    </div>
+                    <div>
+                      <h2 className={styles.toolsTitle}>Working Tools &amp; Telegram Bots</h2>
+                      <p className={styles.toolsSubtitle}>
+                        Upload and manage direct Telegram bot links and tools displayed under the{" "}
+                        <strong>Working tools</strong> dashboard category (positioned next to Instagram).
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.addToolsPrimaryBtn}
+                    onClick={() => setIsAddToolOpen(true)}
+                  >
+                    <Plus size={16} />
+                    <span>Add tools</span>
+                  </button>
+                </div>
+
+                {/* Metrics stats */}
+                <div className={styles.toolsMetricsRow}>
+                  <div className={styles.toolMiniStat}>
+                    <span className={styles.miniStatLabel}>Total Uploaded Tools</span>
+                    <span className={styles.miniStatValue}>{workingTools.length}</span>
+                  </div>
+                  <div className={styles.toolMiniStat}>
+                    <span className={styles.miniStatLabel}>Category Placement</span>
+                    <span className={styles.miniStatValueHighlight}>Dashboard (Next to Instagram)</span>
+                  </div>
+                  <div className={styles.toolMiniStat}>
+                    <span className={styles.miniStatLabel}>Delivery Type</span>
+                    <span className={styles.miniStatValue}>Instant Telegram Link Access</span>
+                  </div>
+                </div>
+
+                {/* Tools Grid / List */}
+                {workingTools.length === 0 ? (
+                  <div className={styles.toolsEmptyCard}>
+                    <FaTelegram size={48} color="#229ED9" opacity={0.4} />
+                    <h3>No Working Tools Added Yet</h3>
+                    <p>Click &quot;Add tools&quot; to upload your first Telegram bot link or tool.</p>
+                    <button
+                      type="button"
+                      className={styles.addToolsPrimaryBtn}
+                      onClick={() => setIsAddToolOpen(true)}
+                    >
+                      <Plus size={16} />
+                      <span>Add tools</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.toolsGrid}>
+                    {workingTools.map((tool) => (
+                      <div key={tool.id} className={styles.toolCard}>
+                        <div className={styles.toolCardHeader}>
+                          <div className={styles.toolCardHeaderLeft}>
+                            <div className={styles.toolIconCircle}>
+                              <FaTelegram size={18} />
+                            </div>
+                            <div>
+                              <h3 className={styles.toolCardName}>{tool.name}</h3>
+                              <span className={styles.toolPlatformBadge}>{tool.platform}</span>
+                            </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span className={styles.toolPiecesBadge}>
+                              {tool.stock} pieces
+                            </span>
+                            <span className={styles.toolPriceTag}>
+                              {tool.price > 0 ? formatNaira(tool.price) : "FREE BOT"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className={styles.toolCardDesc}>{tool.description}</p>
+
+                        <div className={styles.toolLinkBox}>
+                          <span className={styles.toolLinkLabel}>Bot Link:</span>
+                          <a
+                            href={tool.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.toolLinkValue}
+                            title={tool.link}
+                          >
+                            <span>{tool.link}</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
+
+                        {tool.tags && tool.tags.length > 0 && (
+                          <div className={styles.toolTagsRow}>
+                            {tool.tags.map((t) => (
+                              <span key={t} className={styles.toolTagPill}>{t}</span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className={styles.toolCardFooter}>
+                          <span className={styles.toolDate}>
+                            Added {new Date(tool.createdAt).toLocaleDateString()}
+                          </span>
+                          <div className={styles.toolActionGroup}>
+                            <a
+                              href={tool.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.toolTestBtn}
+                            >
+                              <ExternalLink size={13} />
+                              <span>Test Link</span>
+                            </a>
+                            <button
+                              type="button"
+                              className={styles.toolDeleteBtn}
+                              onClick={() => handleDeleteTool(tool.id, tool.name)}
+                              title="Delete this tool"
+                            >
+                              <Trash2 size={13} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>
+
+      {/* ── Add Tools Modal ── */}
+      {isAddToolOpen && (
+        <div className={styles.toolModalBackdrop} onClick={() => setIsAddToolOpen(false)}>
+          <div className={styles.toolModalSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.toolModalHeader}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div className={styles.toolModalHeaderIcon}>
+                  <FaTelegram size={18} />
+                </div>
+                <div>
+                  <h3 className={styles.toolModalTitle}>Add Working Tool</h3>
+                  <p className={styles.toolModalSubtitle}>
+                    Upload Telegram bot link or tool into Working tools category
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className={styles.toolModalCloseBtn}
+                onClick={() => setIsAddToolOpen(false)}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTool} className={styles.toolModalForm}>
+              <div className={styles.toolFormGroup}>
+                <label className={styles.toolFormLabel}>
+                  Tool Name <span style={{ color: "#f43f5e" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Telegram SMS OTP Bot"
+                  value={newToolForm.name}
+                  onChange={(e) => setNewToolForm({ ...newToolForm, name: e.target.value })}
+                  className={styles.toolFormInput}
+                />
+              </div>
+
+              <div className={styles.toolFormGroup}>
+                <label className={styles.toolFormLabel}>
+                  Telegram Bot Link or Tool URL <span style={{ color: "#f43f5e" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. https://t.me/YourBotName or @YourBotName"
+                  value={newToolForm.link}
+                  onChange={(e) => setNewToolForm({ ...newToolForm, link: e.target.value })}
+                  className={styles.toolFormInput}
+                />
+                <span className={styles.toolFormHint}>
+                  Enter the full link (https://t.me/...) or Telegram username starting with @
+                </span>
+              </div>
+
+              <div className={styles.toolFormGroup}>
+                <label className={styles.toolFormLabel}>Description</label>
+                <textarea
+                  rows={3}
+                  placeholder="Explain what the tool or Telegram bot does for users..."
+                  value={newToolForm.description}
+                  onChange={(e) => setNewToolForm({ ...newToolForm, description: e.target.value })}
+                  className={styles.toolFormTextarea}
+                />
+              </div>
+
+              <div className={styles.toolFormRow}>
+                <div className={styles.toolFormGroup}>
+                  <label className={styles.toolFormLabel}>
+                    Price (₦) <span style={{ color: "#f43f5e" }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="100"
+                    required
+                    placeholder="e.g. 8500"
+                    value={newToolForm.price}
+                    onChange={(e) => setNewToolForm({ ...newToolForm, price: e.target.value })}
+                    className={styles.toolFormInput}
+                  />
+                  <span className={styles.toolFormHint}>
+                    Admin decides selling price in Naira
+                  </span>
+                </div>
+
+                <div className={styles.toolFormGroup}>
+                  <label className={styles.toolFormLabel}>Pieces</label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Auto-assign random pieces"
+                    value={newToolForm.stock}
+                    onChange={(e) => setNewToolForm({ ...newToolForm, stock: e.target.value })}
+                    className={styles.toolFormInput}
+                  />
+                  <span className={styles.toolFormHint}>
+                    Leave blank to assign a random number of pieces
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.toolFormGroup}>
+                <label className={styles.toolFormLabel}>Platform Type</label>
+                <input
+                  type="text"
+                  value={newToolForm.platform}
+                  onChange={(e) => setNewToolForm({ ...newToolForm, platform: e.target.value })}
+                  className={styles.toolFormInput}
+                />
+              </div>
+
+              <div className={styles.toolFormGroup}>
+                <label className={styles.toolFormLabel}>Tags (comma separated)</label>
+                <input
+                  type="text"
+                  placeholder="Telegram Bot, SMS OTP, Verified, Instant"
+                  value={newToolForm.tags}
+                  onChange={(e) => setNewToolForm({ ...newToolForm, tags: e.target.value })}
+                  className={styles.toolFormInput}
+                />
+              </div>
+
+              <div className={styles.toolModalFooter}>
+                <button
+                  type="button"
+                  className={styles.toolCancelBtn}
+                  onClick={() => setIsAddToolOpen(false)}
+                  disabled={isSubmittingTool}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.toolSubmitBtn}
+                  disabled={isSubmittingTool}
+                >
+                  {isSubmittingTool ? (
+                    <RefreshCw size={15} className={styles.spinIcon} />
+                  ) : (
+                    <Plus size={15} />
+                  )}
+                  <span>{isSubmittingTool ? "Saving Tool..." : "Save & Upload Tool"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

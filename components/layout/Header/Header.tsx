@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
           <Link href="/login" className={styles.loginLink}>
             Log In
           </Link>
-          <LinkButton href="/signup" size="md" id="header-get-started-btn">
+          <LinkButton href="/signup" size="md">
             Get Started &rarr;
           </LinkButton>
         </div>

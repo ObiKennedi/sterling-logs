@@ -22,6 +22,7 @@ import {
   CreditCard,
   TrendingUp,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import {
   FaInstagram,
@@ -52,115 +53,138 @@ interface CategoryDef {
   bg: string;
   gradient: string;
   description: string;
+  shadow?: string;
 }
 
 const CATEGORIES: CategoryDef[] = [
   {
     id: "facebook",
     label: "Facebook Logs",
-    icon: <FaFacebookF size={22} />,
-    color: "#1877F2",
-    bg: "rgba(24, 119, 242, 0.12)",
+    icon: <FaFacebookF size={24} />,
+    color: "#FFFFFF",
+    bg: "#1877F2",
     gradient: "linear-gradient(135deg, #1877F2 0%, #0d5fc4 100%)",
+    shadow: "0 6px 16px rgba(24, 119, 242, 0.35)",
     description: "Verified FB & BM accounts",
   },
   {
     id: "instagram",
     label: "Instagram Logs",
-    icon: <FaInstagram size={22} />,
-    color: "#E1306C",
-    bg: "rgba(225, 48, 108, 0.12)",
-    gradient: "linear-gradient(135deg, #f9a826 0%, #E1306C 50%, #833ab4 100%)",
+    icon: <FaInstagram size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)",
+    gradient: "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)",
+    shadow: "0 6px 16px rgba(225, 48, 108, 0.38)",
     description: "Real aged IG accounts",
+  },
+  {
+    id: "working_tools",
+    label: "Working tools",
+    icon: <FaTelegram size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
+    gradient: "linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)",
+    shadow: "0 6px 16px rgba(34, 158, 217, 0.38)",
+    description: "Telegram bots & working links",
   },
   {
     id: "twitter",
     label: "Twitter / X Logs",
-    icon: <FaXTwitter size={22} />,
-    color: "#14171a",
-    bg: "rgba(20, 23, 26, 0.1)",
-    gradient: "linear-gradient(135deg, #14171a 0%, #536471 100%)",
+    icon: <FaXTwitter size={23} />,
+    color: "#FFFFFF",
+    bg: "#000000",
+    gradient: "linear-gradient(135deg, #18181b 0%, #000000 100%)",
+    shadow: "0 6px 16px rgba(0, 0, 0, 0.3)",
     description: "Verified Twitter X accounts",
   },
   {
     id: "tiktok",
     label: "TikTok Logs",
-    icon: <FaTiktok size={22} />,
-    color: "#010101",
-    bg: "rgba(0,0,0,0.1)",
-    gradient: "linear-gradient(135deg, #010101 0%, #ff0050 50%, #00f2ea 100%)",
+    icon: <FaTiktok size={23} />,
+    color: "#FFFFFF",
+    bg: "#010101",
+    gradient: "linear-gradient(135deg, #010101 0%, #161823 100%)",
+    shadow: "0 6px 16px rgba(254, 44, 85, 0.28)",
     description: "Aged TikTok profiles",
   },
   {
     id: "telegram",
     label: "Telegram Logs",
-    icon: <FaTelegram size={22} />,
-    color: "#229ED9",
-    bg: "rgba(34, 158, 217, 0.12)",
-    gradient: "linear-gradient(135deg, #229ED9 0%, #0088cc 100%)",
+    icon: <FaTelegram size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #24A1DE 0%, #0088cc 100%)",
+    gradient: "linear-gradient(135deg, #24A1DE 0%, #0088cc 100%)",
+    shadow: "0 6px 16px rgba(36, 161, 222, 0.35)",
     description: "Session-ready Telegram accounts",
   },
   {
     id: "proxies",
     label: "Proxies & VPN",
-    icon: <Globe size={22} />,
-    color: "#0ea5e9",
-    bg: "rgba(14, 165, 233, 0.12)",
+    icon: <Globe size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
     gradient: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
+    shadow: "0 6px 16px rgba(14, 165, 233, 0.32)",
     description: "Residential & datacenter proxies",
   },
   {
     id: "numbers",
     label: "Virtual Numbers",
-    icon: <PhoneCall size={22} />,
-    color: "#10b981",
-    bg: "rgba(16, 185, 129, 0.12)",
+    icon: <PhoneCall size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    shadow: "0 6px 16px rgba(16, 185, 129, 0.32)",
     description: "SMS & OTP virtual numbers",
   },
   {
     id: "software",
     label: "Software & Bots",
-    icon: <Terminal size={22} />,
-    color: "#f59e0b",
-    bg: "rgba(245, 158, 11, 0.12)",
+    icon: <Terminal size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
     gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    shadow: "0 6px 16px rgba(245, 158, 11, 0.32)",
     description: "Automation tools & bots",
   },
   {
     id: "reddit",
     label: "Reddit Logs",
-    icon: <FaRedditAlien size={22} />,
-    color: "#FF4500",
-    bg: "rgba(255, 69, 0, 0.12)",
-    gradient: "linear-gradient(135deg, #FF4500 0%, #c93600 100%)",
+    icon: <FaRedditAlien size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #FF4500 0%, #e03d00 100%)",
+    gradient: "linear-gradient(135deg, #FF4500 0%, #e03d00 100%)",
+    shadow: "0 6px 16px rgba(255, 69, 0, 0.35)",
     description: "Aged karma Reddit accounts",
   },
   {
     id: "mail",
     label: "Webmail Logs",
-    icon: <Mail size={22} />,
-    color: "#8b5cf6",
-    bg: "rgba(139, 92, 246, 0.12)",
+    icon: <Mail size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
     gradient: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    shadow: "0 6px 16px rgba(139, 92, 246, 0.32)",
     description: "Gmail, Outlook & more",
   },
   {
     id: "finance",
     label: "Cards & Banks",
-    icon: <CreditCard size={22} />,
-    color: "#00d284",
-    bg: "rgba(0, 210, 132, 0.12)",
+    icon: <CreditCard size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #00d284 0%, #059669 100%)",
     gradient: "linear-gradient(135deg, #00d284 0%, #059669 100%)",
+    shadow: "0 6px 16px rgba(0, 210, 132, 0.32)",
     description: "Finance logs & bank accounts",
   },
   {
     id: "other",
     label: "More Logs",
-    icon: <ShieldCheck size={22} />,
-    color: "#004bef",
-    bg: "rgba(0, 75, 239, 0.1)",
+    icon: <ShieldCheck size={24} />,
+    color: "#FFFFFF",
+    bg: "linear-gradient(135deg, #004bef 0%, #003ecc 100%)",
     gradient: "linear-gradient(135deg, #004bef 0%, #003ecc 100%)",
+    shadow: "0 6px 16px rgba(0, 75, 239, 0.32)",
     description: "RDP, VPS & other accounts",
   },
 ];
@@ -168,6 +192,9 @@ const CATEGORIES: CategoryDef[] = [
 /* ── Helper: platform icon for order row ── */
 function getOrderIcon(title: string) {
   const p = title.toLowerCase();
+  if (p.includes("working_tools") || p.includes("tool") || p.includes("bot")) {
+    return { icon: <FaTelegram />, color: "#229ED9" };
+  }
   if (p.includes("instagram")) return { icon: <FaInstagram />, color: "#E1306C" };
   if (p.includes("twitter") || p.includes(" x")) return { icon: <FaXTwitter />, color: "#14171a" };
   if (p.includes("tiktok")) return { icon: <FaTiktok />, color: "#010101" };
@@ -177,7 +204,7 @@ function getOrderIcon(title: string) {
   if (p.includes("proxy") || p.includes("vpn")) return { icon: <Globe size={14} />, color: "#0ea5e9" };
   if (p.includes("rdp") || p.includes("vps")) return { icon: <Server size={14} />, color: "#8b5cf6" };
   if (p.includes("number") || p.includes("phone")) return { icon: <PhoneCall size={14} />, color: "#10b981" };
-  if (p.includes("software") || p.includes("bot")) return { icon: <Terminal size={14} />, color: "#f59e0b" };
+  if (p.includes("software")) return { icon: <Terminal size={14} />, color: "#f59e0b" };
   return { icon: <ShieldCheck size={14} />, color: "#004bef" };
 }
 
@@ -254,38 +281,65 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
                 {products.length} product{products.length !== 1 ? "s" : ""} available
               </p>
               <div className={styles.productList}>
-                {products.map((p) => (
-                  <div key={p.id} className={styles.productRow}>
-                    <div className={styles.productRowLeft}>
-                      <div
-                        className={styles.productRowIcon}
-                        style={{ background: category.bg, color: category.color }}
-                      >
-                        {category.icon}
+                {products.map((p) => {
+                  const isWorkingTool =
+                    p.category === "working_tools" ||
+                    p.format === "Telegram Bot Link";
+
+                  return (
+                    <div key={p.id} className={styles.productRow}>
+                      <div className={styles.productRowLeft}>
+                        <div
+                          className={styles.productRowIcon}
+                          style={{
+                            background: category.bg,
+                            color: category.color,
+                            boxShadow: category.shadow || "none",
+                          }}
+                        >
+                          {category.icon}
+                        </div>
+                        <div className={styles.productRowInfo}>
+                          <span className={styles.productRowTitle}>{p.title}</span>
+                          <span className={styles.productRowMeta}>
+                            {isWorkingTool
+                              ? p.stock > 0
+                                ? `${p.stock} pieces available · 24h Escrow Protection`
+                                : "0 pieces left · Restocking soon"
+                              : `${p.stock > 0 ? `${p.stock} pieces` : "0 pieces left"} · ${p.warrantyHours}h warranty`}
+                          </span>
+                          {p.description && (
+                            <p className={styles.productRowDesc}>{p.description}</p>
+                          )}
+                          <div className={styles.tagWrap}>
+                            {isWorkingTool && (
+                              <span
+                                className={styles.productTag}
+                                style={{ background: "rgba(34, 158, 217, 0.12)", color: "#0284c7" }}
+                              >
+                                🔒 Link unlocks after buy
+                              </span>
+                            )}
+                            {p.tags.slice(0, 3).map((t) => (
+                              <span key={t} className={styles.productTag}>{t}</span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <div className={styles.productRowInfo}>
-                        <span className={styles.productRowTitle}>{p.title}</span>
-                        <span className={styles.productRowMeta}>
-                          {p.stock > 0 ? `${p.stock} in stock` : "Out of stock"} · {p.warrantyHours}h warranty
-                        </span>
-                        {p.tags.slice(0, 2).map((t) => (
-                          <span key={t} className={styles.productTag}>{t}</span>
-                        ))}
+                      <div className={styles.productRowRight}>
+                        <span className={styles.productPrice}>{formatNaira(p.sellingPrice)}</span>
+                        <button
+                          type="button"
+                          className={styles.productBuyBtn}
+                          onClick={onBuyNow}
+                          disabled={p.stock === 0}
+                        >
+                          {isWorkingTool ? "Buy Tool" : "Buy"}
+                        </button>
                       </div>
                     </div>
-                    <div className={styles.productRowRight}>
-                      <span className={styles.productPrice}>{formatNaira(p.sellingPrice)}</span>
-                      <button
-                        type="button"
-                        className={styles.productBuyBtn}
-                        onClick={onBuyNow}
-                        disabled={p.stock === 0}
-                      >
-                        Buy
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <button
@@ -330,7 +384,23 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       const all: InventoryProduct[] = res?.products ?? [];
       const filtered =
         cat.id === "other"
-          ? all.filter((p) => !["facebook","instagram","twitter","tiktok","telegram","proxies","numbers","software","reddit","mail","finance"].includes(p.category))
+          ? all.filter(
+              (p) =>
+                ![
+                  "facebook",
+                  "instagram",
+                  "working_tools",
+                  "twitter",
+                  "tiktok",
+                  "telegram",
+                  "proxies",
+                  "numbers",
+                  "software",
+                  "reddit",
+                  "mail",
+                  "finance",
+                ].includes(p.category)
+            )
           : all;
       setCategoryProducts(filtered);
     } catch {
@@ -477,7 +547,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             >
               <div
                 className={styles.categoryIconBox}
-                style={{ background: cat.bg, color: cat.color }}
+                style={{
+                  background: cat.bg,
+                  color: cat.color,
+                  boxShadow: cat.shadow || "0 4px 12px rgba(0, 0, 0, 0.12)",
+                }}
               >
                 {cat.icon}
               </div>
