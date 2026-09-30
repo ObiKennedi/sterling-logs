@@ -1,20 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
-  Wallet,
   Package,
   ShieldCheck,
   Zap,
   ArrowRight,
   Clock,
-  Eye,
   CheckCircle2,
   Lock,
   Globe,
   Server,
   PhoneCall,
   Terminal,
+  History,
+  Plus,
+  X,
+  Eye,
+  EyeOff,
+  Mail,
+  CreditCard,
+  TrendingUp,
+  ChevronRight,
 } from "lucide-react";
 import {
   FaInstagram,
@@ -24,8 +31,10 @@ import {
   FaTelegram,
   FaRedditAlien,
 } from "react-icons/fa6";
-import { OrderResult, UserProfile } from "@/types/inventory";
+import { OrderResult, UserProfile, AccountCategory } from "@/types/inventory";
 import { formatNaira } from "@/lib/utils/format";
+import { fetchInventoryWithMeta } from "@/lib/api/client";
+import { InventoryProduct } from "@/types/inventory";
 import styles from "./OverviewTab.module.scss";
 
 interface OverviewTabProps {
@@ -34,233 +43,534 @@ interface OverviewTabProps {
   onNavigateToTab: (tab: "overview" | "inventory" | "vault" | "wallet" | "settings") => void;
 }
 
-function getPlatformIcon(platform: string) {
-  const p = platform.toLowerCase();
-  if (p.includes("proxy") || p.includes("vpn") || p.includes("socks")) return { icon: <Globe size={16} />, bg: "rgba(14, 165, 233, 0.12)", color: "#0ea5e9" };
-  if (p.includes("rdp") || p.includes("vps") || p.includes("server")) return { icon: <Server size={16} />, bg: "rgba(139, 92, 246, 0.12)", color: "#8b5cf6" };
-  if (p.includes("voice") || p.includes("phone") || p.includes("otp") || p.includes("number")) return { icon: <PhoneCall size={16} />, bg: "rgba(16, 185, 129, 0.12)", color: "#10b981" };
-  if (p.includes("software") || p.includes("bot") || p.includes("dolphin")) return { icon: <Terminal size={16} />, bg: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" };
-  if (p.includes("instagram")) return { icon: <FaInstagram />, bg: "rgba(225, 48, 108, 0.12)", color: "#E1306C" };
-  if (p.includes("twitter") || p.includes(" x")) return { icon: <FaXTwitter />, bg: "rgba(15, 20, 25, 0.08)", color: "#0f1419" };
-  if (p.includes("tiktok")) return { icon: <FaTiktok />, bg: "rgba(0, 0, 0, 0.08)", color: "#000000" };
-  if (p.includes("facebook")) return { icon: <FaFacebookF />, bg: "rgba(24, 119, 242, 0.12)", color: "#1877F2" };
-  if (p.includes("telegram")) return { icon: <FaTelegram />, bg: "rgba(34, 158, 217, 0.12)", color: "#229ED9" };
-  if (p.includes("reddit")) return { icon: <FaRedditAlien />, bg: "rgba(255, 69, 0, 0.12)", color: "#FF4500" };
-  return { icon: <ShieldCheck />, bg: "rgba(0, 75, 239, 0.1)", color: "#004bef" };
+/* ── Category definitions ── */
+interface CategoryDef {
+  id: AccountCategory;
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+  bg: string;
+  gradient: string;
+  description: string;
 }
 
+const CATEGORIES: CategoryDef[] = [
+  {
+    id: "facebook",
+    label: "Facebook Logs",
+    icon: <FaFacebookF size={22} />,
+    color: "#1877F2",
+    bg: "rgba(24, 119, 242, 0.12)",
+    gradient: "linear-gradient(135deg, #1877F2 0%, #0d5fc4 100%)",
+    description: "Verified FB & BM accounts",
+  },
+  {
+    id: "instagram",
+    label: "Instagram Logs",
+    icon: <FaInstagram size={22} />,
+    color: "#E1306C",
+    bg: "rgba(225, 48, 108, 0.12)",
+    gradient: "linear-gradient(135deg, #f9a826 0%, #E1306C 50%, #833ab4 100%)",
+    description: "Real aged IG accounts",
+  },
+  {
+    id: "twitter",
+    label: "Twitter / X Logs",
+    icon: <FaXTwitter size={22} />,
+    color: "#14171a",
+    bg: "rgba(20, 23, 26, 0.1)",
+    gradient: "linear-gradient(135deg, #14171a 0%, #536471 100%)",
+    description: "Verified Twitter X accounts",
+  },
+  {
+    id: "tiktok",
+    label: "TikTok Logs",
+    icon: <FaTiktok size={22} />,
+    color: "#010101",
+    bg: "rgba(0,0,0,0.1)",
+    gradient: "linear-gradient(135deg, #010101 0%, #ff0050 50%, #00f2ea 100%)",
+    description: "Aged TikTok profiles",
+  },
+  {
+    id: "telegram",
+    label: "Telegram Logs",
+    icon: <FaTelegram size={22} />,
+    color: "#229ED9",
+    bg: "rgba(34, 158, 217, 0.12)",
+    gradient: "linear-gradient(135deg, #229ED9 0%, #0088cc 100%)",
+    description: "Session-ready Telegram accounts",
+  },
+  {
+    id: "proxies",
+    label: "Proxies & VPN",
+    icon: <Globe size={22} />,
+    color: "#0ea5e9",
+    bg: "rgba(14, 165, 233, 0.12)",
+    gradient: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
+    description: "Residential & datacenter proxies",
+  },
+  {
+    id: "numbers",
+    label: "Virtual Numbers",
+    icon: <PhoneCall size={22} />,
+    color: "#10b981",
+    bg: "rgba(16, 185, 129, 0.12)",
+    gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    description: "SMS & OTP virtual numbers",
+  },
+  {
+    id: "software",
+    label: "Software & Bots",
+    icon: <Terminal size={22} />,
+    color: "#f59e0b",
+    bg: "rgba(245, 158, 11, 0.12)",
+    gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    description: "Automation tools & bots",
+  },
+  {
+    id: "reddit",
+    label: "Reddit Logs",
+    icon: <FaRedditAlien size={22} />,
+    color: "#FF4500",
+    bg: "rgba(255, 69, 0, 0.12)",
+    gradient: "linear-gradient(135deg, #FF4500 0%, #c93600 100%)",
+    description: "Aged karma Reddit accounts",
+  },
+  {
+    id: "mail",
+    label: "Webmail Logs",
+    icon: <Mail size={22} />,
+    color: "#8b5cf6",
+    bg: "rgba(139, 92, 246, 0.12)",
+    gradient: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    description: "Gmail, Outlook & more",
+  },
+  {
+    id: "finance",
+    label: "Cards & Banks",
+    icon: <CreditCard size={22} />,
+    color: "#00d284",
+    bg: "rgba(0, 210, 132, 0.12)",
+    gradient: "linear-gradient(135deg, #00d284 0%, #059669 100%)",
+    description: "Finance logs & bank accounts",
+  },
+  {
+    id: "other",
+    label: "More Logs",
+    icon: <ShieldCheck size={22} />,
+    color: "#004bef",
+    bg: "rgba(0, 75, 239, 0.1)",
+    gradient: "linear-gradient(135deg, #004bef 0%, #003ecc 100%)",
+    description: "RDP, VPS & other accounts",
+  },
+];
+
+/* ── Helper: platform icon for order row ── */
+function getOrderIcon(title: string) {
+  const p = title.toLowerCase();
+  if (p.includes("instagram")) return { icon: <FaInstagram />, color: "#E1306C" };
+  if (p.includes("twitter") || p.includes(" x")) return { icon: <FaXTwitter />, color: "#14171a" };
+  if (p.includes("tiktok")) return { icon: <FaTiktok />, color: "#010101" };
+  if (p.includes("facebook") || p.includes("fb") || p.includes("bm")) return { icon: <FaFacebookF />, color: "#1877F2" };
+  if (p.includes("telegram")) return { icon: <FaTelegram />, color: "#229ED9" };
+  if (p.includes("reddit")) return { icon: <FaRedditAlien />, color: "#FF4500" };
+  if (p.includes("proxy") || p.includes("vpn")) return { icon: <Globe size={14} />, color: "#0ea5e9" };
+  if (p.includes("rdp") || p.includes("vps")) return { icon: <Server size={14} />, color: "#8b5cf6" };
+  if (p.includes("number") || p.includes("phone")) return { icon: <PhoneCall size={14} />, color: "#10b981" };
+  if (p.includes("software") || p.includes("bot")) return { icon: <Terminal size={14} />, color: "#f59e0b" };
+  return { icon: <ShieldCheck size={14} />, color: "#004bef" };
+}
+
+/* ── Category Modal ── */
+interface CategoryModalProps {
+  category: CategoryDef;
+  products: InventoryProduct[];
+  loading: boolean;
+  onClose: () => void;
+  onBuyNow: () => void;
+}
+
+const CategoryModal: React.FC<CategoryModalProps> = ({
+  category,
+  products,
+  loading,
+  onClose,
+  onBuyNow,
+}) => {
+  // close on backdrop click
+  const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  return (
+    <div className={styles.modalBackdrop} onClick={handleBackdrop} role="dialog" aria-modal="true">
+      <div className={styles.modalSheet}>
+        {/* Modal Header */}
+        <div
+          className={styles.modalHeader}
+          style={{ background: category.gradient }}
+        >
+          <div className={styles.modalHeaderContent}>
+            <div className={styles.modalCategoryIcon}>
+              {category.icon}
+            </div>
+            <div>
+              <h2 className={styles.modalTitle}>{category.label}</h2>
+              <p className={styles.modalSubtitle}>{category.description}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={styles.modalCloseBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className={styles.modalBody}>
+          {loading ? (
+            <div className={styles.modalLoading}>
+              <div className={styles.spinnerRing} />
+              <span>Loading products…</span>
+            </div>
+          ) : products.length === 0 ? (
+            <div className={styles.modalEmpty}>
+              <Package size={40} opacity={0.3} />
+              <p>No products available in this category right now.</p>
+              <button
+                type="button"
+                className={styles.modalBrowseBtn}
+                onClick={onBuyNow}
+              >
+                Browse All Market <ArrowRight size={14} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className={styles.modalCount}>
+                {products.length} product{products.length !== 1 ? "s" : ""} available
+              </p>
+              <div className={styles.productList}>
+                {products.map((p) => (
+                  <div key={p.id} className={styles.productRow}>
+                    <div className={styles.productRowLeft}>
+                      <div
+                        className={styles.productRowIcon}
+                        style={{ background: category.bg, color: category.color }}
+                      >
+                        {category.icon}
+                      </div>
+                      <div className={styles.productRowInfo}>
+                        <span className={styles.productRowTitle}>{p.title}</span>
+                        <span className={styles.productRowMeta}>
+                          {p.stock > 0 ? `${p.stock} in stock` : "Out of stock"} · {p.warrantyHours}h warranty
+                        </span>
+                        {p.tags.slice(0, 2).map((t) => (
+                          <span key={t} className={styles.productTag}>{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className={styles.productRowRight}>
+                      <span className={styles.productPrice}>{formatNaira(p.sellingPrice)}</span>
+                      <button
+                        type="button"
+                        className={styles.productBuyBtn}
+                        onClick={onBuyNow}
+                        disabled={p.stock === 0}
+                      >
+                        Buy
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className={styles.modalViewAllBtn}
+                onClick={onBuyNow}
+              >
+                <ShieldCheck size={15} />
+                View Full Market & Buy Now
+                <ArrowRight size={14} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   OverviewTab — Main Component
+   ═══════════════════════════════════════════ */
 export const OverviewTab: React.FC<OverviewTabProps> = ({
   profile,
   orders,
   onNavigateToTab,
 }) => {
+  const [balanceVisible, setBalanceVisible] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryDef | null>(null);
+  const [categoryProducts, setCategoryProducts] = useState<InventoryProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
   const activeEscrowOrders = orders.filter((o) => o.status === "ESCROW_ACTIVE");
+
+  /* Load products for a category modal */
+  const openCategory = async (cat: CategoryDef) => {
+    setSelectedCategory(cat);
+    setCategoryProducts([]);
+    setLoadingProducts(true);
+    try {
+      const res = await fetchInventoryWithMeta(cat.id !== "other" ? cat.id : undefined);
+      const all: InventoryProduct[] = res?.products ?? [];
+      const filtered =
+        cat.id === "other"
+          ? all.filter((p) => !["facebook","instagram","twitter","tiktok","telegram","proxies","numbers","software","reddit","mail","finance"].includes(p.category))
+          : all;
+      setCategoryProducts(filtered);
+    } catch {
+      setCategoryProducts([]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedCategory(null);
+    setCategoryProducts([]);
+  };
+
+  const goToMarket = () => {
+    closeModal();
+    onNavigateToTab("inventory");
+  };
 
   return (
     <div className={styles.overviewContainer}>
-      {/* 4 Top Metric Cards */}
-      <div className={styles.metricsGrid}>
-        <div className={styles.metricCard}>
-          <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Your Wallet Money</span>
-            <span className={styles.metricValue}>{formatNaira(profile.balance)}</span>
-            <span
-              className={styles.metricSubtext}
-              style={{ cursor: "pointer" }}
-              onClick={() => onNavigateToTab("wallet")}
-            >
-              <Zap size={13} />
-              + Add Money
-            </span>
-          </div>
-          <div className={`${styles.metricIconBox} ${styles.iconGreen}`}>
-            <Wallet size={22} />
-          </div>
-        </div>
 
-        <div className={styles.metricCard}>
-          <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Logs You Bought</span>
-            <span className={styles.metricValue}>{orders.length}</span>
-            <span className={styles.metricSubtext}>
-              <CheckCircle2 size={13} />
-              100% Working
-            </span>
+      {/* ── Balance Card ── */}
+      <div className={styles.balanceCard}>
+        <div className={styles.balanceCardInner}>
+          {/* Active pill */}
+          <div className={styles.activePill}>
+            <span className={styles.activeDot} />
+            Active
           </div>
-          <div className={`${styles.metricIconBox} ${styles.iconBlue}`}>
-            <Package size={22} />
-          </div>
-        </div>
 
-        <div className={styles.metricCard}>
-          <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Under Guarantee</span>
-            <span className={styles.metricValue}>{activeEscrowOrders.length}</span>
-            <span className={styles.metricSubtext} style={{ color: "#d97706" }}>
-              <Clock size={13} />
-              24 Hours Replacement
-            </span>
-          </div>
-          <div className={`${styles.metricIconBox} ${styles.iconAmber}`}>
-            <Lock size={22} />
-          </div>
-        </div>
-
-        <div className={styles.metricCard}>
-          <div className={styles.metricInfo}>
-            <span className={styles.metricLabel}>Instant Delivery</span>
-            <span className={styles.metricValue}>100%</span>
-            <span className={styles.metricSubtext}>
-              <ShieldCheck size={13} />
-              Direct to Vault
-            </span>
-          </div>
-          <div className={`${styles.metricIconBox} ${styles.iconPurple}`}>
-            <Zap size={22} />
-          </div>
-        </div>
-      </div>
-
-      {/* Escrow Active Attention Callout Banner */}
-      {activeEscrowOrders.length > 0 && (
-        <div className={styles.escrowAlertBanner}>
-          <div className={styles.alertLeft}>
-            <Lock size={24} className={styles.alertIcon} />
-            <div className={styles.alertText}>
-              <h4>{activeEscrowOrders.length} Log(s) Under 24h Guarantee</h4>
-              <p>
-                Your login details and password are in your vault. Test your log now. If you have
-                any issue, you can change it within 24 hours.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            className={styles.viewVaultBtn}
-            onClick={() => onNavigateToTab("vault")}
-          >
-            <span>Open Vault &amp; View Details</span>
-            <ArrowRight size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Recent Orders Section */}
-      <div>
-        <div className={styles.sectionHeader}>
-          <h3>Recent Logs Bought</h3>
-          <button
-            type="button"
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--primary, #004bef)",
-              fontWeight: 700,
-              fontSize: "0.8125rem",
-              cursor: "pointer",
-            }}
-            onClick={() => onNavigateToTab("vault")}
-          >
-            View All ({orders.length}) &rarr;
-          </button>
-        </div>
-
-        <div className={styles.ordersCard}>
-          {orders.length === 0 ? (
-            <div className={styles.emptyState}>
-              <Package size={40} opacity={0.4} />
-              <h4>You Have Not Bought Any Logs Yet</h4>
-              <p>
-                Visit the Logs Market to see all available accounts. Once you buy, your login and
-                password will appear here immediately.
-              </p>
+          <div className={styles.balanceSection}>
+            <span className={styles.balanceLabel}>Available Balance</span>
+            <div className={styles.balanceRow}>
+              <span className={styles.balanceAmount}>
+                {balanceVisible ? formatNaira(profile.balance) : "₦ ••••••"}
+              </span>
               <button
                 type="button"
-                className={styles.viewVaultBtn}
-                style={{ marginTop: "14px" }}
-                onClick={() => onNavigateToTab("inventory")}
+                className={styles.eyeBtn}
+                onClick={() => setBalanceVisible((v) => !v)}
+                aria-label={balanceVisible ? "Hide balance" : "Show balance"}
               >
-                <span>Go to Market &amp; Buy Logs (180+ Available)</span>
-                <ArrowRight size={14} />
+                {balanceVisible ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-          ) : (
-            <div className={styles.tableResponsiveWrapper}>
-              <table className={styles.ordersTable}>
-                <thead>
-                  <tr>
-                    <th>Order No</th>
-                    <th>Log Name</th>
-                    <th>Price Paid</th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.slice(0, 5).map((order) => {
-                    const visuals = getPlatformIcon(order.productTitle);
-                    return (
-                      <tr key={order.orderId}>
-                        <td>
-                          <span className={styles.orderIdBadge}>#{order.orderId}</span>
-                        </td>
-                        <td>
-                          <div className={styles.platformCell}>
-                            <div
-                              className={styles.platformIcon}
-                              style={{ backgroundColor: visuals.bg, color: visuals.color }}
-                            >
-                              {visuals.icon}
-                            </div>
-                            <div className={styles.itemDetails}>
-                              <span className={styles.itemTitle}>{order.productTitle}</span>
-                              <span className={styles.itemSub}>
-                                {order.deliveryItems.length} account login(s)
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <strong>{formatNaira(order.totalPrice)}</strong>
-                        </td>
-                        <td>
-                          <span style={{ textTransform: "uppercase", fontWeight: 700, fontSize: "0.75rem" }}>
-                            {order.paymentGateway}
-                          </span>
-                        </td>
-                        <td>
-                          {order.status === "ESCROW_ACTIVE" ? (
-                            <span className={`${styles.statusBadge} ${styles.statusEscrow}`}>
-                              <Lock size={11} />
-                              24h Guarantee
-                            </span>
-                          ) : (
-                            <span className={`${styles.statusBadge} ${styles.statusCompleted}`}>
-                              <CheckCircle2 size={11} />
-                              Completed
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className={styles.inspectVaultActionBtn}
-                            onClick={() => onNavigateToTab("vault")}
-                          >
-                            <Eye size={12} />
-                            <span>View Login</span>
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          </div>
+
+          {/* CTA Buttons */}
+          <div className={styles.balanceBtns}>
+            <button
+              type="button"
+              id="balance-fund-btn"
+              className={styles.fundBtn}
+              onClick={() => onNavigateToTab("wallet")}
+            >
+              <Plus size={15} />
+              Fund Wallet
+            </button>
+            <button
+              type="button"
+              id="balance-history-btn"
+              className={styles.historyBtn}
+              onClick={() => onNavigateToTab("vault")}
+            >
+              <History size={15} />
+              History
+            </button>
+          </div>
+        </div>
+
+        {/* Decorative circles */}
+        <div className={styles.decorCircle1} />
+        <div className={styles.decorCircle2} />
+      </div>
+
+      {/* ── Escrow alert strip ── */}
+      {activeEscrowOrders.length > 0 && (
+        <button
+          type="button"
+          className={styles.escrowStrip}
+          onClick={() => onNavigateToTab("vault")}
+        >
+          <Lock size={14} />
+          <span>
+            {activeEscrowOrders.length} log{activeEscrowOrders.length > 1 ? "s" : ""} under 24h guarantee — tap to view
+          </span>
+          <ChevronRight size={14} />
+        </button>
+      )}
+
+      {/* ── Quick Stats Row ── */}
+      <div className={styles.statsRow}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: "rgba(0,75,239,0.1)", color: "#004bef" }}>
+            <Package size={16} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>{orders.length}</span>
+            <span className={styles.statLabel}>Logs Bought</span>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: "rgba(245,158,11,0.12)", color: "#d97706" }}>
+            <Clock size={16} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>{activeEscrowOrders.length}</span>
+            <span className={styles.statLabel}>Under Warranty</span>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: "rgba(0,210,132,0.12)", color: "#059669" }}>
+            <Zap size={16} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>100%</span>
+            <span className={styles.statLabel}>Instant Delivery</span>
+          </div>
         </div>
       </div>
+
+      {/* ── Category Grid ── */}
+      <div className={styles.sectionBlock}>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>Shop by Category</h3>
+          <button
+            type="button"
+            className={styles.sectionAction}
+            onClick={() => onNavigateToTab("inventory")}
+          >
+            View All <ArrowRight size={13} />
+          </button>
+        </div>
+
+        <div className={styles.categoryGrid}>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              id={`category-${cat.id}`}
+              className={styles.categoryCard}
+              onClick={() => openCategory(cat)}
+            >
+              <div
+                className={styles.categoryIconBox}
+                style={{ background: cat.bg, color: cat.color }}
+              >
+                {cat.icon}
+              </div>
+              <span className={styles.categoryLabel}>{cat.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Recent Purchases ── */}
+      <div className={styles.sectionBlock}>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>Recent Purchases</h3>
+          {orders.length > 0 && (
+            <button
+              type="button"
+              className={styles.sectionAction}
+              onClick={() => onNavigateToTab("vault")}
+            >
+              View All ({orders.length}) <ArrowRight size={13} />
+            </button>
+          )}
+        </div>
+
+        {orders.length === 0 ? (
+          <div className={styles.emptyPurchases}>
+            <Package size={36} opacity={0.25} />
+            <p>No purchases yet. Browse the market to buy logs.</p>
+            <button
+              type="button"
+              className={styles.emptyBrowseBtn}
+              onClick={() => onNavigateToTab("inventory")}
+            >
+              <TrendingUp size={14} />
+              Browse 180+ Logs
+            </button>
+          </div>
+        ) : (
+          <div className={styles.recentList}>
+            {orders.slice(0, 4).map((order) => {
+              const vis = getOrderIcon(order.productTitle);
+              return (
+                <button
+                  key={order.orderId}
+                  type="button"
+                  className={styles.recentRow}
+                  onClick={() => onNavigateToTab("vault")}
+                >
+                  <div
+                    className={styles.recentIcon}
+                    style={{ background: `${vis.color}18`, color: vis.color }}
+                  >
+                    {vis.icon}
+                  </div>
+                  <div className={styles.recentInfo}>
+                    <span className={styles.recentTitle}>{order.productTitle}</span>
+                    <span className={styles.recentMeta}>
+                      #{order.orderId} · {order.deliveryItems.length} account(s)
+                    </span>
+                  </div>
+                  <div className={styles.recentRight}>
+                    <span className={styles.recentPrice}>{formatNaira(order.totalPrice)}</span>
+                    <span
+                      className={`${styles.recentBadge} ${
+                        order.status === "ESCROW_ACTIVE"
+                          ? styles.badgeEscrow
+                          : styles.badgeDone
+                      }`}
+                    >
+                      {order.status === "ESCROW_ACTIVE" ? (
+                        <><Lock size={9} /> Escrow</>
+                      ) : (
+                        <><CheckCircle2 size={9} /> Done</>
+                      )}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Category Modal ── */}
+      {selectedCategory && (
+        <CategoryModal
+          category={selectedCategory}
+          products={categoryProducts}
+          loading={loadingProducts}
+          onClose={closeModal}
+          onBuyNow={goToMarket}
+        />
+      )}
     </div>
   );
 };
