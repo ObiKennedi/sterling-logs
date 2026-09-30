@@ -347,20 +347,20 @@
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 28px 24px 120px;
+  padding: 32px 24px 60px;
   position: relative;
   z-index: 1;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    padding: 20px 18px 100px;
+    padding: 24px 18px 48px;
   }
 
   @media (max-width: 640px) {
-    padding: 16px 14px 90px;
+    padding: 18px 14px 40px;
   }
 
   @media (max-width: 380px) {
-    padding: 12px 10px 80px;
+    padding: 14px 10px 32px;
   }
 }

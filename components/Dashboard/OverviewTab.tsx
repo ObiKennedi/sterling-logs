@@ -1,659 +1,268 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React from "react";
 import {
-  PhoneCall,
-  PhoneForwarded,
-  Rocket,
-  ShoppingBag,
-  BarChart3,
-  Star,
+  Wallet,
+  Package,
+  ShieldCheck,
+  Zap,
+  ArrowRight,
   Clock,
+  Eye,
+  CheckCircle2,
+  Lock,
   Globe,
   Server,
+  PhoneCall,
   Terminal,
-  Mail,
-  Plus,
-  Eye,
-  EyeOff,
-  Bell,
-  ShieldCheck,
-  ChevronRight,
-  Home,
-  Receipt,
-  Gift,
-  User,
-  Zap,
 } from "lucide-react";
 import {
-  FaTelegram,
   FaInstagram,
   FaXTwitter,
   FaTiktok,
   FaFacebookF,
+  FaTelegram,
   FaRedditAlien,
 } from "react-icons/fa6";
-import { InventoryProduct, OrderResult, UserProfile } from "@/types/inventory";
+import { OrderResult, UserProfile } from "@/types/inventory";
 import { formatNaira } from "@/lib/utils/format";
-import { fetchInventoryWithMeta, submitOrder } from "@/lib/api/client";
-import { CategoryModal, CategoryItem } from "./CategoryModal";
-import { FundWalletModal } from "./FundWalletModal";
-import { OrderHistoryModal } from "./OrderHistoryModal";
-import { NotificationsModal } from "./NotificationsModal";
 import styles from "./OverviewTab.module.scss";
 
 interface OverviewTabProps {
   profile: UserProfile;
   orders: OrderResult[];
   onNavigateToTab: (tab: "overview" | "inventory" | "vault" | "wallet" | "settings") => void;
-  onFundWallet?: (amount: number, gateway: "gtb" | "paypoint") => Promise<void>;
-  onOrderCreated?: (order: OrderResult) => void;
-  onBalanceUpdate?: (newBalance: number) => void;
+}
+
+function getPlatformIcon(platform: string) {
+  const p = platform.toLowerCase();
+  if (p.includes("proxy") || p.includes("vpn") || p.includes("socks")) return { icon: <Globe size={16} />, bg: "rgba(14, 165, 233, 0.12)", color: "#0ea5e9" };
+  if (p.includes("rdp") || p.includes("vps") || p.includes("server")) return { icon: <Server size={16} />, bg: "rgba(139, 92, 246, 0.12)", color: "#8b5cf6" };
+  if (p.includes("voice") || p.includes("phone") || p.includes("otp") || p.includes("number")) return { icon: <PhoneCall size={16} />, bg: "rgba(16, 185, 129, 0.12)", color: "#10b981" };
+  if (p.includes("software") || p.includes("bot") || p.includes("dolphin")) return { icon: <Terminal size={16} />, bg: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" };
+  if (p.includes("instagram")) return { icon: <FaInstagram />, bg: "rgba(225, 48, 108, 0.12)", color: "#E1306C" };
+  if (p.includes("twitter") || p.includes(" x")) return { icon: <FaXTwitter />, bg: "rgba(15, 20, 25, 0.08)", color: "#0f1419" };
+  if (p.includes("tiktok")) return { icon: <FaTiktok />, bg: "rgba(0, 0, 0, 0.08)", color: "#000000" };
+  if (p.includes("facebook")) return { icon: <FaFacebookF />, bg: "rgba(24, 119, 242, 0.12)", color: "#1877F2" };
+  if (p.includes("telegram")) return { icon: <FaTelegram />, bg: "rgba(34, 158, 217, 0.12)", color: "#229ED9" };
+  if (p.includes("reddit")) return { icon: <FaRedditAlien />, bg: "rgba(255, 69, 0, 0.12)", color: "#FF4500" };
+  return { icon: <ShieldCheck />, bg: "rgba(0, 75, 239, 0.1)", color: "#004bef" };
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({
   profile,
   orders,
   onNavigateToTab,
-  onFundWallet,
-  onOrderCreated,
-  onBalanceUpdate,
 }) => {
-  // Balance visibility toggle
-  const [showBalance, setShowBalance] = useState<boolean>(true);
-
-  // Products loaded from live inventory API
-  const [products, setProducts] = useState<InventoryProduct[]>([]);
-
-  // Modals state
-  const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(null);
-  const [isFundWalletOpen, setIsFundWalletOpen] = useState<boolean>(false);
-  const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState<boolean>(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
-
-  // Load products on mount
-  useEffect(() => {
-    async function loadAllProducts() {
-      try {
-        const { products: data } = await fetchInventoryWithMeta(undefined, false);
-        if (Array.isArray(data)) {
-          setProducts(data);
-        }
-      } catch (err) {
-        console.warn("Could not fetch inventory in OverviewTab:", err);
-      }
-    }
-    loadAllProducts();
-  }, []);
-
-  // Time-based greeting
-  const greetingInfo = useMemo(() => {
-    const hour = new Date().getHours();
-    let text = "Good Morning";
-    let icon = "☀️";
-    if (hour >= 12 && hour < 17) {
-      text = "Good Afternoon";
-      icon = "🌤️";
-    } else if (hour >= 17) {
-      text = "Good Evening";
-      icon = "🌙";
-    }
-    const name = profile.username && profile.username !== "User" ? profile.username : "Obi";
-    return { greeting: `${text}, ${name} ${icon}`, name };
-  }, [profile.username]);
-
-  // Primary 8 Category Action Cards matching the screenshot
-  const PRIMARY_CATEGORIES: CategoryItem[] = useMemo(
-    () => [
-      {
-        id: "virtual-number",
-        label: "Virtual Number",
-        subtitle: "Google Voice & OTP",
-        icon: <PhoneCall size={22} />,
-        iconBg: "#e0f2fe",
-        iconColor: "#0284c7",
-        description: "Permanent and one-time virtual numbers for WhatsApp, Telegram, Google Voice, and SMS verifications.",
-      },
-      {
-        id: "boost-account",
-        label: "Boost Account",
-        subtitle: "Followers & Likes",
-        icon: <Rocket size={22} />,
-        iconBg: "#f3e8ff",
-        iconColor: "#9333ea",
-        description: "Viral boost packages for Instagram, TikTok, Twitter/X, and Telegram with 0% drop guarantee.",
-      },
-      {
-        id: "buy-logs",
-        label: "Buy Logs",
-        subtitle: "Social & Aged Profiles",
-        icon: <ShoppingBag size={22} />,
-        iconBg: "#d1fae5",
-        iconColor: "#059669",
-        description: "Aged social media accounts (Instagram, Facebook BM, Twitter/X, TikTok, Reddit) with session cookies & 2FA.",
-      },
-      {
-        id: "rent-number",
-        label: "Rent Number",
-        subtitle: "7 & 30-Day Lines",
-        icon: <PhoneForwarded size={22} />,
-        iconBg: "#ffedd5",
-        iconColor: "#ea580c",
-        description: "Dedicated real physical SIM cards leased for 7 or 30 days for continuous SMS and 2FA.",
-      },
-      {
-        id: "telegram-premium",
-        label: "Telegram Premium",
-        subtitle: "Gifts & Stars",
-        badge: "NEW",
-        icon: <FaTelegram size={22} />,
-        iconBg: "#e0f2fe",
-        iconColor: "#0284c7",
-        description: "Official 3, 6, and 12-month Telegram Premium gift links and Telegram Stars packages.",
-      },
-      {
-        id: "number-orders",
-        label: "Number Orders",
-        subtitle: "Track Numbers",
-        icon: <BarChart3 size={22} />,
-        iconBg: "#e0e7ff",
-        iconColor: "#4f46e5",
-        description: "View and manage all your purchased virtual numbers and active OTP SMS portals.",
-      },
-      {
-        id: "boost-orders",
-        label: "Boost Orders",
-        subtitle: "Campaign Status",
-        icon: <Star size={22} />,
-        iconBg: "#f3e8ff",
-        iconColor: "#9333ea",
-        description: "Check progress, live speed, and delivery reports for your social media growth campaigns.",
-      },
-      {
-        id: "log-history",
-        label: "Log History",
-        subtitle: "Vault Credentials",
-        icon: <Clock size={22} />,
-        iconBg: "#f1f5f9",
-        iconColor: "#475569",
-        description: "Quick access to your bought accounts, session cookies, passwords, and 2FA secrets.",
-      },
-    ],
-    []
-  );
-
-  // Secondary Social & Digital Category Shortcuts
-  const SECONDARY_CATEGORIES: CategoryItem[] = useMemo(
-    () => [
-      {
-        id: "proxies",
-        label: "Proxies & VPN",
-        subtitle: "Static US Residential",
-        icon: <Globe size={16} />,
-        iconBg: "#ccfbf1",
-        iconColor: "#0d9488",
-        description: "Clean AT&T static residential proxies with zero fraud score for unbannable operations.",
-      },
-      {
-        id: "rdp",
-        label: "RDP & VPS Servers",
-        subtitle: "16GB RAM Windows",
-        icon: <Server size={16} />,
-        iconBg: "#e0e7ff",
-        iconColor: "#4f46e5",
-        description: "High-speed Windows Server 2022 VPS with full admin access and unmetered 1Gbps bandwidth.",
-      },
-      {
-        id: "software",
-        label: "Software & Bots",
-        subtitle: "Dolphin{anty} & Tools",
-        icon: <Terminal size={16} />,
-        iconBg: "#fef3c7",
-        iconColor: "#d97706",
-        description: "Anti-detect browser profiles, multi-account managers, and automation tools.",
-      },
-      {
-        id: "instagram",
-        label: "Instagram",
-        subtitle: "Aged PVA Profiles",
-        icon: <FaInstagram size={15} />,
-        iconBg: "#fce7f3",
-        iconColor: "#e1306c",
-        description: "2018-2022 aged Instagram accounts with cookies, 2FA keys, and original email (OGE).",
-      },
-      {
-        id: "twitter",
-        label: "Twitter / X",
-        subtitle: "High-Trust PVA",
-        icon: <FaXTwitter size={14} />,
-        iconBg: "#f1f5f9",
-        iconColor: "#0f1419",
-        description: "Aged Twitter / X profiles with auth tokens, phone verification, and zero strikes.",
-      },
-      {
-        id: "tiktok",
-        label: "TikTok",
-        subtitle: "Live & Creator Ready",
-        icon: <FaTiktok size={14} />,
-        iconBg: "#f1f5f9",
-        iconColor: "#000000",
-        description: "Pre-warmed TikTok accounts with Live Studio unlocked and US creator fund eligibility.",
-      },
-      {
-        id: "facebook",
-        label: "Facebook BM",
-        subtitle: "High Limit BMs",
-        icon: <FaFacebookF size={14} />,
-        iconBg: "#dbeafe",
-        iconColor: "#1877f2",
-        description: "Facebook profiles tied to high-spend advertising Business Managers with 2FA active.",
-      },
-      {
-        id: "reddit",
-        label: "Reddit",
-        subtitle: "High Karma Accounts",
-        icon: <FaRedditAlien size={15} />,
-        iconBg: "#ffedd5",
-        iconColor: "#ff4500",
-        description: "Veteran Reddit accounts with high post & comment karma and no shadowbans.",
-      },
-      {
-        id: "mail",
-        label: "Webmail & Leads",
-        subtitle: "Aged Gmail PVA",
-        icon: <Mail size={15} />,
-        iconBg: "#fef9c3",
-        iconColor: "#ca8a04",
-        description: "2019-2021 aged Gmail, Outlook, and Yahoo accounts with recovery email linked.",
-      },
-    ],
-    []
-  );
-
-  // All categories combined for modal switcher
-  const ALL_MODAL_CATEGORIES = useMemo(
-    () => [...PRIMARY_CATEGORIES.slice(0, 5), ...SECONDARY_CATEGORIES],
-    [PRIMARY_CATEGORIES, SECONDARY_CATEGORIES]
-  );
-
-  // Handle clicking a card
-  const handleCardClick = (cat: CategoryItem) => {
-    // If it's an order history shortcut
-    if (cat.id === "number-orders" || cat.id === "boost-orders" || cat.id === "log-history") {
-      setIsOrderHistoryOpen(true);
-      return;
-    }
-
-    // Otherwise, open the pop-up modal with everything in that category!
-    setSelectedCategory(cat);
-  };
-
-  // Handle executing a purchase from the category modal
-  const handleBuyProduct = async (product: InventoryProduct): Promise<OrderResult> => {
-    const res = await submitOrder({
-      productId: product.id,
-      quantity: 1,
-      customerEmail: profile.email || "user@sterlinglogs.com",
-      paymentGateway: "gtb",
-      notes: `Bought from ${product.category} category by ${profile.username}`,
-    });
-
-    // Debit local wallet balance
-    const newBal = Math.max(0, profile.balance - product.sellingPrice);
-    if (onBalanceUpdate) {
-      onBalanceUpdate(newBal);
-    }
-
-    // Add order to orders list
-    if (onOrderCreated) {
-      onOrderCreated(res);
-    }
-
-    return res;
-  };
-
-  // Default fallback for funding wallet if not passed
-  const handleExecuteFund = async (amount: number, gateway: "gtb" | "paypoint") => {
-    if (onFundWallet) {
-      await onFundWallet(amount, gateway);
-    } else if (onBalanceUpdate) {
-      onBalanceUpdate(profile.balance + amount);
-    }
-  };
-
-  const recentOrders = orders.slice(0, 4);
+  const activeEscrowOrders = orders.filter((o) => o.status === "ESCROW_ACTIVE");
 
   return (
-    <div className={styles.dashboardWrapper}>
-      {/* 1. Header Bar: Avatar Circle, User Greeting, and Bell Icon */}
-      <header className={styles.headerBar}>
-        <div className={styles.userGreetingBlock}>
-          <div className={styles.avatarCircle}>
-            {greetingInfo.name.charAt(0).toUpperCase()}
+    <div className={styles.overviewContainer}>
+      {/* 4 Top Metric Cards */}
+      <div className={styles.metricsGrid}>
+        <div className={styles.metricCard}>
+          <div className={styles.metricInfo}>
+            <span className={styles.metricLabel}>Your Wallet Money</span>
+            <span className={styles.metricValue}>{formatNaira(profile.balance)}</span>
+            <span
+              className={styles.metricSubtext}
+              style={{ cursor: "pointer" }}
+              onClick={() => onNavigateToTab("wallet")}
+            >
+              <Zap size={13} />
+              + Add Money
+            </span>
           </div>
-          <div className={styles.greetingText}>
-            <h2 className={styles.greetingTitle}>{greetingInfo.greeting}</h2>
-            <p className={styles.greetingSubtitle}>Your Sterling Dashboard</p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className={styles.notificationBellBtn}
-          onClick={() => setIsNotificationsOpen(true)}
-          title="View Alerts & Notifications"
-          aria-label="Alerts"
-        >
-          <Bell size={20} />
-          <span className={styles.bellDot} />
-        </button>
-      </header>
-
-      {/* 2. Available Balance Hero Card (Deep Navy Gradient with Concentric Rings) */}
-      <div className={styles.balanceCard}>
-        <div className={styles.cardBgOverlay} />
-
-        {/* Decorative concentric arcs SVG */}
-        <svg
-          className={styles.cardArcsSvg}
-          viewBox="0 0 200 200"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="100" cy="100" r="40" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="4 4" />
-          <circle cx="100" cy="100" r="70" stroke="#ffffff" strokeWidth="1.5" />
-          <circle cx="100" cy="100" r="100" stroke="#38bdf8" strokeWidth="2" strokeDasharray="6 6" />
-          <circle cx="100" cy="100" r="130" stroke="#ffffff" strokeWidth="1" opacity="0.6" />
-        </svg>
-
-        {/* Top Row: Label & Active Badge */}
-        <div className={styles.balanceTopRow}>
-          <span className={styles.balanceHeaderLabel}>Available Balance</span>
-          <div className={styles.activeStatusBadge}>
-            <span className={styles.greenDot} />
-            <span>Active</span>
+          <div className={`${styles.metricIconBox} ${styles.iconGreen}`}>
+            <Wallet size={22} />
           </div>
         </div>
 
-        {/* Middle Row: Large Naira Balance & Show/Hide Eye Toggle */}
-        <div className={styles.balanceMiddleRow}>
-          <div className={styles.balanceAmount}>
-            {showBalance ? formatNaira(profile.balance) : "₦ ••••••"}
+        <div className={styles.metricCard}>
+          <div className={styles.metricInfo}>
+            <span className={styles.metricLabel}>Logs You Bought</span>
+            <span className={styles.metricValue}>{orders.length}</span>
+            <span className={styles.metricSubtext}>
+              <CheckCircle2 size={13} />
+              100% Working
+            </span>
           </div>
-          <button
-            type="button"
-            className={styles.eyeToggleBtn}
-            onClick={() => setShowBalance(!showBalance)}
-            title={showBalance ? "Hide Balance" : "Show Balance"}
-            aria-label="Toggle Balance Visibility"
-          >
-            {showBalance ? <Eye size={17} /> : <EyeOff size={17} />}
-          </button>
+          <div className={`${styles.metricIconBox} ${styles.iconBlue}`}>
+            <Package size={22} />
+          </div>
         </div>
 
-        {/* Bottom Row: + Fund Wallet & History buttons */}
-        <div className={styles.balanceActionRow}>
-          <button
-            type="button"
-            className={styles.fundWalletBtn}
-            onClick={() => setIsFundWalletOpen(true)}
-          >
-            <Plus size={16} strokeWidth={2.6} />
-            <span>Fund Wallet</span>
-          </button>
+        <div className={styles.metricCard}>
+          <div className={styles.metricInfo}>
+            <span className={styles.metricLabel}>Under Guarantee</span>
+            <span className={styles.metricValue}>{activeEscrowOrders.length}</span>
+            <span className={styles.metricSubtext} style={{ color: "#d97706" }}>
+              <Clock size={13} />
+              24 Hours Replacement
+            </span>
+          </div>
+          <div className={`${styles.metricIconBox} ${styles.iconAmber}`}>
+            <Lock size={22} />
+          </div>
+        </div>
 
-          <button
-            type="button"
-            className={styles.historyBtn}
-            onClick={() => setIsOrderHistoryOpen(true)}
-          >
-            <Clock size={16} />
-            <span>History</span>
-          </button>
+        <div className={styles.metricCard}>
+          <div className={styles.metricInfo}>
+            <span className={styles.metricLabel}>Instant Delivery</span>
+            <span className={styles.metricValue}>100%</span>
+            <span className={styles.metricSubtext}>
+              <ShieldCheck size={13} />
+              Direct to Vault
+            </span>
+          </div>
+          <div className={`${styles.metricIconBox} ${styles.iconPurple}`}>
+            <Zap size={22} />
+          </div>
         </div>
       </div>
 
-      {/* 3. Section Title: QUICK ACTIONS */}
-      <div className={styles.sectionHeaderRow}>
-        <h3 className={styles.sectionHeaderTitle}>Quick Actions</h3>
-        <button
-          type="button"
-          className={styles.viewAllLink}
-          onClick={() => {
-            setSelectedCategory({
-              id: "all",
-              label: "All Goods & Services",
-              subtitle: "Full Inventory Catalog",
-              icon: <Zap size={22} />,
-              iconBg: "#dbeafe",
-              iconColor: "#004bef",
-              description: "Browse all available accounts, numbers, proxies, bots, and services.",
-            });
-          }}
-        >
-          <span>View all goods</span>
-          <ChevronRight size={14} />
-        </button>
-      </div>
+      {/* Escrow Active Attention Callout Banner */}
+      {activeEscrowOrders.length > 0 && (
+        <div className={styles.escrowAlertBanner}>
+          <div className={styles.alertLeft}>
+            <Lock size={24} className={styles.alertIcon} />
+            <div className={styles.alertText}>
+              <h4>{activeEscrowOrders.length} Log(s) Under 24h Guarantee</h4>
+              <p>
+                Your login details and password are in your vault. Test your log now. If you have
+                any issue, you can change it within 24 hours.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={styles.viewVaultBtn}
+            onClick={() => onNavigateToTab("vault")}
+          >
+            <span>Open Vault &amp; View Details</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+      )}
 
-      {/* 4. Primary 4x2 Categories Grid matching the reference screenshot */}
-      <div className={styles.categoriesGrid}>
-        {PRIMARY_CATEGORIES.map((cat) => (
-          <div
-            key={cat.id}
-            className={styles.categoryCard}
-            onClick={() => handleCardClick(cat)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleCardClick(cat);
-              }
+      {/* Recent Orders Section */}
+      <div>
+        <div className={styles.sectionHeader}>
+          <h3>Recent Logs Bought</h3>
+          <button
+            type="button"
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--primary, #004bef)",
+              fontWeight: 700,
+              fontSize: "0.8125rem",
+              cursor: "pointer",
             }}
+            onClick={() => onNavigateToTab("vault")}
           >
-            {cat.badge && <span className={styles.newBadge}>{cat.badge}</span>}
-
-            <div
-              className={styles.cardIconBox}
-              style={{ background: cat.iconBg, color: cat.iconColor }}
-            >
-              {cat.icon}
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              <h4 className={styles.cardLabel}>{cat.label}</h4>
-              <span className={styles.cardSubtitle}>{cat.subtitle}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Secondary Categories Strip (Proxies, RDP, Software, IG, FB, X, TikTok, Reddit) */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
-        <span style={{ fontSize: "0.725rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#94a3b8" }}>
-          Social Accounts &amp; Digital Tools
-        </span>
-        <div className={styles.socialCategoriesBar}>
-          {SECONDARY_CATEGORIES.map((sec) => (
-            <button
-              key={sec.id}
-              type="button"
-              className={styles.socialPill}
-              onClick={() => handleCardClick(sec)}
-            >
-              <span style={{ color: sec.iconColor, display: "flex", alignItems: "center" }}>
-                {sec.icon}
-              </span>
-              <span>{sec.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 5. Section: RECENT ACTIVITY */}
-      <div className={styles.recentActivityBlock}>
-        <div className={styles.sectionHeaderRow}>
-          <h3 className={styles.sectionHeaderTitle}>Recent Activity</h3>
-          <button
-            type="button"
-            className={styles.viewAllLink}
-            onClick={() => setIsOrderHistoryOpen(true)}
-          >
-            <span>View all</span>
-            <ChevronRight size={14} />
+            View All ({orders.length}) &rarr;
           </button>
         </div>
 
-        {recentOrders.length === 0 ? (
-          <div className={styles.emptyActivityCard}>
-            <Clock size={28} color="#94a3b8" />
-            <p>No recent orders yet. Click any category above to buy your first account or virtual number.</p>
-          </div>
-        ) : (
-          <div className={styles.activityList}>
-            {recentOrders.map((order) => (
-              <div
-                key={order.orderId}
-                className={styles.activityCard}
-                onClick={() => setIsOrderHistoryOpen(true)}
-                style={{ cursor: "pointer" }}
+        <div className={styles.ordersCard}>
+          {orders.length === 0 ? (
+            <div className={styles.emptyState}>
+              <Package size={40} opacity={0.4} />
+              <h4>You Have Not Bought Any Logs Yet</h4>
+              <p>
+                Visit the Logs Market to see all available accounts. Once you buy, your login and
+                password will appear here immediately.
+              </p>
+              <button
+                type="button"
+                className={styles.viewVaultBtn}
+                style={{ marginTop: "14px" }}
+                onClick={() => onNavigateToTab("inventory")}
               >
-                <div className={styles.activityLeft}>
-                  <div className={styles.activityIcon}>
-                    <ShieldCheck size={20} />
-                  </div>
-                  <div className={styles.activityInfo}>
-                    <h4>{order.productTitle}</h4>
-                    <span>
-                      Order #{order.orderId} • {new Date(order.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.activityRight}>
-                  <span className={styles.activityPrice}>{formatNaira(order.totalPrice)}</span>
-                  <span className={styles.escrowBadge}>
-                    <ShieldCheck size={11} />
-                    {order.status === "ESCROW_ACTIVE" ? "24h Escrow" : "Completed"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 6. Fixed Bottom Navigation Bar matching the screenshot */}
-      <nav className={styles.bottomNavFixed} aria-label="Bottom Navigation">
-        <div className={styles.bottomNavInner}>
-          <button
-            type="button"
-            className={`${styles.bottomNavItem} ${styles.bottomNavActive}`}
-            onClick={() => onNavigateToTab("overview")}
-          >
-            <Home size={20} />
-            <span>Home</span>
-          </button>
-
-          <button
-            type="button"
-            className={styles.bottomNavItem}
-            onClick={() => setIsOrderHistoryOpen(true)}
-          >
-            <Receipt size={20} />
-            <span>History</span>
-          </button>
-
-          <button
-            type="button"
-            className={styles.bottomNavItem}
-            onClick={() => setIsFundWalletOpen(true)}
-          >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: "#004bef",
-                color: "#ffffff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 8px rgba(0, 75, 239, 0.35)",
-              }}
-            >
-              <Plus size={18} strokeWidth={2.8} />
+                <span>Go to Market &amp; Buy Logs (180+ Available)</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
-            <span>Fund</span>
-          </button>
-
-          <button
-            type="button"
-            className={styles.bottomNavItem}
-            onClick={() => onNavigateToTab("inventory")}
-          >
-            <Gift size={20} />
-            <span>Reward</span>
-          </button>
-
-          <button
-            type="button"
-            className={styles.bottomNavItem}
-            onClick={() => setIsNotificationsOpen(true)}
-          >
-            <Bell size={20} />
-            <span>Alerts</span>
-          </button>
-
-          <button
-            type="button"
-            className={styles.bottomNavItem}
-            onClick={() => onNavigateToTab("settings")}
-          >
-            <User size={20} />
-            <span>Profile</span>
-          </button>
+          ) : (
+            <div className={styles.tableResponsiveWrapper}>
+              <table className={styles.ordersTable}>
+                <thead>
+                  <tr>
+                    <th>Order No</th>
+                    <th>Log Name</th>
+                    <th>Price Paid</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.slice(0, 5).map((order) => {
+                    const visuals = getPlatformIcon(order.productTitle);
+                    return (
+                      <tr key={order.orderId}>
+                        <td>
+                          <span className={styles.orderIdBadge}>#{order.orderId}</span>
+                        </td>
+                        <td>
+                          <div className={styles.platformCell}>
+                            <div
+                              className={styles.platformIcon}
+                              style={{ backgroundColor: visuals.bg, color: visuals.color }}
+                            >
+                              {visuals.icon}
+                            </div>
+                            <div className={styles.itemDetails}>
+                              <span className={styles.itemTitle}>{order.productTitle}</span>
+                              <span className={styles.itemSub}>
+                                {order.deliveryItems.length} account login(s)
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <strong>{formatNaira(order.totalPrice)}</strong>
+                        </td>
+                        <td>
+                          <span style={{ textTransform: "uppercase", fontWeight: 700, fontSize: "0.75rem" }}>
+                            {order.paymentGateway}
+                          </span>
+                        </td>
+                        <td>
+                          {order.status === "ESCROW_ACTIVE" ? (
+                            <span className={`${styles.statusBadge} ${styles.statusEscrow}`}>
+                              <Lock size={11} />
+                              24h Guarantee
+                            </span>
+                          ) : (
+                            <span className={`${styles.statusBadge} ${styles.statusCompleted}`}>
+                              <CheckCircle2 size={11} />
+                              Completed
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.inspectVaultActionBtn}
+                            onClick={() => onNavigateToTab("vault")}
+                          >
+                            <Eye size={12} />
+                            <span>View Login</span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      </nav>
-
-      {/* 7. POP-UP MODAL WITH EVERYTHING IN THE SELECTED CATEGORY (User's Core Requirement) */}
-      <CategoryModal
-        isOpen={Boolean(selectedCategory)}
-        onClose={() => setSelectedCategory(null)}
-        category={selectedCategory}
-        products={products}
-        profile={profile}
-        onBuyProduct={handleBuyProduct}
-        onFundWalletClick={() => setIsFundWalletOpen(true)}
-        onViewVaultClick={() => onNavigateToTab("vault")}
-        availableCategories={ALL_MODAL_CATEGORIES}
-        onSelectCategory={(cat) => setSelectedCategory(cat)}
-      />
-
-      {/* 8. Quick Fund Wallet Modal */}
-      <FundWalletModal
-        isOpen={isFundWalletOpen}
-        onClose={() => setIsFundWalletOpen(false)}
-        balance={profile.balance}
-        onFundWallet={handleExecuteFund}
-      />
-
-      {/* 9. Order History Modal */}
-      <OrderHistoryModal
-        isOpen={isOrderHistoryOpen}
-        onClose={() => setIsOrderHistoryOpen(false)}
-        orders={orders}
-        onNavigateToVault={() => onNavigateToTab("vault")}
-      />
-
-      {/* 10. Notifications Modal */}
-      <NotificationsModal
-        isOpen={isNotificationsOpen}
-        onClose={() => setIsNotificationsOpen(false)}
-        balance={profile.balance}
-        orderCount={orders.length}
-      />
+      </div>
     </div>
   );
 };
+
+export default OverviewTab;
