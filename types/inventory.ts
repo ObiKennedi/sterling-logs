@@ -12,6 +12,7 @@ export type AccountCategory =
   | "software"
   | "mail"
   | "finance"
+  | "boost"
   | "other";
 
 export type PaymentGateway = "gtb" | "paypoint";

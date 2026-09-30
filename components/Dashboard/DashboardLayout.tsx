@@ -212,6 +212,13 @@ export const DashboardLayout: React.FC = () => {
             profile={profile}
             orders={orders}
             onNavigateToTab={(tab) => setActiveTab(tab)}
+            onFundWallet={handleFundWallet}
+            onOrderCreated={(newOrder) => {
+              setOrders((prev) => [newOrder, ...prev]);
+            }}
+            onBalanceUpdate={(newBal) => {
+              setProfile((prev) => ({ ...prev, balance: newBal }));
+            }}
           />
         )}
 
