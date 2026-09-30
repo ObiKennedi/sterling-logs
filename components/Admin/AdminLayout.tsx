@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -43,6 +43,7 @@ import styles from "./AdminLayout.module.scss";
 type AdminTab = "overview" | "orders" | "users" | "vendor" | "tools";
 
 export interface AdminTool {
+  [x: string]: ReactNode;
   id: string;
   name: string;
   description: string;
@@ -1497,6 +1498,7 @@ export const AdminLayout: React.FC = () => {
                               <h3 className={styles.toolCardName}>{tool.name}</h3>
                               <span className={styles.toolPlatformBadge}>{tool.platform}</span>
                             </div>
+                          </div>
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                             <span className={styles.toolPiecesBadge}>
                               {tool.stock} pieces
