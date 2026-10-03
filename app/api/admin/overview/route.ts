@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getLogProvider } from "@/lib/providers";
+import { getTelegramConfig, sendTelegramMessage } from "@/lib/services/telegram";
 
 export const dynamic = "force-dynamic";
 
@@ -177,6 +178,12 @@ export async function GET() {
           ...vendorProfile,
           lastSyncedAt: new Date().toISOString(),
         },
+        receivingAccount: {
+          bank: process.env.OFFICIAL_BANK_NAME || "PalmPay",
+          accountNumber: process.env.OFFICIAL_ACCOUNT_NUMBER || "7061449557",
+          accountName: process.env.OFFICIAL_ACCOUNT_NAME || "Nathaniel Chinwendu",
+          telegramBot: process.env.TELEGRAM_BOT_USERNAME || "SterlingLogsMarketBot",
+        },
         adminRole: currentRole,
       },
     });
@@ -286,26 +293,50 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Action 3: Force release escrow
-    if (action === "release_escrow") {
+    // Action 3: Approve Order / Force release escrow
+    if (action === "approve_order" || action === "release_escrow") {
       if (!orderId) {
         return NextResponse.json({ success: false, error: "orderId is required" }, { status: 400 });
       }
 
       try {
+        const order = await prisma.order.findFirst({
+          where: {
+            OR: [{ id: orderId }, { orderNumber: orderId }],
+          },
+        });
+
         await prisma.order.updateMany({
           where: {
             OR: [{ id: orderId }, { orderNumber: orderId }],
           },
-          data: { status: "COMPLETED" },
+          data: {
+            status: "COMPLETED",
+            notes: order?.notes
+              ? `${order.notes} • Approved from Admin Dashboard`
+              : "Approved from Admin Dashboard",
+          },
         });
+
+        // Notify Telegram bot
+        try {
+          const { adminChatId } = getTelegramConfig();
+          if (adminChatId) {
+            await sendTelegramMessage(
+              adminChatId,
+              `✅ <b>Order #${orderId} Approved via Admin Dashboard!</b>\nStatus marked as COMPLETED. Credentials released to buyer.`
+            );
+          }
+        } catch {
+          // Telegram sync non-blocking
+        }
       } catch (err) {
         console.warn("[Admin API] Order update fallback:", err);
       }
 
       return NextResponse.json({
         success: true,
-        message: `Order #${orderId} escrow hold released successfully.`,
+        message: `Order #${orderId} approved and marked COMPLETED.`,
       });
     }
 

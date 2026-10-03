@@ -170,6 +170,18 @@ export const AdminLayout: React.FC = () => {
   });
   const [markupMultiplier, setMarkupMultiplier] = useState<number>(1.5);
   const [flashMessage, setFlashMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [receivingAccount, setReceivingAccount] = useState<{
+    bank: string;
+    accountNumber: string;
+    accountName: string;
+    telegramBot: string;
+  }>({
+    bank: "PalmPay",
+    accountNumber: "7061449557",
+    accountName: "Nathaniel Chinwendu",
+    telegramBot: "SterlingLogsMarketBot",
+  });
+  const [isSendingTestTelegram, setIsSendingTestTelegram] = useState<boolean>(false);
 
   // Working Tools State
   const [workingTools, setWorkingTools] = useState<AdminTool[]>([]);
@@ -209,6 +221,7 @@ export const AdminLayout: React.FC = () => {
         setOrders(json.data.orders || []);
         if (json.data.purchases) setPurchases(json.data.purchases);
         if (json.data.vendor) setVendor(json.data.vendor);
+        if (json.data.receivingAccount) setReceivingAccount(json.data.receivingAccount);
       }
 
       // Fetch working tools
@@ -317,25 +330,43 @@ export const AdminLayout: React.FC = () => {
     }
   };
 
-  // Force release escrow
+  // Force release escrow / approve order
   const handleForceReleaseEscrow = async (orderId: string) => {
-    if (!confirm(`Admin Action: Confirm manual release of funds for order #${orderId}?`)) return;
+    if (!confirm(`Admin Action: Confirm manual approval of order #${orderId}? Credentials will be unlocked for the buyer.`)) return;
 
     try {
       const res = await fetch("/api/admin/overview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "release_escrow", orderId }),
+        body: JSON.stringify({ action: "approve_order", orderId }),
       });
       const data = await res.json();
       if (data.success) {
         setOrders((prev) =>
           prev.map((o) => (o.orderId === orderId ? { ...o, status: "COMPLETED" } : o))
         );
-        showNotification(data.message || `Order #${orderId} escrow released.`);
+        showNotification(data.message || `Order #${orderId} approved and completed.`);
       }
     } catch {
-      showNotification("Failed to release escrow", "error");
+      showNotification("Failed to approve order", "error");
+    }
+  };
+
+  // Test Telegram ping to Nathaniel's Telegram chat
+  const handleTestTelegramPing = async () => {
+    try {
+      setIsSendingTestTelegram(true);
+      const res = await fetch("/api/webhooks/telegram?test=true");
+      const data = await res.json();
+      if (data.success) {
+        showNotification("Test alert dispatched to Nathaniel Chinwendu's Telegram!");
+      } else {
+        showNotification(data.message || "Failed to send message. Make sure to click /start on @SterlingLogsMarketBot in Telegram.", "error");
+      }
+    } catch {
+      showNotification("Error testing Telegram bot.", "error");
+    } finally {
+      setIsSendingTestTelegram(false);
     }
   };
 
@@ -701,6 +732,101 @@ export const AdminLayout: React.FC = () => {
                   </div>
                 </div>
 
+                {/* PalmPay & Telegram Bot Synchronization Status Banner */}
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(30, 27, 75, 0.35) 100%)",
+                    border: "1px solid rgba(124, 58, 237, 0.28)",
+                    borderRadius: "14px",
+                    padding: "18px 22px",
+                    marginBottom: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "16px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    <div
+                      style={{
+                        width: "46px",
+                        height: "46px",
+                        borderRadius: "12px",
+                        background: "rgba(124, 58, 237, 0.2)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#a78bfa",
+                        fontSize: "22px",
+                      }}
+                    >
+                      <FaTelegram />
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "3px" }}>
+                        <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#ffffff" }}>
+                          PalmPay Direct Account &amp; Telegram Approval Sync
+                        </h4>
+                        <span
+                          style={{
+                            fontSize: "0.6875rem",
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: "9999px",
+                            background: "rgba(34, 197, 94, 0.15)",
+                            color: "#4ade80",
+                            border: "1px solid rgba(34, 197, 94, 0.3)",
+                          }}
+                        >
+                          🟢 Bot Active
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.825rem", color: "#cbd5e1" }}>
+                        Receiving Bank: <strong style={{ color: "#ffffff" }}>{receivingAccount.bank}</strong> • Account: <strong style={{ color: "#38bdf8" }}>{receivingAccount.accountNumber}</strong> ({receivingAccount.accountName}) • Bot: <strong style={{ color: "#a78bfa" }}>@{receivingAccount.telegramBot}</strong>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <button
+                      type="button"
+                      className={styles.actionBtnSmall}
+                      style={{
+                        background: "rgba(124, 58, 237, 0.25)",
+                        color: "#c4b5fd",
+                        border: "1px solid rgba(124, 58, 237, 0.4)",
+                        padding: "8px 14px",
+                        fontSize: "0.8rem",
+                      }}
+                      onClick={handleTestTelegramPing}
+                      disabled={isSendingTestTelegram}
+                    >
+                      <FaTelegram size={14} />
+                      <span>{isSendingTestTelegram ? "Sending Ping..." : "Send Test Telegram Ping"}</span>
+                    </button>
+                    <a
+                      href={`https://t.me/${receivingAccount.telegramBot}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.actionBtnSmall}
+                      style={{
+                        background: "rgba(255, 255, 255, 0.08)",
+                        color: "#ffffff",
+                        padding: "8px 14px",
+                        fontSize: "0.8rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <span>Open Bot</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  </div>
+                </div>
+
                 {/* Working Tools Quick Banner */}
                 <div className={styles.toolsQuickCard}>
                   <div className={styles.toolsQuickLeft}>
@@ -863,11 +989,12 @@ export const AdminLayout: React.FC = () => {
                                       <button
                                         type="button"
                                         className={styles.actionBtnSmall}
-                                        title="Force Release"
+                                        style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)" }}
+                                        title="Approve Order & Release"
                                         onClick={() => handleForceReleaseEscrow(o.orderId)}
                                       >
                                         <CheckCircle2 size={12} />
-                                        Release
+                                        Approve
                                       </button>
                                     )}
                                     <button
@@ -923,10 +1050,11 @@ export const AdminLayout: React.FC = () => {
                                 <button
                                   type="button"
                                   className={styles.actionBtnSmall}
+                                  style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)" }}
                                   onClick={() => handleForceReleaseEscrow(o.orderId)}
                                 >
                                   <CheckCircle2 size={13} />
-                                  Release
+                                  Approve
                                 </button>
                               )}
                               <button
@@ -1051,9 +1179,11 @@ export const AdminLayout: React.FC = () => {
                                     <button
                                       type="button"
                                       className={styles.actionBtnSmall}
+                                      style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)" }}
                                       onClick={() => handleForceReleaseEscrow(o.orderId)}
                                     >
-                                      Release Funds
+                                      <CheckCircle2 size={12} />
+                                      Approve
                                     </button>
                                   )}
                                   <button
@@ -1113,16 +1243,17 @@ export const AdminLayout: React.FC = () => {
                             </div>
                           )}
                           <div className={styles.cardActionsRow}>
-                            {o.status === "ESCROW_ACTIVE" && (
-                              <button
-                                type="button"
-                                className={styles.actionBtnSmall}
-                                onClick={() => handleForceReleaseEscrow(o.orderId)}
-                              >
-                                <CheckCircle2 size={13} />
-                                Release Funds
-                              </button>
-                            )}
+                              {o.status === "ESCROW_ACTIVE" && (
+                                <button
+                                  type="button"
+                                  className={styles.actionBtnSmall}
+                                  style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)" }}
+                                  onClick={() => handleForceReleaseEscrow(o.orderId)}
+                                >
+                                  <CheckCircle2 size={13} />
+                                  Approve
+                                </button>
+                              )}
                             <button
                               type="button"
                               className={`${styles.actionBtnSmall} ${styles.actionBtnDanger}`}

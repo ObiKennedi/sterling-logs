@@ -317,8 +317,9 @@ export const HeroShowcase: React.FC = () => {
   );
 
   // Checkout flow state
-  const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>("gtb");
+  const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>("palmpay");
   const [customerEmail, setCustomerEmail] = useState<string>("");
+  const [customerTelegram, setCustomerTelegram] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
   const [checkoutStep, setCheckoutStep] = useState<"form" | "payment" | "completed">("form");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -386,6 +387,7 @@ export const HeroShowcase: React.FC = () => {
         productId: purchasingProduct.id,
         quantity: 1,
         customerEmail: customerEmail.trim(),
+        customerTelegram: customerTelegram.trim() || undefined,
         paymentGateway: selectedGateway,
         paymentReference: paymentDetails?.reference,
         senderName: senderNote.trim() || undefined,
@@ -409,7 +411,12 @@ export const HeroShowcase: React.FC = () => {
 
   const downloadBundleJson = () => {
     if (!completedOrder) return;
-    const blob = new Blob([JSON.stringify(completedOrder, null, 2)], {
+    const exportBundle = {
+      ...completedOrder,
+      antiFraudDisclaimer:
+        "STRICT ANTI-FRAUD NOTICE: Sterling Logs strictly opposes and does NOT support fraud. Assets and tools are provided strictly for educational, security testing, and lawful marketing recovery only. If you use this bundle for fraud or criminal acts, you are strictly on your own and assume 100% legal responsibility.",
+    };
+    const blob = new Blob([JSON.stringify(exportBundle, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -426,6 +433,7 @@ export const HeroShowcase: React.FC = () => {
     setPaymentDetails(null);
     setCompletedOrder(null);
     setEmailError("");
+    setCustomerTelegram("");
     setSenderNote("");
   };
 
@@ -831,12 +839,45 @@ export const HeroShowcase: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Telegram Handle (Optional) */}
+                  <div className={styles.inputGroup} style={{ marginTop: "10px" }}>
+                    <label className={styles.inputLabel} htmlFor="customerTelegramInput">
+                      <span>Telegram Username (Optional)</span>
+                      <span className={styles.inputHelp}>Instant dispatch &amp; support</span>
+                    </label>
+                    <input
+                      id="customerTelegramInput"
+                      type="text"
+                      className={styles.textInput}
+                      placeholder="@yourhandle (e.g. @nath_trader)"
+                      value={customerTelegram}
+                      onChange={(e) => setCustomerTelegram(e.target.value)}
+                    />
+                  </div>
+
                   {/* Payment Gateway Choice */}
-                  <div>
+                  <div style={{ marginTop: "12px" }}>
                     <label className={styles.inputLabel} style={{ marginBottom: "6px" }}>
                       Select Payment Gateway:
                     </label>
                     <div className={styles.gatewaySelector}>
+                      {/* PalmPay (Recommended) */}
+                      <div
+                        className={`${styles.gatewayOption} ${
+                          selectedGateway === "palmpay" ? styles.gatewayOptionActive : ""
+                        }`}
+                        onClick={() => setSelectedGateway("palmpay")}
+                      >
+                        <div className={styles.gatewayHeader}>
+                          <span className={styles.gatewayBadgePalmPay}>PALMPAY</span>
+                          <span>PalmPay Direct</span>
+                          <span className={styles.recommendedBadge}>Instant</span>
+                        </div>
+                        <span className={styles.gatewaySub}>
+                          Direct bank transfer &amp; Telegram alert
+                        </span>
+                      </div>
+
                       <div
                         className={`${styles.gatewayOption} ${
                           selectedGateway === "gtb" ? styles.gatewayOptionActive : ""
@@ -845,10 +886,10 @@ export const HeroShowcase: React.FC = () => {
                       >
                         <div className={styles.gatewayHeader}>
                           <span className={styles.gatewayBadgeGTB}>GTB</span>
-                          <span>GTBank Checkout</span>
+                          <span>GTBank Transfer</span>
                         </div>
                         <span className={styles.gatewaySub}>
-                          *737# USSD &amp; GTB Transfer
+                          *737# USSD &amp; GTB Escrow
                         </span>
                       </div>
 
@@ -860,10 +901,10 @@ export const HeroShowcase: React.FC = () => {
                       >
                         <div className={styles.gatewayHeader}>
                           <span className={styles.gatewayBadgePP}>PAYPOINT</span>
-                          <span>Paypoint Gateway</span>
+                          <span>Virtual Acc</span>
                         </div>
                         <span className={styles.gatewaySub}>
-                          Virtual Account &amp; Cards
+                          Wema / Paypoint channel
                         </span>
                       </div>
                     </div>
@@ -985,6 +1026,27 @@ export const HeroShowcase: React.FC = () => {
                     />
                   </div>
 
+                  {/* Telegram Sync Assurance Banner */}
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      background: "rgba(124, 58, 237, 0.08)",
+                      border: "1px solid rgba(124, 58, 237, 0.22)",
+                      fontSize: "0.78rem",
+                      color: "#6d28d9",
+                      marginTop: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <FaTelegram size={18} color="#7c3aed" style={{ flexShrink: 0 }} />
+                    <span>
+                      <strong>Instant Telegram Notification:</strong> Transfer to the account above and click <strong>&quot;I Have Paid&quot;</strong>. The administrator receives an immediate alert on Telegram to verify and release your order.
+                    </span>
+                  </div>
+
                   <div className={styles.orderSuccessNotice}>
                     <Mail size={16} />
                     <span>
@@ -1074,6 +1136,23 @@ export const HeroShowcase: React.FC = () => {
                         </div>
                       ))}
                     </div>
+
+                    {/* Anti-Fraud Disclaimer Notice */}
+                    <div
+                      style={{
+                        marginTop: "12px",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        background: "#fff1f2",
+                        border: "1px solid #fecdd3",
+                        borderLeft: "4px solid #e11d48",
+                        fontSize: "0.74rem",
+                        color: "#881337",
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      <strong style={{ color: "#9f1239" }}>⚠️ Strict Anti-Fraud Policy:</strong> We do NOT support fraud. If you use any account or asset purchased here for fraud, cybercrime, or illicit activities, you are strictly on your own and assume 100% legal liability.
+                    </div>
                   </div>
                 </>
               )}
@@ -1114,7 +1193,7 @@ export const HeroShowcase: React.FC = () => {
                     >
                       <Lock size={14} />
                       <span>
-                        {isProcessing ? "Confirming..." : "I Have Paid (Dispatch Bundle)"}
+                        {isProcessing ? "Alerting Admin..." : "I Have Paid (Alert Admin on Telegram)"}
                       </span>
                     </button>
                   </>

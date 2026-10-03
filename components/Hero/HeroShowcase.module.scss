@@ -753,7 +753,7 @@
 /* Nigerian Payment Gateway Styles */
 .gatewaySelector {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
   margin-bottom: 6px;
 
@@ -791,9 +791,32 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-heading);
+}
+
+.gatewayBadgePalmPay {
+  display: inline-flex;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.recommendedBadge {
+  display: inline-flex;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-left: auto;
 }
 
 .gatewayBadgeGTB {

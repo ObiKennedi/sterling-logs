@@ -40,6 +40,31 @@ export async function initiatePayment(
   const { amount, email, orderId, gateway, productTitle } = params;
   const timestamp = Date.now().toString().slice(-6);
 
+  const officialBank = process.env.OFFICIAL_BANK_NAME || "PalmPay";
+  const officialAccountNumber = process.env.OFFICIAL_ACCOUNT_NUMBER || "7061449557";
+  const officialAccountName = process.env.OFFICIAL_ACCOUNT_NAME || "Nathaniel Chinwendu";
+
+  if (gateway === "palmpay" || gateway === "bank") {
+    const reference = `PALM-${orderId}-${timestamp}`;
+
+    return {
+      gateway: "palmpay",
+      reference,
+      amount,
+      currency: "₦",
+      formattedAmount: formatNaira(amount),
+      accountDetails: {
+        bankName: officialBank,
+        accountNumber: officialAccountNumber,
+        accountName: officialAccountName,
+        expiresInMinutes: 60,
+      },
+      instructions: `Transfer exactly ${formatNaira(
+        amount
+      )} to ${officialBank} account: ${officialAccountNumber} (${officialAccountName}). Once transferred, click 'I Have Paid'. Admin is instantly alerted via Telegram to approve and dispatch your credentials.`,
+    };
+  }
+
   if (gateway === "gtb") {
     const reference = `GTB-${orderId}-${timestamp}`;
     const ussdAmount = Math.round(amount);
@@ -103,7 +128,10 @@ export async function verifyPayment(
   }
 
   const isValid =
-    (gateway === "gtb" && reference.startsWith("GTB-")) || reference.length > 5;
+    (gateway === "palmpay" && (reference.startsWith("PALM-") || reference.length >= 4)) ||
+    (gateway === "bank" && reference.length >= 4) ||
+    (gateway === "gtb" && reference.startsWith("GTB-")) ||
+    reference.length > 5;
 
   return {
     verified: isValid,

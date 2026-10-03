@@ -10,6 +10,10 @@ import {
   ShoppingBag,
   Plus,
   Bell,
+  ShieldAlert,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { OrderResult, UserProfile } from "@/types/inventory";
@@ -37,6 +41,7 @@ export const DashboardLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [orders, setOrders] = useState<OrderResult[]>([]);
+  const [isDisclaimerExpanded, setIsDisclaimerExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadUserData() {
@@ -76,12 +81,16 @@ export const DashboardLayout: React.FC = () => {
     }
   };
 
-  const handleFundWallet = async (amount: number, gateway: "gtb" | "paypoint") => {
-    await new Promise((r) => setTimeout(r, 1200));
-    setProfile((prev) => ({
-      ...prev,
-      balance: prev.balance + amount,
-    }));
+  const handleFundWallet = async (amount: number, gateway: "palmpay" | "gtb" | "paypoint") => {
+    try {
+      await fetch("/api/wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, gateway }),
+      });
+    } catch (err) {
+      console.warn("Wallet deposit sync warning:", err);
+    }
   };
 
   const handleSignOut = () => {
@@ -139,6 +148,44 @@ export const DashboardLayout: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* ── Strict Anti-Fraud Disclaimer Banner ── */}
+      <section className={styles.antiFraudBanner} aria-label="Anti-Fraud Disclaimer Policy">
+        <div className={styles.antiFraudInner}>
+          <div className={styles.antiFraudIconWrap}>
+            <ShieldAlert size={18} />
+          </div>
+
+          <div className={styles.antiFraudContent}>
+            <div className={styles.antiFraudTop}>
+              <div className={styles.antiFraudTitle}>
+                <AlertTriangle size={14} />
+                <span>Strict Anti-Fraud Notice</span>
+              </div>
+              <span className={styles.antiFraudBadge}>Zero Tolerance</span>
+            </div>
+
+            <p className={styles.antiFraudText}>
+              <strong>We do NOT support or condone fraud of any kind.</strong> If you use anything purchased from this platform for fraudulent activities, cybercrime, or illicit purposes, <strong>you are strictly on your own</strong> and bear 100% full civil and criminal legal liability.
+            </p>
+
+            {isDisclaimerExpanded && (
+              <div className={styles.antiFraudFullTerms}>
+                All digital logs, accounts, and tools supplied on Sterling Logs are sold exclusively for educational recovery, authorized penetration testing, security analytics, and legitimate social marketing. Management maintains zero tolerance for cybercrime and assumes no liability for user misconduct.
+              </div>
+            )}
+
+            <button
+              type="button"
+              className={styles.antiFraudToggleBtn}
+              onClick={() => setIsDisclaimerExpanded((prev) => !prev)}
+            >
+              <span>{isDisclaimerExpanded ? "Hide Full Policy" : "Read Full Policy & Legal Terms"}</span>
+              {isDisclaimerExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Main Scrollable Body */}
       <main className={styles.dashboardBody}>

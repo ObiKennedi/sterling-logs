@@ -15,7 +15,7 @@ export type AccountCategory =
   | "finance"
   | "other";
 
-export type PaymentGateway = "gtb" | "paypoint";
+export type PaymentGateway = "palmpay" | "bank" | "gtb" | "paypoint";
 
 export type ProductType = "log" | "proxy" | "rdp" | "number" | "software" | "tool";
 
@@ -92,7 +92,7 @@ export interface OrderResult {
   currency: string;
   paymentGateway: PaymentGateway;
   paymentReference: string;
-  status: "COMPLETED" | "ESCROW_ACTIVE" | "PROCESSING" | "FAILED";
+  status: "COMPLETED" | "ESCROW_ACTIVE" | "PROCESSING" | "FAILED" | "PENDING_APPROVAL" | "REFUNDED" | "DISPUTED";
   escrowHours: number;
   customerEmail?: string;
   deliveryItems: DeliveredItem[];

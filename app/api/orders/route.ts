@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getLogProvider } from "@/lib/providers";
 import { ApiResponse, DeliveredItem, OrderRequest, OrderResult, PaymentGateway } from "@/types/inventory";
 import { getWorkingTools, decrementToolStock } from "@/lib/storage/workingTools";
+import { sendOrderAlertToAdmin } from "@/lib/services/telegram";
 
 export const dynamic = "force-dynamic";
 
@@ -166,6 +167,24 @@ export async function POST(request: NextRequest) {
 
       if (body.paymentReference) {
         result.paymentReference = body.paymentReference;
+      }
+
+      // Dispatch instant Telegram alert with interactive Approve/Reject buttons to Nathaniel
+      try {
+        await sendOrderAlertToAdmin({
+          orderNumber: result.orderId,
+          productTitle: result.productTitle,
+          totalPrice: result.totalPrice,
+          customerEmail: emailToMatch || "customer@sterlinglogs.com",
+          customerTelegram: body.customerTelegram,
+          paymentGateway: String(body.paymentGateway || result.paymentGateway || "palmpay"),
+          paymentReference: paymentRefToStore || undefined,
+          senderName: body.senderName,
+          senderBank: body.senderBank,
+          notes: combinedNotes || undefined,
+        });
+      } catch (tgErr) {
+        console.warn("[Orders API] Telegram alert warning:", tgErr);
       }
     } catch (dbErr) {
       console.error("[Orders API] Failed to persist order in database:", dbErr);
