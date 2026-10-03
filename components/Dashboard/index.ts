@@ -4,4 +4,4 @@ export { InventoryTab } from "./InventoryTab";
 export { VaultTab } from "./VaultTab";
 export { WalletTab } from "./WalletTab";
 export { SettingsTab } from "./SettingsTab";
-
+export { AntiFraudNotice } from "./AntiFraudNotice";

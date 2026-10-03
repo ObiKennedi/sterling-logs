@@ -36,6 +36,7 @@ import { OrderResult, UserProfile, AccountCategory } from "@/types/inventory";
 import { formatNaira } from "@/lib/utils/format";
 import { fetchInventoryWithMeta } from "@/lib/api/client";
 import { InventoryProduct } from "@/types/inventory";
+import { AntiFraudNotice } from "./AntiFraudNotice";
 import styles from "./OverviewTab.module.scss";
 
 interface OverviewTabProps {
@@ -564,6 +565,9 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           ))}
         </div>
       </div>
+
+      {/* ── Strict Anti-Fraud Disclaimer Notice Banner (Client Design) ── */}
+      <AntiFraudNotice />
 
       {/* ── Recent Purchases ── */}
       <div className={styles.sectionBlock}>
