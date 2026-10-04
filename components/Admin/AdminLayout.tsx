@@ -54,6 +54,7 @@ export interface AdminTransaction {
   reference: string;
   gateway: string;
   description?: string;
+  senderName?: string;
   createdAt: string;
 }
 
@@ -531,6 +532,8 @@ export const AdminLayout: React.FC = () => {
         t.reference.toLowerCase().includes(q) ||
         t.userEmail.toLowerCase().includes(q) ||
         t.userName.toLowerCase().includes(q) ||
+        (t.senderName && t.senderName.toLowerCase().includes(q)) ||
+        (t.description && t.description.toLowerCase().includes(q)) ||
         String(t.amount).includes(q);
       return matchesStatus && matchesSearch;
     });
@@ -1036,6 +1039,11 @@ export const AdminLayout: React.FC = () => {
                                 </span>
                               </div>
                               <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: "4px" }}>
+                                {tx.senderName && (
+                                  <span style={{ marginRight: "8px" }}>
+                                    Sender: <strong style={{ color: "#38bdf8" }}>{tx.senderName}</strong> •
+                                  </span>
+                                )}
                                 Buyer: <strong style={{ color: "#e2e8f0" }}>{tx.userEmail}</strong> • PalmPay Transfer
                               </div>
                             </div>
@@ -1448,6 +1456,11 @@ export const AdminLayout: React.FC = () => {
                               <td>
                                 <div style={{ fontWeight: 600, color: "#ffffff" }}>{tx.userName || "Customer"}</div>
                                 <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{tx.userEmail}</div>
+                                {tx.senderName && (
+                                  <div style={{ fontSize: "0.75rem", color: "#38bdf8", marginTop: "2px", fontWeight: 700 }}>
+                                    Sender: {tx.senderName}
+                                  </div>
+                                )}
                               </td>
                               <td style={{ fontWeight: 800, fontSize: "0.95rem", color: "#10b981" }}>
                                 {formatNaira(tx.amount)}
@@ -1544,6 +1557,11 @@ export const AdminLayout: React.FC = () => {
                               {formatNaira(tx.amount)}
                             </div>
                             <span className={styles.customerEmail}>{tx.userEmail}</span>
+                            {tx.senderName && (
+                              <div style={{ fontSize: "0.75rem", color: "#38bdf8", marginTop: "3px", fontWeight: 700 }}>
+                                Sender: {tx.senderName}
+                              </div>
+                            )}
                           </div>
 
                           <div className={styles.cardMetaRow}>

@@ -381,6 +381,13 @@ export const HeroShowcase: React.FC = () => {
   const handleConfirmPaid = async () => {
     if (!purchasingProduct) return;
 
+    if (selectedGateway === "palmpay" && !senderNote.trim()) {
+      alert("Please enter your sender account name so we know who sent the transfer.");
+      const inputEl = document.getElementById("senderNoteInput");
+      inputEl?.focus();
+      return;
+    }
+
     try {
       setIsProcessing(true);
       const result = await submitOrder({
@@ -955,17 +962,17 @@ export const HeroShowcase: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Optional Client Verification Input */}
+                  {/* Demanded Client Verification Input */}
                   <div className={styles.inputGroup} style={{ marginTop: "12px", marginBottom: "8px" }}>
                     <label className={styles.inputLabel} htmlFor="senderNoteInput">
-                      <span>Sender Name / Bank / Transaction Note (Optional)</span>
-                      <span className={styles.inputHelp}>Client verification details</span>
+                      <span>Your Sender Account Name (Required) *</span>
+                      <span className={styles.inputHelp}>Used by admin to verify your transfer</span>
                     </label>
                     <input
                       id="senderNoteInput"
                       type="text"
                       className={styles.textInput}
-                      placeholder="e.g. Adeola Johnson / OPay or Session ID"
+                      placeholder="e.g. Adeola Johnson or Emeka Okafor"
                       value={senderNote}
                       onChange={(e) => setSenderNote(e.target.value)}
                     />

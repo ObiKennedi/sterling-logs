@@ -76,15 +76,20 @@ export const DashboardLayout: React.FC = () => {
     }
   };
 
-  const handleFundWallet = async (amount: number, gateway: "palmpay") => {
+  const handleFundWallet = async (amount: number, gateway: "palmpay", senderName?: string) => {
     try {
-      await fetch("/api/wallet", {
+      const res = await fetch("/api/wallet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, gateway }),
+        body: JSON.stringify({ amount, gateway, senderName }),
       });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to submit deposit request");
+      }
     } catch (err) {
       console.warn("Wallet deposit sync warning:", err);
+      throw err;
     }
   };
 

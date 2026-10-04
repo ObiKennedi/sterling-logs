@@ -25,6 +25,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const cleanSenderName = typeof senderName === "string" ? senderName.trim() : "";
+    if (!cleanSenderName) {
+      return NextResponse.json(
+        { success: false, error: "Sender account name is required so we know who sent what." },
+        { status: 400 }
+      );
+    }
+
     // Determine current user
     let userId: string | null = null;
     let userEmail: string = "user@sterlinglogs.com";
@@ -52,7 +60,7 @@ export async function POST(request: NextRequest) {
         const newUser = await prisma.user.create({
           data: {
             email: userEmail,
-            name: "Sterling Customer",
+            name: cleanSenderName || "Sterling Customer",
             balance: 0,
           },
         });
@@ -65,7 +73,7 @@ export async function POST(request: NextRequest) {
     const officialAccountNum = process.env.OFFICIAL_ACCOUNT_NUMBER || "7061449557";
     const officialAccountName = process.env.OFFICIAL_ACCOUNT_NAME || "Nathaniel Chinwendu";
 
-    // Create pending wallet transaction
+    // Create pending wallet transaction with sender name recorded in description
     const transaction = await prisma.walletTransaction.create({
       data: {
         userId,
@@ -75,7 +83,7 @@ export async function POST(request: NextRequest) {
         status: "PENDING",
         reference: txRef,
         gateway: String(gateway).toLowerCase(),
-        description: `Manual transfer of ${formatNaira(numericAmount)} to ${officialBank} (${officialAccountNum})`,
+        description: `PalmPay transfer of ${formatNaira(numericAmount)} from "${cleanSenderName}" to ${officialBank} (${officialAccountNum})`,
       },
     });
 
@@ -85,8 +93,8 @@ export async function POST(request: NextRequest) {
         reference: txRef,
         amount: numericAmount,
         userEmail,
-        senderName,
-        senderBank,
+        senderName: cleanSenderName,
+        senderBank: senderBank || officialBank,
       });
     } catch (tgErr) {
       console.warn("[Wallet API] Telegram funding alert error:", tgErr);

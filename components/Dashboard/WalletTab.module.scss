@@ -388,6 +388,173 @@
   }
 }
 
+/* Step Block styling */
+.stepBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-light, #e2e8f0);
+
+  &:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .stepBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary, #004bef);
+    color: #ffffff;
+    font-size: 0.775rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .stepTitle {
+    font-size: 0.925rem;
+    font-weight: 800;
+    color: var(--text-heading, #0b132b);
+    margin: 0;
+  }
+}
+
+.stepSubtext {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.transferAmountCallout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 75, 239, 0.05);
+  border: 1px solid rgba(0, 75, 239, 0.15);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 0.825rem;
+  color: #1e3a8a;
+
+  strong {
+    font-size: 0.95rem;
+    color: var(--primary, #004bef);
+  }
+}
+
+.senderInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--border-light, #e2e8f0);
+    background: #ffffff;
+    font-size: 0.925rem;
+    font-weight: 600;
+    color: var(--text-heading, #0b132b);
+    outline: none;
+    transition: all var(--transition-fast, 150ms ease);
+
+    &:focus {
+      border-color: var(--primary, #004bef);
+      box-shadow: 0 0 0 3px rgba(0, 75, 239, 0.15);
+    }
+
+    &.inputError {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.02);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+  }
+
+  .errorMessage {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.775rem;
+    font-weight: 700;
+    color: #dc2626;
+  }
+}
+
+/* Guide Card on Right Side */
+.guideCard {
+  background: #ffffff;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-light, #e2e8f0);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 1px 4px rgba(0, 20, 60, 0.04);
+
+  @media (max-width: 640px) {
+    padding: 18px 16px;
+  }
+}
+
+.guideList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guideItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  .guideNum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 75, 239, 0.1);
+    color: var(--primary, #004bef);
+    font-size: 0.75rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .guideText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: 0.85rem;
+      color: var(--text-heading, #0b132b);
+    }
+
+    span {
+      font-size: 0.775rem;
+      color: var(--text-muted, #64748b);
+      line-height: 1.4;
+    }
+  }
+}
+
 /* Transactions Table Card */
 .transactionsCard {
   background: #ffffff;

@@ -255,12 +255,16 @@ export async function sendWalletFundingAlertToAdmin(params: WalletFundingAlertPa
           callback_data: `reject_funding:${params.reference}`,
         },
       ],
-      [
-        {
-          text: "🌐 Open Admin Command Center",
-          url: `${appUrl}/admin`,
-        },
-      ],
+      ...(appUrl && appUrl.startsWith("https://")
+        ? [
+            [
+              {
+                text: "🌐 Open Admin Command Center",
+                url: `${appUrl}/admin`,
+              },
+            ],
+          ]
+        : []),
     ],
   };
 

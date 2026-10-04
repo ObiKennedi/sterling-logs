@@ -138,20 +138,30 @@ export async function GET() {
       });
 
       if (dbTransactions.length > 0) {
-        transactionsData = dbTransactions.map((tx: any) => ({
-          id: tx.id,
-          userId: tx.userId,
-          userEmail: tx.user?.email || "customer@sterlinglogs.com",
-          userName: tx.user?.name || tx.user?.email?.split("@")[0] || "Customer",
-          type: tx.type,
-          amount: tx.amount,
-          currency: tx.currency || "₦",
-          status: tx.status as "PENDING" | "SUCCESS" | "FAILED",
-          reference: tx.reference,
-          gateway: tx.gateway || "palmpay",
-          description: tx.description || "",
-          createdAt: tx.createdAt ? new Date(tx.createdAt).toISOString() : "",
-        }));
+        transactionsData = dbTransactions.map((tx: any) => {
+          let senderName = "";
+          if (tx.description) {
+            const match = tx.description.match(/from ["']([^"']+)["']/i);
+            if (match && match[1]) {
+              senderName = match[1];
+            }
+          }
+          return {
+            id: tx.id,
+            userId: tx.userId,
+            userEmail: tx.user?.email || "customer@sterlinglogs.com",
+            userName: tx.user?.name || tx.user?.email?.split("@")[0] || "Customer",
+            type: tx.type,
+            amount: tx.amount,
+            currency: tx.currency || "₦",
+            status: tx.status as "PENDING" | "SUCCESS" | "FAILED",
+            reference: tx.reference,
+            gateway: tx.gateway || "palmpay",
+            description: tx.description || "",
+            senderName: senderName || undefined,
+            createdAt: tx.createdAt ? new Date(tx.createdAt).toISOString() : "",
+          };
+        });
       }
     } catch (err) {
       console.warn("[Admin API] Error fetching wallet transactions:", err);
