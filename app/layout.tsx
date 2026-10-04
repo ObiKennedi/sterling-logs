@@ -32,8 +32,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AOSInit />
         {children}
+        <AOSInit />
       </body>
     </html>
   );

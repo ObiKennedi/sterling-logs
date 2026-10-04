@@ -24,7 +24,7 @@ const PLANS: PlanItem[] = [
     price: "₦22,500",
     period: "starting per log",
     features: [
-      "Instant GTB & Paypoint Checkout",
+      "Instant PalmPay Transfer Checkout",
       "Netscape Cookies (.JSON) Included",
       "ProtonMail OGE Access Credentials",
       "Delivery to Email in < 30 Seconds",
@@ -55,7 +55,7 @@ const PLANS: PlanItem[] = [
     features: [
       "Direct REST API Access & Webhooks",
       "Set Your Own Selling Prices & Profit",
-      "Automated Balance Top-Up via GTB/Paypoint",
+      "Direct Balance Top-Up via PalmPay",
       "Dedicated WhatsApp Account Manager",
       "White-Label Email Dispatch Available",
       "Unlimited Daily API Order Limits",
@@ -78,7 +78,7 @@ export const Pricing: React.FC = () => {
   return (
     <section id="pricing" className={styles.pricingSection}>
       <div className={styles.container}>
-        <div className={styles.sectionHeader} data-aos="fade-up">
+        <div className={styles.sectionHeader} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.badge}>
             <ShieldCheck size={13} />
             <span>Transparent Naira Pricing</span>
@@ -102,6 +102,7 @@ export const Pricing: React.FC = () => {
               }`}
               data-aos="fade-up"
               data-aos-delay={index * 100}
+              suppressHydrationWarning
             >
               {plan.isPopular && (
                 <span className={styles.popularBadge}>Most Popular</span>
@@ -138,7 +139,7 @@ export const Pricing: React.FC = () => {
         </div>
 
         {/* Reseller Profit Calculator */}
-        <div className={styles.calculatorBox} data-aos="fade-up">
+        <div className={styles.calculatorBox} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.calcLeft}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
               <Calculator size={20} color="#38bdf8" />

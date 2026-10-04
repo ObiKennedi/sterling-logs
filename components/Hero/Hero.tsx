@@ -66,7 +66,7 @@ export const Hero: React.FC = () => {
 
       <div className={styles.heroContainer}>
         {/* ── LEFT: Copy ── */}
-        <div className={styles.heroCopy} data-aos="fade-right" data-aos-duration="600">
+        <div className={styles.heroCopy} data-aos="fade-right" data-aos-duration="600" suppressHydrationWarning>
           {/* Badge pill */}
           <div className={styles.heroBadge}>
             <span className={styles.badgeDot} />
@@ -120,6 +120,7 @@ export const Hero: React.FC = () => {
           data-aos="fade-left"
           data-aos-duration="700"
           data-aos-delay="100"
+          suppressHydrationWarning
         >
           {/* Outer glow ring */}
           <div className={styles.cardGlow} />
@@ -189,7 +190,7 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Floating activity chip */}
-          <div className={styles.activityChip} data-aos="fade-up" data-aos-delay="400">
+          <div className={styles.activityChip} data-aos="fade-up" data-aos-delay="400" suppressHydrationWarning>
             <div className={styles.activityChipIcon}>
               <Package size={14} />
             </div>
@@ -200,7 +201,7 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Floating security chip */}
-          <div className={styles.securityChip} data-aos="fade-down" data-aos-delay="500">
+          <div className={styles.securityChip} data-aos="fade-down" data-aos-delay="500" suppressHydrationWarning>
             <Lock size={13} />
             <span>24h escrow protection active</span>
           </div>
@@ -212,6 +213,7 @@ export const Hero: React.FC = () => {
         className={styles.tickerWrapper}
         data-aos="fade-up"
         data-aos-delay="200"
+        suppressHydrationWarning
       >
         <PlatformTicker />
       </div>

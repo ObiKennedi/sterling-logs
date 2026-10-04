@@ -239,7 +239,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         productId: purchasingProduct.id,
         quantity: 1,
         customerEmail: profile.email || "user@sterlinglogs.com",
-        paymentGateway: "gtb", // Instant wallet deduction
+        paymentGateway: "palmpay", // Instant wallet deduction
         notes: `Purchased with Naira Wallet balance by ${profile.username}`,
       });
 

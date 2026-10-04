@@ -18,7 +18,7 @@ const FAQS: FAQItem[] = [
   {
     question: "Which payment methods are accepted in Nigeria?",
     answer:
-      "We accept instant Nigerian Naira (₦) payments through Guaranty Trust Bank (direct GTB transfer and *737# USSD) as well as Paypoint / Monnify dynamic virtual accounts and Nigerian debit cards. No international dollar card or cryptocurrency is required.",
+      "We accept instant Nigerian Naira (₦) payments through direct PalmPay bank transfer to Nathaniel Chinwendu (7061449557). No international dollar card or cryptocurrency is required, and transfers are verified quickly.",
   },
   {
     question: "How fast will I receive my account credentials after paying?",
@@ -47,7 +47,7 @@ export const FAQ: React.FC = () => {
   return (
     <section id="faq" className={styles.faqSection}>
       <div className={styles.container}>
-        <div className={styles.sectionHeader} data-aos="fade-up">
+        <div className={styles.sectionHeader} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.badge}>
             <HelpCircle size={13} />
             <span>Got Questions?</span>
@@ -62,7 +62,7 @@ export const FAQ: React.FC = () => {
         </div>
 
         {/* Accordion List */}
-        <div className={styles.accordionList} data-aos="fade-up">
+        <div className={styles.accordionList} data-aos="fade-up" suppressHydrationWarning>
           {FAQS.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
@@ -97,7 +97,7 @@ export const FAQ: React.FC = () => {
         </div>
 
         {/* Support Callout */}
-        <div className={styles.supportCallout} data-aos="fade-up">
+        <div className={styles.supportCallout} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.supportText}>
             <h4>Need specialized account setups or custom volume?</h4>
             <p>

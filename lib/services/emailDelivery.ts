@@ -33,12 +33,7 @@ export async function sendOrderDeliveryEmail(
   const messageId = `msg_${orderId}_${now.getTime()}`;
   const subject = `⚡ Your Sterling Logs Bundle is Ready [Order #${orderId}]`;
 
-  const gatewayName =
-    paymentGateway === "palmpay"
-      ? "PalmPay Transfer"
-      : paymentGateway === "gtb"
-      ? "Guaranty Trust Bank (GTB)"
-      : "Paypoint Gateway";
+  const gatewayName = "PalmPay Transfer";
 
   // Build credentials text bundle with strict anti-fraud disclaimer
   const legalDisclaimerText = `======================================================================

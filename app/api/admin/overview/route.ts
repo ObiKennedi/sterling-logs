@@ -96,7 +96,7 @@ export async function GET() {
           productTitle: o.productTitle,
           platform: o.platform,
           totalPrice: o.totalPrice,
-          paymentGateway: (o.paymentGateway || "GTB").toUpperCase(),
+          paymentGateway: (o.paymentGateway || "PalmPay").toUpperCase(),
           paymentReference: o.paymentReference || "",
           notes: o.notes || "",
           status: o.status as "ESCROW_ACTIVE" | "COMPLETED" | "REFUNDED" | "DISPUTED",
@@ -105,6 +105,56 @@ export async function GET() {
       }
     } catch (err) {
       console.warn("[Admin API] Error fetching orders from database:", err);
+    }
+
+    // 4. Fetch all wallet transactions (PalmPay deposits & ledger)
+    let transactionsData: Array<{
+      id: string;
+      userId: string;
+      userEmail: string;
+      userName: string;
+      type: string;
+      amount: number;
+      currency: string;
+      status: "PENDING" | "SUCCESS" | "FAILED";
+      reference: string;
+      gateway: string;
+      description?: string;
+      createdAt: string;
+    }> = [];
+
+    try {
+      const dbTransactions = await prisma.walletTransaction.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        },
+        take: 100,
+      });
+
+      if (dbTransactions.length > 0) {
+        transactionsData = dbTransactions.map((tx: any) => ({
+          id: tx.id,
+          userId: tx.userId,
+          userEmail: tx.user?.email || "customer@sterlinglogs.com",
+          userName: tx.user?.name || tx.user?.email?.split("@")[0] || "Customer",
+          type: tx.type,
+          amount: tx.amount,
+          currency: tx.currency || "₦",
+          status: tx.status as "PENDING" | "SUCCESS" | "FAILED",
+          reference: tx.reference,
+          gateway: tx.gateway || "palmpay",
+          description: tx.description || "",
+          createdAt: tx.createdAt ? new Date(tx.createdAt).toISOString() : "",
+        }));
+      }
+    } catch (err) {
+      console.warn("[Admin API] Error fetching wallet transactions:", err);
     }
 
     // 4. Calculate Platform Purchase Metrics
@@ -165,6 +215,7 @@ export async function GET() {
       data: {
         users: usersData,
         orders: ordersData,
+        transactions: transactionsData,
         purchases: {
           totalCount: totalPurchasesCount,
           totalVolume: totalPurchasesVolume,
@@ -210,10 +261,139 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, userId, orderId, amount, role } = body;
+    const { action, userId, orderId, transactionId, reference, amount, role } = body;
 
     if (!action) {
       return NextResponse.json({ success: false, error: "Action is required" }, { status: 400 });
+    }
+
+    // Action: Approve Transaction (PalmPay Manual Transfer Approval)
+    if (action === "approve_transaction" || action === "approve_funding") {
+      const txRef = reference || body.txRef;
+      const txId = transactionId || body.txId;
+
+      if (!txId && !txRef) {
+        return NextResponse.json(
+          { success: false, error: "transactionId or reference is required" },
+          { status: 400 }
+        );
+      }
+
+      try {
+        const tx = await prisma.walletTransaction.findFirst({
+          where: {
+            OR: [
+              ...(txId ? [{ id: txId }] : []),
+              ...(txRef ? [{ reference: txRef }] : []),
+            ],
+          },
+          include: { user: true },
+        });
+
+        if (!tx) {
+          return NextResponse.json(
+            { success: false, error: `Transaction ${txRef || txId} not found in database.` },
+            { status: 404 }
+          );
+        }
+
+        if (tx.status === "SUCCESS") {
+          return NextResponse.json({
+            success: true,
+            message: `Transaction #${tx.reference} is already approved and credited.`,
+            data: { transaction: tx },
+          });
+        }
+
+        // Atomically update transaction to SUCCESS and increment user balance
+        const [updatedTx, updatedUser] = await prisma.$transaction([
+          prisma.walletTransaction.update({
+            where: { id: tx.id },
+            data: { status: "SUCCESS" },
+          }),
+          prisma.user.update({
+            where: { id: tx.userId },
+            data: {
+              balance: {
+                increment: tx.amount,
+              },
+            },
+            select: { id: true, email: true, balance: true },
+          }),
+        ]);
+
+        // Send Telegram alert
+        try {
+          const { adminChatId } = getTelegramConfig();
+          if (adminChatId) {
+            await sendTelegramMessage(
+              adminChatId,
+              `✅ <b>PalmPay Transaction Approved via Admin Dashboard!</b>\n` +
+                `• <b>Ref:</b> <code>${tx.reference}</code>\n` +
+                `• <b>Amount Credited:</b> ₦${tx.amount.toLocaleString()}\n` +
+                `• <b>User:</b> ${tx.user?.email || tx.userId}\n` +
+                `• <b>New Balance:</b> ₦${updatedUser.balance.toLocaleString()}`
+            );
+          }
+        } catch (tgErr) {
+          console.warn("[Admin API] Telegram alert warning:", tgErr);
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: `Transaction #${tx.reference} approved! Credited ₦${tx.amount.toLocaleString()} to ${tx.user?.email}.`,
+          data: {
+            transaction: updatedTx,
+            newBalance: updatedUser.balance,
+          },
+        });
+      } catch (err) {
+        console.error("[Admin API] Failed to approve transaction:", err);
+        return NextResponse.json(
+          { success: false, error: "Database error approving transaction" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Action: Reject Transaction
+    if (action === "reject_transaction") {
+      const txRef = reference || body.txRef;
+      const txId = transactionId || body.txId;
+
+      try {
+        const tx = await prisma.walletTransaction.findFirst({
+          where: {
+            OR: [
+              ...(txId ? [{ id: txId }] : []),
+              ...(txRef ? [{ reference: txRef }] : []),
+            ],
+          },
+        });
+
+        if (!tx) {
+          return NextResponse.json(
+            { success: false, error: "Transaction not found" },
+            { status: 404 }
+          );
+        }
+
+        const updatedTx = await prisma.walletTransaction.update({
+          where: { id: tx.id },
+          data: { status: "FAILED" },
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: `Transaction #${tx.reference} marked as REJECTED / FAILED.`,
+          data: { transaction: updatedTx },
+        });
+      } catch (err) {
+        return NextResponse.json(
+          { success: false, error: "Failed to reject transaction" },
+          { status: 500 }
+        );
+      }
     }
 
     // Action 1: Adjust user balance

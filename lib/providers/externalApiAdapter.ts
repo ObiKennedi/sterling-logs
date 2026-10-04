@@ -265,12 +265,9 @@ export class ExternalApiAdapter implements LogProvider {
   }
 
   async placeOrder(order: OrderRequest): Promise<OrderResult> {
-    const gateway: PaymentGateway = order.paymentGateway || "gtb";
+    const gateway: PaymentGateway = order.paymentGateway || "palmpay";
     const orderId = `STL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    const paymentRef =
-      gateway === "gtb"
-        ? `GTB-${orderId}-${Date.now().toString().slice(-4)}`
-        : `PP-${orderId}-${Date.now().toString().slice(-4)}`;
+    const paymentRef = `PALM-${orderId}-${Date.now().toString().slice(-4)}`;
 
     let liveItems: DeliveredItem[] = [];
     let productTitle = `Social Log #${order.productId}`;
@@ -420,8 +417,8 @@ export class ExternalApiAdapter implements LogProvider {
         quantity: Number(raw.quantity || raw.qty || 1),
         totalPrice: Number(raw.total || raw.price || 0),
         currency: "₦",
-        paymentGateway: "gtb",
-        paymentReference: `GTB-${orderId}`,
+        paymentGateway: "palmpay",
+        paymentReference: `PALM-${orderId}`,
         status: "COMPLETED",
         escrowHours: 24,
         deliveryItems: [],

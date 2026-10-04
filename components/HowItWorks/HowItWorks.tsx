@@ -23,9 +23,9 @@ const STEPS: StepItem[] = [
     number: "02",
     title: "Instant Naira Checkout",
     description:
-      "Pay securely using Guaranty Trust Bank (GTB *737# USSD & transfer) or Paypoint dynamic virtual accounts. Direct Nigerian payment with zero FX fees.",
+      "Pay securely using PalmPay instant transfer. Direct Nigerian payment to Nathaniel Chinwendu with zero FX fees and rapid approval.",
     icon: <CreditCard size={22} />,
-    tag: "GTBank & Paypoint Ready",
+    tag: "PalmPay Transfer Ready",
   },
   {
     number: "03",
@@ -41,7 +41,7 @@ export const HowItWorks: React.FC = () => {
   return (
     <section id="how-it-works" className={styles.howItWorksSection}>
       <div className={styles.container}>
-        <div className={styles.sectionHeader} data-aos="fade-up">
+        <div className={styles.sectionHeader} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.badge}>
             <Zap size={13} />
             <span>Seamless 3-Step Pipeline</span>
@@ -61,6 +61,7 @@ export const HowItWorks: React.FC = () => {
               className={styles.stepCard}
               data-aos="fade-up"
               data-aos-delay={index * 100}
+              suppressHydrationWarning
             >
               <div className={styles.stepTopRow}>
                 <span className={styles.stepNumber}>{step.number}</span>

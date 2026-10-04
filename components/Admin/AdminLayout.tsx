@@ -40,7 +40,22 @@ import { Loader } from "@/components/Loader";
 import { formatNaira } from "@/lib/utils/format";
 import styles from "./AdminLayout.module.scss";
 
-type AdminTab = "overview" | "orders" | "users" | "vendor" | "tools";
+type AdminTab = "overview" | "transactions" | "orders" | "users" | "vendor" | "tools";
+
+export interface AdminTransaction {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  type: string;
+  amount: number;
+  currency: string;
+  status: "PENDING" | "SUCCESS" | "FAILED";
+  reference: string;
+  gateway: string;
+  description?: string;
+  createdAt: string;
+}
 
 export interface AdminTool {
   id: string;
@@ -197,6 +212,12 @@ export const AdminLayout: React.FC = () => {
     platform: "Telegram Bot",
   });
 
+  // Transactions state
+  const [transactions, setTransactions] = useState<AdminTransaction[]>([]);
+  const [transactionSearchQuery, setTransactionSearchQuery] = useState("");
+  const [transactionStatusFilter, setTransactionStatusFilter] = useState("all");
+  const [isApprovingTxId, setIsApprovingTxId] = useState<string | null>(null);
+
   // Filters & search state
   const [orderSearchQuery, setOrderSearchQuery] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
@@ -219,6 +240,7 @@ export const AdminLayout: React.FC = () => {
       if (json.success && json.data) {
         setUsers(json.data.users || []);
         setOrders(json.data.orders || []);
+        if (json.data.transactions) setTransactions(json.data.transactions);
         if (json.data.purchases) setPurchases(json.data.purchases);
         if (json.data.vendor) setVendor(json.data.vendor);
         if (json.data.receivingAccount) setReceivingAccount(json.data.receivingAccount);
@@ -327,6 +349,51 @@ export const AdminLayout: React.FC = () => {
       showNotification("Failed to re-sync inventory provider", "error");
     } finally {
       setIsSyncingVendor(false);
+    }
+  };
+
+  // Approve PalmPay Transaction & credit user wallet
+  const handleApproveTransaction = async (
+    txId: string,
+    reference: string,
+    amount: number,
+    userEmail: string
+  ) => {
+    if (
+      !confirm(
+        `Admin Action: Confirm manual approval of PalmPay deposit?\n\n• Reference: ${reference}\n• User: ${userEmail}\n• Amount: ${formatNaira(
+          amount
+        )}\n\nThis will immediately credit the user's wallet balance.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsApprovingTxId(txId);
+      const res = await fetch("/api/admin/overview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "approve_transaction", transactionId: txId, reference }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTransactions((prev) =>
+          prev.map((t) => (t.id === txId || t.reference === reference ? { ...t, status: "SUCCESS" } : t))
+        );
+        if (data.data?.newBalance !== undefined) {
+          setUsers((prev) =>
+            prev.map((u) => (u.email === userEmail ? { ...u, balance: data.data.newBalance } : u))
+          );
+        }
+        showNotification(data.message || `Transaction #${reference} approved & credited!`);
+      } else {
+        showNotification(data.error || "Failed to approve transaction", "error");
+      }
+    } catch {
+      showNotification("Error approving transaction", "error");
+    } finally {
+      setIsApprovingTxId(null);
     }
   };
 
@@ -452,8 +519,22 @@ export const AdminLayout: React.FC = () => {
   };
 
   const disputedOrdersCount = orders.filter((o) => o.status === "DISPUTED").length;
+  const pendingTransactionsCount = transactions.filter((t) => t.status === "PENDING").length;
 
-  // Filtered orders list
+  // Filtered transactions list
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => {
+      const matchesStatus = transactionStatusFilter === "all" || t.status === transactionStatusFilter;
+      const q = transactionSearchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        t.reference.toLowerCase().includes(q) ||
+        t.userEmail.toLowerCase().includes(q) ||
+        t.userName.toLowerCase().includes(q) ||
+        String(t.amount).includes(q);
+      return matchesStatus && matchesSearch;
+    });
+  }, [transactions, transactionStatusFilter, transactionSearchQuery]);
   const filteredOrders = useMemo(() => {
     return orders.filter((o) => {
       const matchesStatus = orderStatusFilter === "all" || o.status === orderStatusFilter;
@@ -542,6 +623,19 @@ export const AdminLayout: React.FC = () => {
             <TrendingUp size={16} />
             <span className={styles.tabLabelFull}>Platform Overview</span>
             <span className={styles.tabLabelShort}>Overview</span>
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.adminTabBtn} ${activeTab === "transactions" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("transactions")}
+          >
+            <DollarSign size={16} />
+            <span className={styles.tabLabelFull}>PalmPay Transactions ({transactions.length})</span>
+            <span className={styles.tabLabelShort}>Transactions ({transactions.length})</span>
+            {pendingTransactionsCount > 0 && (
+              <span className={styles.badgeAlert}>{pendingTransactionsCount}</span>
+            )}
           </button>
 
           <button
@@ -827,6 +921,142 @@ export const AdminLayout: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Pending PalmPay Deposits & Quick Approval Section */}
+                <div
+                  style={{
+                    background: "rgba(15, 23, 42, 0.65)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderRadius: "14px",
+                    padding: "20px 24px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "16px",
+                      flexWrap: "wrap",
+                      gap: "12px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "10px",
+                          background: "rgba(16, 185, 129, 0.15)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#34d399",
+                        }}
+                      >
+                        <DollarSign size={18} />
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#ffffff" }}>
+                          PalmPay Direct Deposits &amp; Approvals
+                        </h4>
+                        <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
+                          Transfer verification for official account (PalmPay • {receivingAccount.accountNumber} • {receivingAccount.accountName})
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("transactions")}
+                      style={{
+                        background: "rgba(255, 255, 255, 0.06)",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#38bdf8",
+                        borderRadius: "8px",
+                        padding: "6px 12px",
+                        fontSize: "0.8rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <span>View All ({transactions.length})</span>
+                      <ArrowUpRight size={13} />
+                    </button>
+                  </div>
+
+                  {transactions.filter((t) => t.status === "PENDING").length === 0 ? (
+                    <div
+                      style={{
+                        padding: "24px",
+                        textAlign: "center",
+                        background: "rgba(255, 255, 255, 0.02)",
+                        borderRadius: "10px",
+                        border: "1px dashed rgba(255, 255, 255, 0.1)",
+                      }}
+                    >
+                      <CheckCircle2 size={24} color="#10b981" style={{ margin: "0 auto 8px" }} />
+                      <p style={{ margin: 0, fontSize: "0.875rem", color: "#94a3b8" }}>
+                        All PalmPay deposits are cleared! No pending transactions requiring approval.
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      {transactions
+                        .filter((t) => t.status === "PENDING")
+                        .slice(0, 5)
+                        .map((tx) => (
+                          <div
+                            key={tx.id}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              padding: "12px 16px",
+                              borderRadius: "10px",
+                              background: "rgba(245, 158, 11, 0.05)",
+                              border: "1px solid rgba(245, 158, 11, 0.2)",
+                              flexWrap: "wrap",
+                              gap: "12px",
+                            }}
+                          >
+                            <div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{ fontWeight: 700, color: "#ffffff", fontSize: "0.9rem" }}>
+                                  {formatNaira(tx.amount)}
+                                </span>
+                                <span className={styles.pendingBadge}>
+                                  ● PENDING APPROVAL
+                                </span>
+                                <span style={{ fontSize: "0.75rem", color: "#cbd5e1", fontFamily: "monospace" }}>
+                                  {tx.reference}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: "4px" }}>
+                                Buyer: <strong style={{ color: "#e2e8f0" }}>{tx.userEmail}</strong> • PalmPay Transfer
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              className={styles.approveTxBtn}
+                              onClick={() =>
+                                handleApproveTransaction(tx.id, tx.reference, tx.amount, tx.userEmail)
+                              }
+                              disabled={isApprovingTxId === tx.id}
+                            >
+                              <CheckCircle2 size={15} />
+                              <span>{isApprovingTxId === tx.id ? "Approving..." : "Approve Transaction"}</span>
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Working Tools Quick Banner */}
                 <div className={styles.toolsQuickCard}>
                   <div className={styles.toolsQuickLeft}>
@@ -1073,6 +1303,284 @@ export const AdminLayout: React.FC = () => {
                   )}
                 </div>
               </>
+            )}
+
+            {/* ========================================================================= */}
+            {/* TAB: PALMPAY TRANSACTIONS & APPROVALS */}
+            {/* ========================================================================= */}
+            {activeTab === "transactions" && (
+              <div className={styles.adminCard}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                      <DollarSign size={20} color="#10b981" />
+                      PalmPay Transactions &amp; Approvals ({transactions.length})
+                    </h3>
+                    <p style={{ margin: "4px 0 0", fontSize: "0.825rem", color: "#94a3b8" }}>
+                      Approve and credit customer deposits made via PalmPay (Account: {receivingAccount.accountNumber} • {receivingAccount.accountName}).
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <button
+                      type="button"
+                      className={styles.actionBtnSmall}
+                      onClick={() => loadAdminData(true)}
+                      title="Refresh Transactions"
+                    >
+                      <RefreshCw size={13} />
+                      <span>Refresh</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter and Search Bar */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "16px 20px",
+                    background: "rgba(255, 255, 255, 0.02)",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                    flexWrap: "wrap",
+                    gap: "12px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: "240px" }}>
+                    <div style={{ position: "relative", width: "100%", maxWidth: "340px" }}>
+                      <Search
+                        size={15}
+                        style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#64748b" }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Search by reference, email, amount..."
+                        value={transactionSearchQuery}
+                        onChange={(e) => setTransactionSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px 8px 36px",
+                          borderRadius: "8px",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          color: "#ffffff",
+                          fontSize: "0.8125rem",
+                          outline: "none",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    {["all", "PENDING", "SUCCESS", "FAILED"].map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setTransactionStatusFilter(status)}
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          border: "1px solid",
+                          background:
+                            transactionStatusFilter === status
+                              ? status === "PENDING"
+                                ? "rgba(245, 158, 11, 0.25)"
+                                : status === "SUCCESS"
+                                ? "rgba(16, 185, 129, 0.25)"
+                                : "rgba(56, 189, 248, 0.2)"
+                              : "rgba(255, 255, 255, 0.04)",
+                          color:
+                            transactionStatusFilter === status
+                              ? status === "PENDING"
+                                ? "#fbbf24"
+                                : status === "SUCCESS"
+                                ? "#34d399"
+                                : "#38bdf8"
+                              : "#94a3b8",
+                          borderColor:
+                            transactionStatusFilter === status
+                              ? "currentColor"
+                              : "rgba(255, 255, 255, 0.08)",
+                        }}
+                      >
+                        {status === "all" ? "All Transactions" : status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Table View */}
+                {filteredTransactions.length === 0 ? (
+                  <div style={{ padding: "48px 20px", textAlign: "center", color: "#94a3b8" }}>
+                    <CheckCircle2 size={32} color="#10b981" style={{ margin: "0 auto 12px", opacity: 0.6 }} />
+                    <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 600, color: "#e2e8f0" }}>
+                      No transactions match your search filter.
+                    </p>
+                    <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#64748b" }}>
+                      All deposits made to PalmPay will be recorded and displayed here in real time.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.tableDesktopView}>
+                      <table className={styles.dataTable}>
+                        <thead>
+                          <tr>
+                            <th>Reference</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Payment Channel</th>
+                            <th>Date &amp; Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredTransactions.map((tx) => (
+                            <tr key={tx.id}>
+                              <td style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#38bdf8", fontWeight: 700 }}>
+                                {tx.reference}
+                              </td>
+                              <td>
+                                <div style={{ fontWeight: 600, color: "#ffffff" }}>{tx.userName || "Customer"}</div>
+                                <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{tx.userEmail}</div>
+                              </td>
+                              <td style={{ fontWeight: 800, fontSize: "0.95rem", color: "#10b981" }}>
+                                {formatNaira(tx.amount)}
+                              </td>
+                              <td>
+                                <span
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "5px",
+                                    padding: "3px 8px",
+                                    borderRadius: "4px",
+                                    background: "rgba(124, 58, 237, 0.15)",
+                                    color: "#c4b5fd",
+                                    fontSize: "0.75rem",
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  PALMPAY
+                                </span>
+                              </td>
+                              <td style={{ fontSize: "0.775rem", color: "#94a3b8" }}>
+                                {tx.createdAt ? new Date(tx.createdAt).toLocaleString("en-GB") : "Just now"}
+                              </td>
+                              <td>
+                                {tx.status === "SUCCESS" && (
+                                  <span className={styles.approvedBadge}>
+                                    <CheckCircle2 size={12} /> Approved
+                                  </span>
+                                )}
+                                {tx.status === "PENDING" && (
+                                  <span className={styles.pendingBadge}>
+                                    ● Pending Approval
+                                  </span>
+                                )}
+                                {tx.status === "FAILED" && (
+                                  <span className={styles.failedBadge}>
+                                    ✕ Rejected
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                {tx.status === "PENDING" ? (
+                                  <button
+                                    type="button"
+                                    className={styles.approveTxBtn}
+                                    onClick={() =>
+                                      handleApproveTransaction(tx.id, tx.reference, tx.amount, tx.userEmail)
+                                    }
+                                    disabled={isApprovingTxId === tx.id}
+                                  >
+                                    <CheckCircle2 size={14} />
+                                    <span>
+                                      {isApprovingTxId === tx.id ? "Approving..." : "Approve Transaction"}
+                                    </span>
+                                  </button>
+                                ) : (
+                                  <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Settled</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className={styles.tableMobileView}>
+                      {filteredTransactions.map((tx) => (
+                        <div key={tx.id} className={styles.mobileCard}>
+                          <div className={styles.cardTopRow}>
+                            <span style={{ fontFamily: "monospace", color: "#38bdf8", fontWeight: 700, fontSize: "0.8rem" }}>
+                              {tx.reference}
+                            </span>
+                            {tx.status === "SUCCESS" && (
+                              <span className={styles.approvedBadge}>
+                                <CheckCircle2 size={12} /> Approved
+                              </span>
+                            )}
+                            {tx.status === "PENDING" && (
+                              <span className={styles.pendingBadge}>
+                                ● Pending
+                              </span>
+                            )}
+                            {tx.status === "FAILED" && (
+                              <span className={styles.failedBadge}>
+                                ✕ Rejected
+                              </span>
+                            )}
+                          </div>
+
+                          <div className={styles.cardMainInfo}>
+                            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#10b981", marginBottom: "4px" }}>
+                              {formatNaira(tx.amount)}
+                            </div>
+                            <span className={styles.customerEmail}>{tx.userEmail}</span>
+                          </div>
+
+                          <div className={styles.cardMetaRow}>
+                            <div className={styles.metaBlock}>
+                              <span className={styles.metaLabel}>Channel</span>
+                              <span className={styles.metaValue} style={{ color: "#c4b5fd" }}>PALMPAY</span>
+                            </div>
+                            <div className={styles.metaBlock}>
+                              <span className={styles.metaLabel}>Date</span>
+                              <span className={styles.metaValue}>
+                                {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString("en-GB") : "Today"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className={styles.cardActionsRow}>
+                            {tx.status === "PENDING" && (
+                              <button
+                                type="button"
+                                className={styles.approveTxBtn}
+                                style={{ width: "100%", justifyContent: "center" }}
+                                onClick={() =>
+                                  handleApproveTransaction(tx.id, tx.reference, tx.amount, tx.userEmail)
+                                }
+                                disabled={isApprovingTxId === tx.id}
+                              >
+                                <CheckCircle2 size={14} />
+                                <span>{isApprovingTxId === tx.id ? "Approving..." : "Approve Transaction"}</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             )}
 
             {/* ========================================================================= */}

@@ -17,7 +17,7 @@ import styles from "./WalletTab.module.scss";
 
 interface WalletTabProps {
   balance: number;
-  onFundWallet: (amount: number, gateway: "palmpay" | "gtb" | "paypoint") => Promise<void>;
+  onFundWallet: (amount: number, gateway: "palmpay") => Promise<void>;
 }
 
 const PRESET_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 250000];
@@ -25,7 +25,7 @@ const PRESET_AMOUNTS = [5000, 10000, 25000, 50000, 100000, 250000];
 export const WalletTab: React.FC<WalletTabProps> = ({ balance, onFundWallet }) => {
   const [selectedAmount, setSelectedAmount] = useState<number>(25000);
   const [customAmount, setCustomAmount] = useState<string>("25000");
-  const [selectedGateway, setSelectedGateway] = useState<"palmpay" | "gtb" | "paypoint">("palmpay");
+  const [selectedGateway, setSelectedGateway] = useState<"palmpay">("palmpay");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [fundingSuccessMessage, setFundingSuccessMessage] = useState<string | null>(null);
@@ -161,45 +161,17 @@ export const WalletTab: React.FC<WalletTabProps> = ({ balance, onFundWallet }) =
 
           {/* Gateway Choice */}
           <div className={styles.inputGroup}>
-            <label>Choose Deposit Method:</label>
-            <div className={styles.gatewayPicker}>
+            <label>Deposit Method:</label>
+            <div className={styles.gatewayPicker} style={{ gridTemplateColumns: "1fr" }}>
               <div
-                className={`${styles.gatewayCard} ${
-                  selectedGateway === "palmpay" ? styles.gatewaySelected : ""
-                }`}
+                className={`${styles.gatewayCard} ${styles.gatewaySelected}`}
                 onClick={() => setSelectedGateway("palmpay")}
               >
                 <div className={styles.gatewayTitle}>
                   <Building size={16} color="#7c3aed" />
-                  PalmPay Transfer
+                  PalmPay Direct Transfer
                 </div>
-                <div className={styles.gatewaySub}>Instant Telegram sync</div>
-              </div>
-
-              <div
-                className={`${styles.gatewayCard} ${
-                  selectedGateway === "gtb" ? styles.gatewaySelected : ""
-                }`}
-                onClick={() => setSelectedGateway("gtb")}
-              >
-                <div className={styles.gatewayTitle}>
-                  <Building size={16} color="#ea580c" />
-                  GTBank Transfer
-                </div>
-                <div className={styles.gatewaySub}>GTB transfer channel</div>
-              </div>
-
-              <div
-                className={`${styles.gatewayCard} ${
-                  selectedGateway === "paypoint" ? styles.gatewaySelected : ""
-                }`}
-                onClick={() => setSelectedGateway("paypoint")}
-              >
-                <div className={styles.gatewayTitle}>
-                  <CreditCard size={16} color="#0284c7" />
-                  Paypoint Virtual Acc
-                </div>
-                <div className={styles.gatewaySub}>Virtual account</div>
+                <div className={styles.gatewaySub}>Instant Admin Approval via Dashboard &amp; Telegram</div>
               </div>
             </div>
           </div>
@@ -234,44 +206,21 @@ export const WalletTab: React.FC<WalletTabProps> = ({ balance, onFundWallet }) =
           <div className={styles.dedicatedAccountCard}>
             <div className={styles.accountHeader}>
               <span>Bank Name</span>
-              <strong style={{ color: "#0b132b" }}>
-                {selectedGateway === "palmpay"
-                  ? "PalmPay"
-                  : selectedGateway === "gtb"
-                  ? "Guaranty Trust Bank (GTB)"
-                  : "Wema Bank / Paypoint"}
-              </strong>
+              <strong style={{ color: "#0b132b" }}>PalmPay</strong>
             </div>
 
             <div className={styles.accountHeader}>
               <span>Account Number</span>
-              <span style={{ color: "#059669", fontWeight: 700 }}>
-                {selectedGateway === "palmpay" ? "Verified Receiving" : "Auto-Credit"}
-              </span>
+              <span style={{ color: "#059669", fontWeight: 700 }}>Verified Receiving</span>
             </div>
 
             <div className={styles.accNumberRow}>
-              <span className={styles.accNumber}>
-                {selectedGateway === "palmpay"
-                  ? "7061449557"
-                  : selectedGateway === "gtb"
-                  ? "0194829104"
-                  : "9041849201"}
-              </span>
+              <span className={styles.accNumber}>7061449557</span>
               <button
                 type="button"
                 className={styles.presetBtn}
                 style={{ padding: "6px 12px", fontSize: "0.75rem" }}
-                onClick={() =>
-                  copyToClipboard(
-                    selectedGateway === "palmpay"
-                      ? "7061449557"
-                      : selectedGateway === "gtb"
-                      ? "0194829104"
-                      : "9041849201",
-                    "acc_num"
-                  )
-                }
+                onClick={() => copyToClipboard("7061449557", "acc_num")}
               >
                 {copiedKey === "acc_num" ? <Check size={14} color="#059669" /> : <Copy size={14} />}
                 <span>{copiedKey === "acc_num" ? "Copied" : "Copy"}</span>
@@ -280,11 +229,7 @@ export const WalletTab: React.FC<WalletTabProps> = ({ balance, onFundWallet }) =
 
             <div className={styles.accountHeader}>
               <span>Account Name</span>
-              <strong style={{ color: "#0b132b" }}>
-                {selectedGateway === "palmpay"
-                  ? "Nathaniel Chinwendu"
-                  : "STERLING LOGS / RESELLER VAULT"}
-              </strong>
+              <strong style={{ color: "#0b132b" }}>Nathaniel Chinwendu</strong>
             </div>
           </div>
 

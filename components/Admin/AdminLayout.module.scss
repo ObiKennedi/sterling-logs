@@ -1779,3 +1779,85 @@
   animation: spin 1s linear infinite;
 }
 
+/* PalmPay Transactions & Approval Button Styles */
+.approveTxBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill, 9999px);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-size: 0.785rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all var(--transition-fast, 150ms ease);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+.approvedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill, 9999px);
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pendingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill, 9999px);
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.failedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill, 9999px);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0);
+  }
+}
+
+

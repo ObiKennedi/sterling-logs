@@ -155,7 +155,7 @@ export const Platforms: React.FC = () => {
   return (
     <section id="platforms" className={styles.platformsSection}>
       <div className={styles.container}>
-        <div className={styles.sectionHeader} data-aos="fade-up">
+        <div className={styles.sectionHeader} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.badge}>
             <Layers size={13} />
             <span>Supported Ecosystem</span>
@@ -176,6 +176,7 @@ export const Platforms: React.FC = () => {
               className={styles.platformCard}
               data-aos="fade-up"
               data-aos-delay={index * 80}
+              suppressHydrationWarning
             >
               <div className={styles.cardHeader}>
                 <div

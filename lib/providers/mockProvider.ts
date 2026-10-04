@@ -342,11 +342,8 @@ export class MockLogProvider implements LogProvider {
     const orderId = `STL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    const gateway: PaymentGateway = order.paymentGateway || "gtb";
-    const paymentRef =
-      gateway === "gtb"
-        ? `GTB-${orderId}-${Date.now().toString().slice(-4)}`
-        : `PP-${orderId}-${Date.now().toString().slice(-4)}`;
+    const gateway: PaymentGateway = order.paymentGateway || "palmpay";
+    const paymentRef = `PALM-${orderId}-${Date.now().toString().slice(-4)}`;
 
     const isProxy = order.productId.includes("proxy") || (product?.category === "proxies");
     const isRdp = order.productId.includes("rdp") || (product?.category === "rdp");

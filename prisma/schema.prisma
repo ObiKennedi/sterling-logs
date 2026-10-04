@@ -101,7 +101,7 @@ model Order {
   currency         String   @default("₦")
   status           String   @default("ESCROW_ACTIVE") // ESCROW_ACTIVE, COMPLETED, REPLACED, DISPUTED
   escrowHours      Int      @default(24)
-  paymentGateway   String   @default("gtb") // gtb, paypoint, wallet
+  paymentGateway   String   @default("palmpay") // palmpay, wallet
   paymentReference String?
   deliveryItems    Json // Array of credentials, cookies, tokens, 2fa secret
   notes            String?
@@ -121,7 +121,7 @@ model WalletTransaction {
   currency    String   @default("₦")
   status      String   @default("PENDING") // PENDING, SUCCESS, FAILED
   reference   String   @unique
-  gateway     String // gtb, paypoint, wallet
+  gateway     String // palmpay, wallet
   description String?
   createdAt   DateTime @default(now())
 

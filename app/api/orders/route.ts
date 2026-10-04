@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         currency: matchedTool.currency || "₦",
         status: "ESCROW_ACTIVE",
         escrowHours: 24,
-        paymentGateway: (body.paymentGateway as PaymentGateway) || "gtb",
+        paymentGateway: (body.paymentGateway as PaymentGateway) || "palmpay",
         paymentReference: body.paymentReference || `TOOL-${orderId}-${Date.now().toString().slice(-4)}`,
         customerEmail: body.customerEmail || "customer@sterlinglogs.com",
         deliveryItems: [
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         quantity: Math.max(1, Number(body.quantity) || 1),
         customerEmail: body.customerEmail || "customer@sterlinglogs.com",
         customerTelegram: body.customerTelegram,
-        paymentGateway: body.paymentGateway || "gtb",
+        paymentGateway: body.paymentGateway || "palmpay",
         phoneNumber: body.phoneNumber,
       });
     }

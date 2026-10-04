@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       amount: Number(amount),
       email: String(email),
       orderId: String(orderId || `STL-${Date.now().toString().slice(-6)}`),
-      gateway: (gateway as PaymentGateway) || "gtb",
+      gateway: (gateway as PaymentGateway) || "palmpay",
       productTitle: String(productTitle || "Verified Log"),
     });
 

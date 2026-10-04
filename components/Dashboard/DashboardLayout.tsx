@@ -76,7 +76,7 @@ export const DashboardLayout: React.FC = () => {
     }
   };
 
-  const handleFundWallet = async (amount: number, gateway: "palmpay" | "gtb" | "paypoint") => {
+  const handleFundWallet = async (amount: number, gateway: "palmpay") => {
     try {
       await fetch("/api/wallet", {
         method: "POST",

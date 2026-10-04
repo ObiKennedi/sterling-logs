@@ -15,7 +15,7 @@ export type AccountCategory =
   | "finance"
   | "other";
 
-export type PaymentGateway = "palmpay" | "bank" | "gtb" | "paypoint";
+export type PaymentGateway = "palmpay" | "bank";
 
 export type ProductType = "log" | "proxy" | "rdp" | "number" | "software" | "tool";
 

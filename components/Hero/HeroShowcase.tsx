@@ -758,7 +758,7 @@ export const HeroShowcase: React.FC = () => {
         </div>
       )}
 
-      {/* GTB & Paypoint Checkout Modal with Email Dispatch */}
+      {/* PalmPay Checkout Modal with Email Dispatch */}
       {purchasingProduct && (
         <div
           className={styles.modalBackdrop}
@@ -779,7 +779,7 @@ export const HeroShowcase: React.FC = () => {
                     ? "Bundle Dispatched to Email"
                     : checkoutStep === "payment"
                     ? "Complete Payment"
-                    : "GTB / Paypoint Checkout"}
+                    : "PalmPay Direct Checkout"}
                 </h3>
               </div>
 
@@ -855,56 +855,24 @@ export const HeroShowcase: React.FC = () => {
                     />
                   </div>
 
-                  {/* Payment Gateway Choice */}
+                  {/* Payment Gateway */}
                   <div style={{ marginTop: "12px" }}>
                     <label className={styles.inputLabel} style={{ marginBottom: "6px" }}>
-                      Select Payment Gateway:
+                      Payment Method:
                     </label>
-                    <div className={styles.gatewaySelector}>
-                      {/* PalmPay (Recommended) */}
+                    <div className={styles.gatewaySelector} style={{ gridTemplateColumns: "1fr" }}>
+                      {/* PalmPay Direct */}
                       <div
-                        className={`${styles.gatewayOption} ${
-                          selectedGateway === "palmpay" ? styles.gatewayOptionActive : ""
-                        }`}
+                        className={`${styles.gatewayOption} ${styles.gatewayOptionActive}`}
                         onClick={() => setSelectedGateway("palmpay")}
                       >
                         <div className={styles.gatewayHeader}>
                           <span className={styles.gatewayBadgePalmPay}>PALMPAY</span>
-                          <span>PalmPay Direct</span>
+                          <span>PalmPay Direct Transfer</span>
                           <span className={styles.recommendedBadge}>Instant</span>
                         </div>
                         <span className={styles.gatewaySub}>
-                          Direct bank transfer &amp; Telegram alert
-                        </span>
-                      </div>
-
-                      <div
-                        className={`${styles.gatewayOption} ${
-                          selectedGateway === "gtb" ? styles.gatewayOptionActive : ""
-                        }`}
-                        onClick={() => setSelectedGateway("gtb")}
-                      >
-                        <div className={styles.gatewayHeader}>
-                          <span className={styles.gatewayBadgeGTB}>GTB</span>
-                          <span>GTBank Transfer</span>
-                        </div>
-                        <span className={styles.gatewaySub}>
-                          *737# USSD &amp; GTB Escrow
-                        </span>
-                      </div>
-
-                      <div
-                        className={`${styles.gatewayOption} ${
-                          selectedGateway === "paypoint" ? styles.gatewayOptionActive : ""
-                        }`}
-                        onClick={() => setSelectedGateway("paypoint")}
-                      >
-                        <div className={styles.gatewayHeader}>
-                          <span className={styles.gatewayBadgePP}>PAYPOINT</span>
-                          <span>Virtual Acc</span>
-                        </div>
-                        <span className={styles.gatewaySub}>
-                          Wema / Paypoint channel
+                          Direct bank transfer to Nathaniel Chinwendu (7061449557) &amp; Telegram alert
                         </span>
                       </div>
                     </div>
@@ -912,7 +880,7 @@ export const HeroShowcase: React.FC = () => {
                 </>
               )}
 
-              {/* STEP 2: PAYMENT INSTRUCTIONS (GTB / PAYPOINT) */}
+              {/* STEP 2: PAYMENT INSTRUCTIONS (PALMPAY DIRECT) */}
               {checkoutStep === "payment" && paymentDetails && (
                 <>
                   <div className={styles.paymentDetailsCard}>
@@ -956,30 +924,7 @@ export const HeroShowcase: React.FC = () => {
                       </span>
                     </div>
 
-                    {paymentDetails.ussdCode && (
-                      <div className={styles.accountDetailRow}>
-                        <span className={styles.specLabel}>Instant USSD Code:</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <span className={styles.ussdCodeDisplay}>
-                            {paymentDetails.ussdCode}
-                          </span>
-                          <button
-                            type="button"
-                            className={styles.copyIconButton}
-                            onClick={() =>
-                              copyToClipboard(paymentDetails.ussdCode || "", "ussd_code")
-                            }
-                          >
-                            {copiedKey === "ussd_code" ? (
-                              <Check size={12} color="#059669" />
-                            ) : (
-                              <Copy size={12} />
-                            )}
-                            {copiedKey === "ussd_code" ? "Copied" : "Copy"}
-                          </button>
-                        </div>
-                      </div>
-                    )}
+
 
                     <div className={styles.accountDetailRow}>
                       <span className={styles.specLabel}>Payment Reference:</span>

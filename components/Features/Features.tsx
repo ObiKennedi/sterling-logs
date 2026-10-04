@@ -34,9 +34,9 @@ const FEATURES: FeatureItem[] = [
   },
   {
     icon: <CreditCard size={26} />,
-    title: "GTBank & Paypoint Direct Naira",
+    title: "Instant PalmPay Direct Naira",
     description:
-      "No international dollar card needed. Pay locally in Naira (₦) using Guaranty Trust Bank *737# USSD, direct GTB transfer, or Paypoint virtual accounts.",
+      "No international dollar card needed. Pay locally in Naira (₦) using fast PalmPay transfer directly to Nathaniel Chinwendu with zero FX fees.",
     pill: "Instant Local Settlement",
   },
   {
@@ -62,7 +62,7 @@ export const Features: React.FC = () => {
       <div className={styles.ambientGlowRight} />
 
       <div className={styles.container}>
-        <div className={styles.sectionHeader} data-aos="fade-up">
+        <div className={styles.sectionHeader} data-aos="fade-up" suppressHydrationWarning>
           <div className={styles.badge}>
             <Sparkles size={13} />
             <span>Built For Scale &amp; Security</span>
@@ -84,6 +84,7 @@ export const Features: React.FC = () => {
               className={styles.featureCard}
               data-aos="fade-up"
               data-aos-delay={index * 80}
+              suppressHydrationWarning
             >
               <div className={styles.iconWrapper}>{feat.icon}</div>
               <h3 className={styles.featureTitle}>{feat.title}</h3>
